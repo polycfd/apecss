@@ -1,0 +1,53 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 1.0e-6
+RPModel Gilmore
+Emissions KirkwoodBethe 1.1e-3
+PressureAmbient 1.0e5
+END
+
+GAS
+EOS HC
+PolytropicExponent 1.095
+HardcoreRadius -1.0
+MolecularWeight 146.0e-3
+MolecularDiameter 550.0e-12
+END
+
+LIQUID
+ReferencePressure 1.0e5
+ReferenceDensity 997.0
+Viscosity 0.001
+PolytropicExponent 7.15
+CoVolume 0.0
+TaitPressureConst 3.047e8
+#PolytropicExponent 1.11
+#CoVolume 6.8e-4
+#TaitPressureConst 6.48e8
+END
+
+
+INTERFACE
+SurfaceTensionCoeff 0.072
+LipidCoatingModel Gompertz-Marmottant
+SigmaInit 0.02
+Elasticity 0.5
+DilatationalViscosity 7.5e-9
+END
+
+RESULTS
+Bubble
+EmissionsMinMax 9
+OutputFreqRP 1
+OutputDigits 10
+END
+
+ODESOLVER
+Tolerance 1.0e-12
+MaxTimeStep 1.0e-9
+END

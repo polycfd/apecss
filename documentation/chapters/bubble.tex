@@ -1,0 +1,271 @@
+\chapter{Bubble dynamics}
+
+The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type model, assuming spherical symmetry. This requires to choose a suitable RP-model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). Optionally, nonspherical modes of the bubbel may be simulated (Section \ref{sec:nonspherical}) may be modelled.
+
+\section{Rayleigh-Plesset models}
+\label{sec:rpmodels}
+
+APECSS offers four Rayleigh-Plesset-type models to simulate pressure-driven bubble dynamics: the standard Rayleigh-Plesset model without and with acoustic radiation damping, the Keller-Miksis model and the Gilmore model.
+
+\vspace{0.8em}
+
+\noindent
+\begin{tabular}{p{0.16\textwidth} p{0.28\textwidth} p{0.47\textwidth}}
+    \textbf{Section} &\textbf{Command} & \textbf{Description} 
+\vspace{1mm} \\ \hline
+{\tt BUBBLE} & {\tt RPModel RP} & Standard Rayleigh-Plesset model, Eq.~\eqref{eq:standardRP} (default: {\tt RP}).\\ 
+ & {\tt RPModel RPAR} & Rayleigh-Plesset model with acoustic radiation damping, Eq.~\eqref{eq:modRP} (default: {\tt RP}).\\ 
+ & {\tt RPModel KM} & Keller-Miksis model, Eq.~\eqref{eq:keller} (default: {\tt RP}).\\ 
+ & {\tt RPModel Gilmore} & Gilmore model, Eq.~\eqref{eq:gilmore} (default: {\tt RP}).\\ 
+ \hline
+\end{tabular} \vspace{1em}
+
+\noindent The standard Rayleigh-Plesset (RP) model is given as \citep{Lauterborn2010}
+\begin{equation}
+R \ddot{R} + \frac{3}{2} \dot{R}^2 = \frac{p_\text{L} - p_\infty}{\rho_\ell},
+\label{eq:standardRP}
+\end{equation}
+where $R$ is the bubble radius, $p_\text{L}$ is the pressure of the liquid at the bubble wall, $p_\infty$ is the pressure of the liquid at infinite distance from the bubble, $p_\text{G}$ is the pressure of the gas inside the bubble and $\rho_\ell$ is the {\em constant} density of the liquid.
+
+To incorporate acoustic radiation in the liquid and the associated damping, a modified Rayleigh-Plesset model is given as \citep{Brenner2002}
+\begin{equation}
+R \ddot{R} + \frac{3}{2} \dot{R}^2 = \frac{p_\text{L} - p_\infty}{\rho_\ell} + \frac{R \, \dot{p}_\text{G}}{\rho_\ell \, c_\ell} ,
+\label{eq:modRP}
+\end{equation}
+where the last term on the right-hand side accounts for acoustic radiation in the liquid.
+This modified RP model is frequently used to simulate medical ultrasound applications \citep{Versluis2020} as well as sonoluminescence \citep{Brenner2002}.
+It follows directly from the Keller-Miksis model, Eq.~(\ref{eq:keller}), which incorporates the compressibility of the liquid, by assuming the Mach number of the bubble wall is small, $M_\ell  = \dot{R}/c_\ell \ll 1$.
+Eq.~(\ref{eq:modRP}) is, consequently, only valid for small Mach numbers $M_\ell =\dot{R}/c_\ell \ll 1$ \citep{Neppiras1980, Prosperetti1986}, although feasible results have frequently been obtained with Eq.~(\ref{eq:modRP}) for Mach numbers $M_\ell \sim 1$ \citep{Brenner2002}.
+
+
+The Keller-Miksis model \citep{Keller1980, Prosperetti1986}, which incorporates the compressibility of the liquid to first order, is given as
+\begin{equation}
+\left(1 - \frac{\dot{R}}{c_\ell}\right) R \ddot{R} + \frac{3}{2} \left(1 - \frac{\dot{R}}{3\, c_\ell}\right) \dot{R}^2 =  \left(1 + \frac{\dot{R}}{c_\ell}\right) \frac{p_\text{G} - p_\infty}{\rho_\ell} + \frac{p_\text{L} - p_\text{G}}{\rho_\ell}  + \frac{R \, \dot{p}_\text{G}}{\rho_\ell \, c_\ell} ,
+\label{eq:keller}
+\end{equation}
+where $c_\ell$ is the speed of sound of the liquid. Both $\rho_\ell$ and $c_\ell$ are assumed to be constant.
+
+Based on the Kirkwood-Bethe hypothesis, \citet{Gilmore1952} derived a
+second-order ordinary differential equation describing the radial dynamics of a bubble in a compressible liquid, %given as
+\begin{equation}
+  \left( 1 - \frac{\dot{R}}{c_\text{L}} \right) R \ddot{R} + \frac{3}{2} \left( 1 - \frac{\dot{R}}{3 c_\text{L}} \right) \dot{R}^2  = \left( 1 + \frac{\dot{R}}{c_\text{L}} \right) H + \left( 1- \frac{\dot{R}}{c_\text{L}} \right) \frac{R \dot{H}}{c_\text{L}}, \label{eq:gilmore}
+\end{equation} 
+where the subscript L denotes quantities of the liquid at the bubble wall ($r=R$), and with $H = h_\text{L} - h_\infty$ and $\dot{H} = \dot{h}_\text{L} - \dot{h}_\infty$. The enthalpy $h$ and the speed of sound $c$ are defined by an appropriate equation of state as a function of pressure, with $h_\text{L} = h(p_\text{L})$, $h_\infty = h(p_\infty)$ and $c_\text{L} = c(p_\text{L})$, detailed in \ref{sec:eos}.
+
+\section{The gas}
+\label{sec:gas}
+
+\vspace{0.8em}
+
+\noindent
+\begin{tabular}{p{0.09\textwidth} p{0.5\textwidth} p{0.36\textwidth}}
+    \textbf{Section} &\textbf{Command} & \textbf{Description} 
+\vspace{1mm} \\ \hline
+{\tt GAS} & {\tt EOS IG} & Ideal gas model (default: {\tt IG}).\\ 
+& {\tt EOS HC} & Ideal gas model with van-der-Waals hardcore (default: {\tt IG}).\\ 
+& {\tt EOS NASG} & Noble-Abel-stiffened-gas model \citep{LeMetayer2016} (default: {\tt IG}).\\
+& {\tt PolytropicExponent <float>} & Polytropic exponent $\Gamma_\text{g}$\\
+& {\tt ReferencePressure <float>} & Reference pressure $p_\text{g,ref}$\\
+& {\tt ReferenceDensity <float>} & Reference density $\rho_\text{g,ref}$\\
+& {\tt ReferenceTemperature <float>} & Reference temperature $T_\text{g,ref}$\\
+& {\tt HardcoreRadius <float>} & Hardcore radius $r_\text{hc}$\\
+& {\tt CoVolume <float>} & Co-volume $b_\text{g}$\\
+& {\tt TaitPressureConst <float>} & Pressure constant $B_\text{g}$\\
+& {\tt MolecularWeight <float>} & Molecular weight $\mathcal{M}_{\text{g}}$ of a gas molecule \\
+& {\tt MolecularDiameter <float>} & Kinematic diameter $\mathcal{D}_{\text{g}}$ of a gas molecule \\
+ \hline
+\end{tabular} \vspace{1em}
+
+
+Using the ideal gas model, the pressure and its derivative are given as
+\begin{align}
+  p_\text{G} &= p_\text{G,0} \left(\frac{\rho}{\rho_\text{g,0}}\right)^{\Gamma_\text{g}}\\
+  \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \, p_\text{G}}{\rho_\text{G}},\\
+\end{align}
+including a van-der-Waals hardcore in the ideal gas model, the pressure and its derivative follow as
+\begin{align}
+  p_\text{G} &= p_\text{G,0} \left(\frac{\rho^3-r_\text{hc}^3}{\rho_\text{g,0}^3-r_\text{hc}^3}\right)^{\Gamma_\text{g}}\\
+  \dot{p}_\text{G} &= -3 \, \frac{p_\text{G} \, \Gamma_\text{g} \, R^2 \, \dot{R}}{R^3-r_\text{hc}^3},
+\end{align}
+and using the Noble-Abel-stiffened-gas model, the pressure and its derivative are \citep{Denner2021}
+\begin{align}
+  p_\text{G} &= (p_\text{G,0} + B_\text{g}) \left[\frac{\rho_\text{g} \, (1-b_\text{g} \, \rho_\text{g,0})}{\rho_\text{g,0} \, (1- b_\text{g} \, \rho_\text{G})} \right]^{\Gamma_\text{g}} - B_\text{g}\\
+  \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \left(p_\text{G} + B_\text{g} \right)}{\rho_\text{G} \left(1- b_\text{g} \, \rho_\text{G} \right)}
+\end{align}
+For all three equations of state, the the gas density and its derivative are given by 
+\begin{align}
+  \rho_\text{G} &= \rho_\text{g,0} \left(\frac{R_0}{R}\right)^3 \label{eq:rhoG}\\
+  \dot{\rho}_\text{G} &= -3 \, \rho_\text{G}\, \frac{\dot{R}}{R}. \label{eq:dot_rhoG}
+\end{align}
+
+
+\section{The liquid}
+\label{sec:liquid}
+
+\vspace{0.8em}
+
+\noindent
+\begin{tabular}{p{0.09\textwidth} p{0.35\textwidth} p{0.51\textwidth}}
+    \textbf{Section} &\textbf{Command} & \textbf{Description} 
+\vspace{1mm} \\ \hline
+{\tt LIQUID} & {\tt LiquidType Newtonian} & Newtonian fluid (default: {\tt Newtonian}).\\ 
+& {\tt LiquidType KelvinVoigt} & Kelvin-Voigt solid (default: {\tt Newtonian}).\\ 
+& {\tt LiquidType Zener} & Zener solid (default: {\tt Newtonian}).\\ 
+& {\tt LiquidType OldroydB} & Oldroyd-B fluid (default: {\tt Newtonian}).\\ 
+& {\tt PolytropicExponent <float>} & Polytropic exponent $\Gamma_{\ell}$\\
+& {\tt ReferencePressure <float>} & Reference pressure $p_{\ell,\text{ref}}$\\
+& {\tt ReferenceDensity <float>} & Reference density $\rho_{\ell,\text{ref}}$\\
+& {\tt ReferenceSpeedofSound <float>} & Reference speed of sound $\rho_{\ell,\text{ref}}$\\
+& {\tt HardcoreRadius <float>} & Hardcore radius $r_\text{hc}$\\
+& {\tt CoVolume <float>} & Co-volume $b_\text{g}$\\
+& {\tt TaitPressureConst <float>} & Pressure constant $B_\text{g}$\\
+& {\tt Viscosity <float>} & Viscosity $\mu_\ell$ \\
+& {\tt PolymerViscosity <float>} & Polymer viscosity $\eta_\ell$ associated with viscoelasticity \\
+& {\tt ShearModulus <float>} & Shear modulus $G_\ell$ associated with viscoelasticity \\
+& {\tt RelaxationTime <float>} & Relaxation time $\lambda_\ell$ associated with viscoelasticity \\
+ \hline
+\end{tabular} \vspace{1em}
+
+The pressure at the bubble wall of a Newtonian liquid is given as
+\begin{equation}
+  p_\text{L} = p_\text{G} - \frac{2 \sigma}{R} - 4 \, \mu_\ell \frac{\dot{R}}{R},
+\end{equation}
+where $p_\text{G}$ is the gas pressure, see Section \ref{sec:gas}, $\sigma$ is the surface tension coefficient of the interface, see Section \ref{sec:interface}, and $\mu_\ell$ is the liquid viscosity.  
+
+For the Gilmore model \eqref{eq:gilmore}, an equation-of-state (EoS) for the liquid has to be defined to determine the density $\rho_\text{L}$ and the speed of sound $c_\text{L}$. Since the seminal work of \citet{Gilmore1952}, the Tait EoS is traditionally used to describe the properties of the liquid in Eq.~\eqref{eq:gilmore}. The Tait EoS defines the density $\rho$, enthalpy $h$ and speed of sound $c$ as
+\begin{align}
+    \rho &= \rho_0 \left( \frac{p+B}{p_0+B}\right)^{\frac{1}{\Gamma}} \label{eq:rho_Tait} \\
+    h &= \frac{\Gamma}{\Gamma-1} \frac{p+B}{\rho} \label{eq:h_Tait} \\
+    c &= \sqrt{\Gamma \, \frac{p+B}{\rho}}, \label{eq:c_Tait}
+\end{align}
+respectively, where $B$ is a pressure constant, $\Gamma$ is the polytropic exponent, $p_0$ is the reference pressure and $\rho_0$ is the reference density. For water, typical values for the pressure constant and the polytropic exponent are $B=3.046 \times 10^8 \, \text{Pa}$ and $\Gamma=7.15$ \citep{Gilmore1952}. However, the Tait EoS cannot provide physically-meaningful temperature values \citep{Radulescu2020}. 
+Using the Noble-Abel stiffened-gas (NASG) EoS \citep{LeMetayer2016} instead of the Tait EoS, the fluid properties are defined as \citep{Denner2021}
+ \begin{eqnarray}
+    \rho &=& \frac{K \, (p+B)^{\frac{1}{\Gamma}}}{1+b \, K \,  (p+B)^{\frac{1}{\Gamma}}} \label{eq:rho_NASG}\\
+      h &=& \frac{\Gamma}{\Gamma-1} \frac{p+B}{\rho} - \frac{\Gamma \, b}{\Gamma-1} \, (p+B) + b \, p
+      , \label{eq:h_NASG} \\
+      c &=&\sqrt{\Gamma \, \frac{(p+B)}{\rho-b  \rho^2}},\label{eq:c_NASG}
+    \end{eqnarray}
+with $K = \rho_0/[(p_0+B)^{{1/\Gamma}} \ (1-b \rho_0)]$ describing a constant reference state, and where $b$ is the co-volume of the liquid molecules. The NASG EoS reduces to the Tait EoS for $b=0$.
+
+\section{The interface}
+\label{sec:interface}
+
+\vspace{0.8em}
+
+\noindent
+\begin{tabular}{p{0.12\textwidth} p{0.37\textwidth} p{0.46\textwidth}}
+    \textbf{Section} &\textbf{Command} & \textbf{Description} 
+\vspace{1mm} \\ \hline
+{\tt INTERFACE} & {\tt GasEOS IG} & Ideal gas model (default: {\tt IG}).\\ 
+& {\tt GasEOS HC} & Ideal gas model with van-der-Waals hardcore (default: {\tt IG}).\\ 
+& {\tt GasEOS NASG} & Noble-Abel-stiffened-gas model (default: {\tt IG}).\\ 
+& {\tt PolytropicExponent <float>} & Polytropic exponent $\Gamma_\text{g}$\\
+& {\tt ReferencePressure <float>} & Reference pressure $p_\text{g,ref}$\\
+& {\tt ReferenceDensity <float>} & Reference density $\rho_\text{g,ref}$\\
+& {\tt ReferenceTemperature <float>} & Reference temperature $T_\text{g,ref}$\\
+& {\tt CoVolume <float>} & Co-volume $b_\text{g}$\\
+& {\tt AttractivePressureConst <float>} & Pressure constant $B_\text{g}$\\
+& {\tt MolecularWeight <float>} & Molecular weight $\mathcal{M}_{\text{g}}$ of a gas molecule \\
+& {\tt MolecularDiameter <float>} & Kinematic diameter $\mathcal{D}_{\text{g}}$ of a gas molecule \\
+& {\tt SpecificHeatCapacity <float>} & {\it Isochoric} specific heat capacity $c_v$\\
+& {\tt ThermalConductivity <string> <float> <float>} & Kinematic diameter $\mathcal{D}_{\text{g}}$ of a gas molecule \\
+ \hline
+\end{tabular} \vspace{1em}
+
+The influence of the surface tension, the rheology of the lipid-monolayer coating and the viscous dissipation in the liquid is accounted for through the definition of the liquid pressure at the bubble wall, given as \citep{Marmottant2005}
+\begin{equation}
+p_\text{L} = p_\text{G} - \frac{2 \sigma}{R} - 4 \, \mu_\ell \frac{\dot{R}}{R} - 4 \, \kappa_\text{s} \frac{\dot{R}}{R^2} ,
+\end{equation}
+where $\sigma$ is the surface tension coefficient, $\mu_\ell$ is the dynamic viscosity of the liquid and $\kappa_\text{s}$ is the surface dilatational viscosity of the lipid monolayer.
+The clean gas-liquid interface has a surface tension coefficient of $\sigma = \sigma_\text{c}$ and a surface dilatational viscosity of $\kappa_\text{s} = 0$. 
+
+
+The surface tension coefficient is given by the model introduced by \citet{Marmottant2005} as
+\begin{equation}
+\sigma =
+\begin{cases}
+0 & \text{for} \ R \leq R_\text{buck} \\
+\chi \left(\dfrac{R^2}{R_\text{buck}^2} - 1 \right) & \text{for} \ R_\text{buck} < R < R_\text{rupt} \\
+\sigma_\text{c} & \text{for} \ R \geq R_\text{rupt}
+\end{cases} \label{eq:sigma_marmottant}
+\end{equation}
+where $\chi$ is the surface elasticity of the lipid monolayer. When the radius of the bubble becomes smaller than \citep{Overvelde2010}
+\begin{equation}
+R_\text{buck} = \frac{R_0}{\sqrt{1 + \sigma_0/\chi}}, 
+\label{eq:Rbuck}
+\end{equation}
+where $\sigma_0$ is the surface tension coefficient of the lipid-coated bubble at $R=R_0$, the lipid monolayer cannot compress any further and begins to buckle, as a result of which the surface tension effectively vanishes. In contrast, when the bubble expands to a radius larger than 
+\begin{equation}
+R_\text{rupt} = R_\text{buck} \, \sqrt{1+\frac{\sigma_\text{c}}{\chi}},
+\label{eq:Rrupt}
+\end{equation} 
+the lipid monolayer ruptures and, as a consequence, the clean gas-liquid interface is laid bare. 
+
+
+The radius-dependent surface tension coefficient of the Marmottant model \citep{Marmottant2005}, defined in Eq.~(\ref{eq:sigma_marmottant}), contains two discontinuities at $R=R_\text{buck}$ and $R=R_\text{rupt}$, where the surface dilatational modulus, $-R^2 \, \partial\sigma/ \partial (R^2)$, of the lipid monolayer is singular. These discontinuities render the Marmottant model sensitive to the applied time-step when numerically solving the primary ordinary differential equation \citep{Versluis2020}. A continuously differentiable form of the Marmottant model is constructed using a Gompertz function of the form $f(x) = a \, \text{e}^{-b \, \text{e}^{-c x}}$, a special case of the generalised logistics function, with the surface tension coefficient defined as
+\begin{equation}
+\sigma = \sigma_\text{c} \, \text{e}^{-b \, \text{e}^{c (1-R/R_\text{buck})}}, \label{eq:sigma_gompertz}
+\end{equation}
+with $a = \sigma_\text{c}$ and $x = R/R_\text{buck}-1$, and where the buckling radius $R_\text{buck}$ is given by Eq.~(\ref{eq:Rbuck}). 
+The derivative of the surface tension coefficient follows as
+\begin{equation}
+\dot{\sigma} = \sigma \, b \, c \, \text{e}^{c (1-R/R_\text{buck})} \, \frac{\dot{R}}{R}.
+\end{equation}
+Enforcing $\sigma_0$ for $R_0$, the coefficient $b$ is readily given as
+\begin{equation}
+b = - \frac{\ln (\sigma_0/\sigma_\text{c})}{\text{e}^{c(1-R_0/R_\text{buck})}}.
+\end{equation}
+Assuming, additionally, that the maximum slope of the Gompertz function is equal to the derivative of the surface tension coefficient given by the Marmottant model at $R = R_\text{buck} \sqrt{1+\sigma_\text{c}/(2 \chi)}$, the coefficient $c$ follows as
+\begin{equation}
+c = \frac{2  \chi  \text{e}}{\sigma_\text{c}} \, \sqrt{1+\frac{\sigma_\text{c}}{2 \chi}}.
+\end{equation}
+Figure \ref{fig:gompertz} shows the Marmottant-Gompertz model alongside the Marmottant model for $\sigma_0= 0.020 \, \text{N/m}$, $\sigma_\text{c} = 0.072 \, \text{N/m}$ and $\chi = 0.5 \, \text{N/m}$, properties that are representative for the bubbles considered in this study. The Marmottant-Gompertz model reproduces the main features of the original Marmottant model, but with a smooth transition between the surface tension regimes, using the same set of input parameters ($\sigma_0$, $\sigma_\text{c}$, $\chi$) and is, therefore, particularly suited to determine the influence of the discontinuities of the original Marmottant model. Furthermore, it provides a good qualitative approximation of the elastic behaviour of the lipid monolayer observed in experiments \citep{Segers2018}, with a more rapid change of $\sigma$ near $R_\text{buck}$ than near $R_\text{rupt}$.
+
+
+\begin{figure}
+\centerline{\includegraphics[width=0.4\textwidth]{figures/gompertz}}
+\caption{Comparison of the radius-dependent surface tension coefficient for lipid monolayers given by the model of \citet{Marmottant2005}, Eq.~(\ref{eq:sigma_marmottant}), and the Marmottant-Gompertz model, Eq.~(\ref{eq:sigma_gompertz}), for $\sigma_0= 0.02 \, \text{N/m}$, $\sigma_\text{c} = 0.072 \, \text{N/m}$ and $\chi = 0.5 \, \text{N/m}$. The initial radius $R_0$, the buckling radius $R_\text{buck}$, the rupture radius $R_\text{rupt}$, the initial surface tension coefficient $\sigma_0$ and the surface tension coefficient of the clean gas-liquid interface, $\sigma_\text{c}$, are shown as a reference.}
+\label{fig:gompertz}
+\end{figure}
+
+
+\section{Infinity}
+\label{sec:infinity}
+
+generalised Gaussian envelope
+\begin{equation}
+p_\infty = p_0 - \text{e}^{-G} \,  \Delta p_\text{a} \, \sin(2 \pi f_\text{a} t),
+\end{equation}
+with the exponent $G$ defined as
+\begin{equation}
+G = \left( \frac{ 2\, t - \tau}{\Sigma \, \tau }  \right)^{2\eta},
+\end{equation}
+where $\Sigma$ represents the standard deviation of the Gaussian and $\tau = t_\text{end}-t_\text{start}$ is the width of the envelope, i.e.~the duration of the excitation. The power $\eta$ defines the shape of the envelope, with $\eta=1$ corresponding to a Gaussian curve and $\eta=\infty$ yielding a rectangular envelope.
+The derivative of the pressure at infinity is given as
+\begin{align}
+\dot{p}_\infty = 2 \, \text{e}^{-G} \, \Delta p_\text{a} \left[ \frac{2\, \eta  \, G \, \sin(2 \pi f_\text{a} t)}{2\, t-\tau} - \pi \, f_\text{a} \, \cos (2\pi f_\text{a} t) \right]
+\end{align}
+
+For a sinusoidal excitation it is also possible to apply the sum of an arbitrary number $N$ of multiples $a$ of the excitation frequency $f_\text{a}$, with the pressure at infinity defined as
+\begin{equation}
+p_\infty = p_0 - \Delta p_\text{a} \, \sum_{i=1}^{N} \sin (2 \pi a_i f_\text{a} t),
+\end{equation}
+or, including a Gaussian envelope, as
+\begin{equation}
+p_\infty = p_0 - \text{e}^{-G} \, \Delta p_\text{a} \, \sum_{i=1}^{N} \sin (2 \pi a_i f_\text{a} t),
+\end{equation}
+with $0 \leq a_i \leq \infty$ the factor with which the excitation frequency is multiplied.
+The derivatives follow as
+\begin{equation}
+\dot{p}_\infty = - 2 \, \Delta p_\text{a} \, \pi \, f_\text{a} \, \sum_{i=1}^{N} a_i \, \cos (2 \pi a_i f_\text{a} t),
+\end{equation}
+and
+\begin{equation}
+\dot{p}_\infty = 2 \, \text{e}^{-G} \, \Delta p_\text{a} \left[ \frac{2\, \eta  \, G}{2\, t-\tau} \, \sum_{i=1}^{N} \sin (2 \pi a_i f_\text{a} t) - \pi \, f_\text{a} \, \sum_{i=1}^{N} a_i \, \cos (2 \pi a_i f_\text{a} t) \right],
+\end{equation}
+respectively.
+
+
+
+\section{Solver}

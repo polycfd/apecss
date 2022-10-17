@@ -1,0 +1,34 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 3.0e-6
+RPModel Gilmore
+PressureAmbient 1.0e5
+END
+
+GAS
+EOS IG
+PolytropicExponent 1.4
+ReferenceDensity 1.2
+END
+
+LIQUID
+ReferenceDensity 997.0
+PolytropicExponent 7.15
+TaitPressureConst 3.046e8
+Viscosity 0.001
+END
+
+INTERFACE
+SurfaceTensionCoeff 0.072
+END
+
+RESULTS
+Bubble
+OutputFreqRP 2
+OutputDigits 10
+END

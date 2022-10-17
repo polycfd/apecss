@@ -1,0 +1,45 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+RUN
+TimeStart 0.0
+TimeEnd Excitation 6.0
+Verbosity High
+ExcitationType Sin
+ExcitationFrequency 1 1000.0e3 12.80e3
+ExcitationAmplitude 1 3000.0e3 200.0e3
+END
+
+BUBBLE
+InitialRadius 1 1.0e-6 2.0e-6
+RPModel KM
+NonSphericalModes 0
+PressureAmbient 1.01e5
+END
+
+GAS
+GasEOS IG
+PolytropicExponent 1.4
+ReferenceDensity 1.2
+END
+
+LIQUID
+LiquidType KelvinVoigt
+ReferenceDensity 1060.0
+ReferenceSoundSpeed 1540.0
+Viscosity 0.015
+ShearModulus 1.0e6
+END
+
+INTERFACE
+LipidCoatingModel None
+SurfaceTensionCoeff 0.056
+END
+
+RESULTS
+OutputFreq 5
+OutputDigits 20
+END

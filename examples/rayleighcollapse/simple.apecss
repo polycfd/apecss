@@ -1,0 +1,34 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 1.0
+RPModel RP
+PressureAmbient 1.0e5
+InitialGasPressure 1.0e3
+END
+
+GAS
+EOS IG
+PolytropicExponent 1.4
+END
+
+LIQUID
+ReferenceDensity 997.0
+Viscosity 0.0
+END
+
+INTERFACE
+SurfaceTensionCoeff 0.0
+END
+
+RESULTS
+Bubble
+END
+
+ODESOLVER
+MaxTimeStep 1.0e-4
+END

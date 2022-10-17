@@ -1,0 +1,4 @@
+pdflatex --shell-escape $1.tex
+pdflatex --shell-escape $1.tex
+pdfcrop --clip $1.pdf $1.pdf
+rm $1.aux $1.bbl $1.blg $1.log

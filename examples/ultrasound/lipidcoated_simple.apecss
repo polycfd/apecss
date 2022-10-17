@@ -1,0 +1,36 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 0.975e-6
+RPModel RPAR
+PressureAmbient 1.0e5
+END
+
+GAS
+EOS IG
+PolytropicExponent 1.095
+END
+
+LIQUID
+ReferenceDensity 1000.0
+ReferenceSoundSpeed 1480.0
+Viscosity 0.001
+END
+
+INTERFACE
+SurfaceTensionCoeff 0.073
+LipidCoatingModel Marmottant
+SigmaInit 0.0
+Elasticity 1.0
+DilatationalViscosity 15.0e-9
+END
+
+RESULTS
+Bubble
+OutputFreqRP 2
+OutputDigits 10
+END

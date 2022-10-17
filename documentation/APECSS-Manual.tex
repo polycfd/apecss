@@ -1,0 +1,136 @@
+\documentclass[a4,11pt]{report}
+\usepackage{amsmath,amssymb,esint}
+\usepackage{amsthm,fixmath}
+\usepackage[margin=2cm, a4paper]{geometry}
+\usepackage{epsfig}
+\usepackage[format=hang,justification=centering]{subfig}
+\usepackage{multirow}
+\usepackage[square,comma,numbers,sort&compress]{natbib}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage[UKenglish]{isodate}
+\usepackage{fancybox}
+\usepackage{fancyheadings,tabularx}
+\usepackage{longtable}
+
+\pagestyle{fancyplain}  
+\lstset{  
+language=C,                % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used
+% for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used
+% for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,           % adds a frame around the code
+tabsize=2,          % sets default tabsize to 2 spaces
+captionpos=b,           % sets the caption-position to bottom
+breaklines=true,        % sets automatic line breaking
+breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+\graphicspath{{figures/}} 
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{positioning}
+
+\usepackage{url}
+
+\usepackage[intoc]{nomencl}
+\RequirePackage{ifthen}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhf{}
+\cfoot{\thepage}
+
+\setcounter{topnumber}{4}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{1}
+\renewcommand{\bottomfraction}{1}
+\renewcommand{\textfraction}{0.01}
+\newfloat{Program}{h}{lop}[chapter]
+
+\renewcommand{\vec}[1]{{\boldsymbol #1}}
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\newcommand{\vect}[1]{{\boldsymbol #1}}
+\newcommand{\tens}[1]{{\boldsymbol #1}}
+\newcommand{\gem}[1]{{\overline{#1}}}
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+\newcommand{\ve}{\hat{e}}
+\newcommand{\filt}[1]{{\tilde{#1}}}
+\newcommand{\filtw}[1]{{\widetilde{#1}}}
+\newcommand{\favre}[1]{{\widetilde{#1}}}
+\def\P{\partial}
+\newcommand{\flu}[1]{#1 \prime}
+\newcommand{\multi}[0]{\textsf{\textsc{MultiFlow}} }
+\newcommand{\vari}[1]{{\tt #1}}
+\newcommand{\cfx}[0]{ {\em CFX}}
+\newcommand{\oper}[1]{\Bbb #1 }
+
+\newcommand{\thedate}{\today}
+\cleanlookdateon
+
+\hypersetup{
+	colorlinks = true,
+	urlcolor = blue,
+	linkcolor = red,
+	citecolor = blue
+}
+
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.7em}
+\setlength{\itemsep}{1pt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+% Title Page
+\begin{titlepage}
+\begin{center}
+% Upper part of the page
+\null \vfill
+% Title
+\HRule \\[0.4cm]
+{\huge APECSS}\\[0.05cm] {\large (Acoustic Pulse Emitted by Cavitation in Spherical Symmetry)}\\[0.1cm]
+\HRule \\[2cm]
+% Author and supervisor
+\includegraphics[width=7cm]{figures/apecssbubble.pdf}
+
+\vspace{5cm}
+Fabian Denner\\
+S\"oren Schenke
+\vfill
+
+\emph{\thedate}
+
+\end{center}
+\end{titlepage}
+
+\tableofcontents 
+
+\input{chapters/about.tex}
+\input{chapters/using.tex}
+\input{chapters/bubble.tex}
+\input{chapters/emissions.tex}
+
+\cleardoublepage
+
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{natbib}
+\bibliography{/Users/fabian/Zotero/library}
+\end{document}

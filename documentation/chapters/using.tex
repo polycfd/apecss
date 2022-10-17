@@ -1,0 +1,134 @@
+\chapter{Using APECSS}
+
+\section{Installation}
+
+
+
+\section{Run options}
+
+\section{Programming in APECSS}
+
+All routines are placed in source files that relate to parts of the code, distinguished by physical phenomena (e.g.~{\tt nonspherical.c}), fluid type (e.g.~{\tt liquid.c}) or computational operations (e.g.~{\tt results.c}). All decalarations and definitions are located in the header file {\tt apecss.h}. 
+
+To ensure a consistent formatting, please use a clang formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the respository.
+
+\subsection{Macros}
+
+Macros are used as shortcuts to define frequently-used constants (e.g.~{\tt APECSS\_PI}), for frequently-used computational operations (e.g.~{\tt APECSS\_MAX}) and for computational operations that depend on the chosen machine precision (e.g.~{\tt APECSS\_SIN}). Furthermore, options related to different numerical models are represented by logically named flags.
+
+\subsubsection{Macros related to machine precision}
+
+APECSS can be used with different floating point precisions: double precision (default) and long double precision ({\tt APECSS\_PRECISION\_LONGDOUBLE}).
+
+Based on the chosen precision, {\tt APECCS\_FLOAT} is defined as the standard floating point type. In addition, the following precision-dependent computational operations are defined based on the chosen floating point precision:\vspace{-0.5em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_ABS(a)}: Absolute value of $a$.
+  \item {\tt APECSS\_CEIL(a)}: $a$ rounded to the nearest integer larger than $a$.
+  \item {\tt APECSS\_COS(a)}: Cosine of $a$.
+  \item {\tt APECCS\_EPS}: Reference value that is close to machine zero.
+  \item {\tt APECSS\_EXP(a)}: $\text{e}$ to the power $a$.
+  \item {\tt APECSS\_LOG(a)}: Natural logarithm of $a$.
+  \item {\tt APECSS\_POW(a,b)}: Power $b$ of $a$.
+  \item {\tt APECSS\_SIN(a)}: Sine of $a$.
+  \item {\tt APECSS\_SMALL}: A very small number significantly smaller than machine precisionn
+  \item {\tt APECSS\_SQRT(a)}: Square root of $a$.
+  \item {\tt APECSS\_STRINGTOFLOAT(a)}: Conversion of a string to float $a$.
+\end{itemize}
+To ensure compatibility for different floating point precisions, it is paramount to use the standard floating point type {\tt APECCS\_FLOAT} and the operator definitions given above consistently throughout APECSS.
+
+\subsubsection{Computational operations and predefined constants}
+
+Macros that provide a shortcut to frequently-used computational operations are:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_POW2(a)}: Returns $a^2$
+  \item {\tt APECSS\_POW3(a)}: Returns $a^3$
+  \item {\tt APECSS\_POW4(a)}: Returns $a^4$
+  \item {\tt APECCS\_MAX(a,b)}: Returns the maximum of $a$ and $b$.
+  \item {\tt APECSS\_MAX3(a,b,c)}: Returns the maximum of $a$, $b$ and $c$.
+  \item {\tt APECSS\_MIN(a,b)}: Returns the minimum of $a$ and $b$.
+  \item {\tt APECSS\_MIN3(a,b,c)}: Returns the minimum of $a$, $b$ and $c$.
+\end{itemize}
+
+Macros that provide a shortcut to frequently-used constants are:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_PI}: Returns $\pi$
+  \item {\tt APECSS\_E}: Returns $e$
+  \item {\tt APECSS\_ONETHIRD}: Returns $1/3$
+  \item {\tt APECSS\_ONESIXTH}: Returns $1/6$
+  \item {\tt APECCS\_AVOGADRO}: Returns the Avogadro constant.
+  \item {\tt APECSS\_LN\_OF\_2}: Returns the natural logarithm of 2.
+  \item {\tt APECSS\_LN\_OF\_10}: Returns the natural logarithm of 10.
+\end{itemize}
+
+\subsubsection{Flags for model options}
+
+All model options are represented by human-readable flags. Many of these flags are defined in such a way (with integer values being a multiple of 2), that a bit-wise comparison can be performed. Bit-wise comparison are used for options that are checked frequently and for options that can have several building blocks.
+
+Options of the Runge-Kutta scheme used to discretize the ODEs:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_RK54\_7M}: RK5(4)7M (minimum truncation) coefficients of \citet{Dormand1980}
+  \item {\tt APECSS\_RK54\_7S}: RK5(4)7S (stability optimized) coefficients of \citet{Dormand1980}
+\end{itemize}
+
+Rayleigh-Plesset schemes:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_BUBBLEMODEL\_RP}: Standard Rayleigh-Plesset model, \eqref{eq:standardRP}
+  \item {\tt APECSS\_BUBBLEMODEL\_RP\_ACOUSTICRADIATION}: Rayleigh-Plesset model incl. acoustic radiation term, \eqref{eq:modRP}
+  \item {\tt APECSS\_BUBBLEMODEL\_KELLERMIKSIS}: Keller-Miksis model, \eqref{eq:keller}
+  \item {\tt APECSS\_BUBBLEMODEL\_GILMORE}: Gilmore model, \eqref{eq:gilmore}
+\end{itemize}
+
+Equation-of-state of the gas:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_GAS\_IG}: Ideal gas 
+  \item {\tt APECSS\_GAS\_HC}: Ideal gas with van-der-Waals hardcore
+  \item {\tt APECSS\_GAS\_NASG}: Noble-Abel-stiffened-gas 
+\end{itemize}
+
+Viscoelasticity of the liquid:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_LIQUID\_NEWTONIAN}: Newtonian liquid
+  \item {\tt APECSS\_LIQUID\_KELVINVOIGT}: Kelvin-Voigt solid
+  \item {\tt APECSS\_LIQUID\_ZENER}: Zener solid (standard linear solid model)
+  \item {\tt APECSS\_LIQUID\_OLDROYDB}: Oldroyd-B liquid
+\end{itemize}
+
+Lipid monolayer coating of the gas-liquid interface:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_LIPIDCOATING\_NONE}: No lipid monolayer coating
+  \item {\tt APECSS\_LIPIDCOATING\_MARMOTTANT}: Lipid monolayer coating described by the model of \citet{Marmottant2005}
+  \item {\tt APECSS\_LIPIDCOATING\_GOMPERTZFUNCTION}: Redefine the Marmottant model with a Gompertz function \citep{Guemmer2021}.
+\end{itemize}
+
+Acoustic excitation applied to the bubble:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_EXCITATION\_NONE}: No external excitation. 
+  \item {\tt APECSS\_EXCITATION\_SIN}: Sinusoidal excitation.
+\end{itemize}
+
+Model to compute the acoustic emissions of the bubble:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_EMISSION\_NONE}: Emissions are not modelled.
+  \item {\tt APECSS\_EMISSION\_INCOMPRESSIBLE}: Emissions are assumed to occur in an incompressible fluid.
+  \item {\tt APECSS\_EMISSION\_FINITE\_TIME\_INCOMPRESSIBLE}: Emissions are assumed to occur in an incompressible fluid, but the finite propagation speed given by the speed of sound is taken into account.
+  \item {\tt APECSS\_EMISSION\_QUASIACOUSTIC}: Emissions are modelled under the quasi-acoustic assumption of \citet{Gilmore1952}.
+  \item {\tt APECSS\_EMISSION\_KIRKWOODBETHE}: Emissions are modelled based on the Kirkwood-Bethe hypothesis,
+\end{itemize}
+
+
+\subsubsection{Others}
+
+Other predefined macros are used to define the verbosity of APECSS, the length of strings and arrays, as well as to help with debugging:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_DATA\_ALLOC\_INCREMENT}: The increment for dynamics re-allocation of arrays.
+  \item {\tt APECSS\_STRINGLENGTH}: The standard length of a string.
+  \item {\tt APECSS\_STRINGLENGTH\_SPRINTF}: The standard length of a string to written out in the terminal.
+  \item {\tt APECSS\_STRINGLENGTH\_SPRINTF\_LONG}: The standard length of a long string to written out in the terminal.
+  \item {\tt APECSS\_WHERE}: Outputs in the terminal the file name and line number where the macro is called.
+  \item {\tt APECSS\_WHERE\_INT(a)}: Outputs in the terminal the file name and line number where the macro is called, plus the integer value $a$.
+  \item {\tt APECSS\_WHERE\_FLOAT(a)}: Outputs in the terminal the file name and line number where the macro is called, plus the floating point value $a$.
+\end{itemize}
+
+
+\subsection{Structures}
+
