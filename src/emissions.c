@@ -151,8 +151,8 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
   while (Current != NULL)
   {
     Current->r += dr;
-    Current->p = pinf + rho * (A / Current->r - B / (2.0 * APECSS_POW4(Current->r)));
     Current->u = C / APECSS_POW2(Current->r);
+    Current->p = pinf + rho * (A / Current->r - B / (2.0 * APECSS_POW4(Current->r)));
 
     Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
     Current = Current->forward;
@@ -173,8 +173,8 @@ int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble)
   while (Current != NULL)
   {
     Current->r += dr;
-    Current->p = pinf + rho * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u));
     Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * c);
+    Current->p = pinf + rho * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u));
 
     Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
     Current = Current->forward;
@@ -196,45 +196,35 @@ int apecss_emissions_advance_kirkwoodbethe(struct APECSS_Bubble *Bubble)
 
   while (Current != NULL)
   {
-    int NodeDiscarded = 0;
-    APECSS_FLOAT rho, c, psi, Speed, pold;
-    APECSS_FLOAT r_prev = Current->r;  // Previous position of this node
+    APECSS_FLOAT rho, c, psi, Speed;
 
-    do
+    rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
+    psi = Gamma / rho;
+    c = Bubble->Liquid->get_soundspeed(Current->p, rho, Bubble->Liquid);
+    Speed = c + Current->u;
+
+    Current->r += Speed * dt;
+    Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * Speed);
+    Current->p = ((psi_inf - b) * pinf + (psi_inf - psi) * B + (Gamma - 1.0) * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u))) / (psi - b);
+
+    if (Current->p < -B)  // Check for unphysical pressure values
     {
-      rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
-      psi = Gamma / rho;
-      c = Bubble->Liquid->get_soundspeed(Current->p, rho, Bubble->Liquid);
-      Speed = c + Current->u;
-      pold = Current->p;
+      if (Current->forward != NULL)
+        Current->forward->backward = Current->backward;
+      else
+        Bubble->Emissions->LastNode = Current->backward;
 
-      Current->r = r_prev + Speed * dt;
-      Current->p = ((psi_inf - b) * pinf + (psi_inf - psi) * B + (Gamma - 1.0) * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u))) / (psi - b);
-      Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * Speed);
+      if (Current->backward != NULL)
+        Current->backward->forward = Current->forward;
+      else
+        Bubble->Emissions->FirstNode = Current->forward;
 
-      if (Current->p < -B)  // Check for unphysical pressure values
-      {
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        if (Current->backward != NULL)
-          Current->backward->forward = Current->forward;
-        else
-          Bubble->Emissions->FirstNode = Current->forward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-
-        NodeDiscarded = 1;
-        break;
-      }
-    } while (APECSS_ABS((pold - Current->p)) > 1.0e-4 * APECSS_ABS(Current->p));
-
-    if (!NodeDiscarded)
+      struct APECSS_EmissionNode *Obsolete = Current;
+      Current = Current->backward;
+      free(Obsolete);
+      Bubble->Emissions->nNodes -= 1;
+    }
+    else
     {
       if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
       {

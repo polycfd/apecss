@@ -18,7 +18,8 @@ ReferenceDensity 1.664
 HardcoreRadius 5.64334e-7
 END
 
-# Using the Tait EoS
+# >>>>>>>>>>>>>>>>>>>>>>>>
+# -- Using the Tait EoS --
 LIQUID
 ReferencePressure 1.0e5
 ReferenceDensity 998.2
@@ -27,8 +28,10 @@ CoVolume 0.0
 TaitPressureConst 3.046e8
 Viscosity 0.001
 END
+# <<<<<<<<<<<<<<<<<<<<<<<<
 
-# Using the NASG EoS
+# >>>>>>>>>>>>>>>>>>>>>>>>
+# -- Using the NASG EoS --
 #LIQUID
 #ReferencePressure 1.0e5
 #ReferenceDensity 997.0
@@ -37,6 +40,7 @@ END
 #TaitPressureConst 6.48e8
 #Viscosity 0.001
 #END
+# <<<<<<<<<<<<<<<<<<<<<<<<
 
 INTERFACE
 SurfaceTensionCoeff 0.0725
@@ -51,6 +55,4 @@ END
 
 ODESOLVER
 Tolerance 1.0e-12
-MinTimeStep 1.0e-15
-MaxTimeStep 1.0e-9
 END

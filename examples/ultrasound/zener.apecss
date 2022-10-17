@@ -4,24 +4,14 @@
 #                                                       #
 #########################################################
 
-RUN
-TimeStart 0.0
-TimeEnd Excitation 5.0
-Verbosity High
-ExcitationType Sin
-ExcitationFrequency 1 1000.0e3 12.80e3
-ExcitationAmplitude 1 -1000.0e3 200.0e3
-END
-
 BUBBLE
-InitialRadius 1 1.0e-6 2.0e-6
+InitialRadius 1.0e-6 
 RPModel Gilmore
-NonSphericalModes 0
 PressureAmbient 1.0e5
 END
 
 GAS
-GasEOS IG
+EOS IG
 PolytropicExponent 1.4
 ReferenceDensity 1.2
 END
@@ -31,9 +21,9 @@ LiquidType Zener
 ReferenceDensity 1000.0
 ReferenceSoundSpeed 1500.0
 PolytropicExponent 7.15
-AttractivePressureConst 3.046e8
+TaitPressureConst 3.046e8
 Viscosity 0.015
-ShearModulus 1.0e5
+ShearModulus 1.0e4
 RelaxationTime 3.0e-9
 END
 
@@ -42,6 +32,6 @@ SurfaceTensionCoeff 0.056
 END
 
 RESULTS
-OutputFreq 5
-OutputDigits 20
+Bubble
+OutputFreqRP 10
 END

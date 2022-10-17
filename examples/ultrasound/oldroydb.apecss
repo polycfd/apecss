@@ -4,24 +4,14 @@
 #                                                       #
 #########################################################
 
-RUN
-TimeStart 0.0
-TimeEnd Excitation 10.0
-Verbosity High
-ExcitationType Sin
-ExcitationFrequency 1 3000.0e3 12.80e3
-ExcitationAmplitude 1 -400.0e3 200.0e3
-END
-
 BUBBLE
-InitialRadius 1 1.0e-6 2.0e-6
+InitialRadius 1.0e-6
 RPModel RP
-NonSphericalModes 0
 PressureAmbient 1.0e5
 END
 
 GAS
-GasEOS IG
+EOS IG
 PolytropicExponent 1.4
 ReferenceDensity 1.2
 END
@@ -29,11 +19,9 @@ END
 LIQUID
 LiquidType OldroydB
 ReferenceDensity 1000.0
-ReferenceSoundSpeed 1500.0
 Viscosity 0.0
 PolymerViscosity 0.03
-ShearModulus 1.0e6
-RelaxationTime 1.061e-7
+RelaxationTime 5.305e-8
 END
 
 INTERFACE
@@ -41,6 +29,6 @@ SurfaceTensionCoeff 0.072
 END
 
 RESULTS
-OutputFreq 5
-OutputDigits 20
+Bubble
+OutputFreqRP 20
 END
