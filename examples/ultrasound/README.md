@@ -10,7 +10,7 @@ This examples simulated a lipid-coated microbubble using the Gilmore model and r
 Using [sonolumin_simple.apess](sonolum_simple.apecss) with ````./build/ultrasound_apecss -options sonolum_simple.apecss -tend 40e-6 -freq 25e3 -amp 135e3````, this example reproduces Figure 2 of [Denner, _Ultrasonics Sonochemistry_ 79 (2021), 105307](https://doi.org/10.1016/j.ultsonch.2020.105307).
 
 #### Sonoluminescence (with emissions)
-Using [sonolumin_emissions.apess](sonolum_emissions.apecss) with ````./build/ultrasound_apecss -options sonolum_emissions.apecss -tend 40e-6 -freq 25e3 -amp 135e3````, this example
+Using [sonolumin_emissions.apess](sonolum_emissions.apecss) with ````./build/ultrasound_apecss -options sonolum_emissions.apecss -tend 40e-6 -freq 23.5e3 -amp 145e3````, this example
 
 #### Kelvin-Voigt
 Using [kelvinvoigt.apess](kelvinvoigt.apecss) with ````./build/ultrasound_apecss -options kelvinvoigt.apecss -tend 6e-6 -freq 1e6 -amp 3e6````, this example reproduces Figure 5b of [Yang & Church, _Journal of the Acoustical Society of America_ 118 (2005), 3595](https://doi.org/10.1121/1.2118307).
