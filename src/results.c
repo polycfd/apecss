@@ -14,6 +14,51 @@
 #include "apecss.h"
 
 // -------------------------------------------------------------------
+// INITIALIZE
+// -------------------------------------------------------------------
+
+int apecss_results_initializestruct(struct APECSS_Bubble *Bubble)
+{
+  Bubble->Results = (struct APECSS_Results *) malloc(sizeof(struct APECSS_Results));
+  sprintf(Bubble->Results->dir, "./");
+  Bubble->Results->digits = 6;
+  Bubble->Results->RayleighPlesset = NULL;
+  Bubble->Results->Emissions = NULL;
+
+  return 0;
+}
+
+int apecss_results_rayleighplesset_initializestruct(struct APECSS_Bubble *Bubble)
+{
+  Bubble->Results->RayleighPlesset = (struct APECSS_ResultsBubble *) malloc(sizeof(struct APECSS_ResultsBubble));
+  Bubble->Results->RayleighPlesset->freq = 1;
+  Bubble->Results->RayleighPlesset->n = 0;
+  Bubble->Results->RayleighPlesset->nAllocated = 0;
+  Bubble->Results->RayleighPlesset->nUserODEs = 0;
+
+  return 0;
+}
+
+int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble)
+{
+  Bubble->Results->Emissions = (struct APECSS_ResultsEmissions *) malloc(sizeof(struct APECSS_ResultsEmissions));
+  Bubble->Results->Emissions->nTimeInstances = 0;
+  Bubble->Results->Emissions->nextTimeInstance = 0;
+  Bubble->Results->Emissions->TimeInstances = NULL;
+  Bubble->Results->Emissions->freqSpaceLocations = 1;
+  Bubble->Results->Emissions->nSpaceLocations = 0;
+  Bubble->Results->Emissions->SpaceLocation = NULL;
+  Bubble->Results->Emissions->nNodes = 0;
+  Bubble->Results->Emissions->Node = NULL;
+  Bubble->Results->Emissions->MinMaxPeriod = 0;
+  Bubble->Results->Emissions->Node_Rmin = NULL;
+  Bubble->Results->Emissions->Node_Umin = NULL;
+  Bubble->Results->Emissions->Node_pLmax = NULL;
+
+  return 0;
+}
+
+// -------------------------------------------------------------------
 //  BUBBLE
 // -------------------------------------------------------------------
 

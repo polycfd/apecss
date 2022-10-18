@@ -17,6 +17,19 @@
 // INITIALIZE / FREE
 // -------------------------------------------------------------------
 
+int apecss_emissions_initializestruct(struct APECSS_Bubble *Bubble)
+{
+  Bubble->Emissions = (struct APECSS_Emissions *) malloc(sizeof(struct APECSS_Emissions));
+  Bubble->Emissions->Type = APECSS_EMISSION_NONE;
+  Bubble->Emissions->CutOffDistance = 1.0e-3;
+  Bubble->Emissions->KB_IterTolerance = 1.0;
+  Bubble->Emissions->nNodes = 0;
+  Bubble->Emissions->FirstNode = NULL;
+  Bubble->Emissions->LastNode = NULL;
+
+  return (0);
+}
+
 int apecss_emissions_initializenone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_emissions_initializelinkedlist(struct APECSS_Bubble *Bubble)
@@ -151,8 +164,8 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
   while (Current != NULL)
   {
     Current->r += dr;
-    Current->u = C / APECSS_POW2(Current->r);
     Current->p = pinf + rho * (A / Current->r - B / (2.0 * APECSS_POW4(Current->r)));
+    Current->u = C / APECSS_POW2(Current->r);
 
     Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
     Current = Current->forward;
@@ -173,8 +186,8 @@ int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble)
   while (Current != NULL)
   {
     Current->r += dr;
-    Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * c);
     Current->p = pinf + rho * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u));
+    Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * c);
 
     Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
     Current = Current->forward;
@@ -193,38 +206,49 @@ int apecss_emissions_advance_kirkwoodbethe(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT psi_inf = Gamma / Bubble->Liquid->get_density(pinf, Bubble->Liquid);
   APECSS_FLOAT dt = Bubble->dt;
+  APECSS_FLOAT tol = Bubble->Emissions->KB_IterTolerance;
 
   while (Current != NULL)
   {
-    APECSS_FLOAT rho, c, psi, Speed;
+    int NodeDiscarded = 0;
+    APECSS_FLOAT rho, c, psi, Speed, p_prev;
+    APECSS_FLOAT r_old = Current->r;  // Previous position of this node
 
-    rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
-    psi = Gamma / rho;
-    c = Bubble->Liquid->get_soundspeed(Current->p, rho, Bubble->Liquid);
-    Speed = c + Current->u;
-
-    Current->r += Speed * dt;
-    Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * Speed);
-    Current->p = ((psi_inf - b) * pinf + (psi_inf - psi) * B + (Gamma - 1.0) * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u))) / (psi - b);
-
-    if (Current->p < -B)  // Check for unphysical pressure values
+    do
     {
-      if (Current->forward != NULL)
-        Current->forward->backward = Current->backward;
-      else
-        Bubble->Emissions->LastNode = Current->backward;
+      rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
+      psi = Gamma / rho;
+      c = Bubble->Liquid->get_soundspeed(Current->p, rho, Bubble->Liquid);
+      Speed = c + Current->u;
+      p_prev = Current->p;
 
-      if (Current->backward != NULL)
-        Current->backward->forward = Current->forward;
-      else
-        Bubble->Emissions->FirstNode = Current->forward;
+      Current->r = r_old + Speed * dt;
+      Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * Speed);
+      Current->p = ((psi_inf - b) * pinf + (psi_inf - psi) * B + (Gamma - 1.0) * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u))) / (psi - b);
 
-      struct APECSS_EmissionNode *Obsolete = Current;
-      Current = Current->backward;
-      free(Obsolete);
-      Bubble->Emissions->nNodes -= 1;
-    }
-    else
+      if (Current->p < -B)  // Check for unphysical pressure values
+      {
+        if (Current->forward != NULL)
+          Current->forward->backward = Current->backward;
+        else
+          Bubble->Emissions->LastNode = Current->backward;
+
+        if (Current->backward != NULL)
+          Current->backward->forward = Current->forward;
+        else
+          Bubble->Emissions->FirstNode = Current->forward;
+
+        struct APECSS_EmissionNode *Obsolete = Current;
+        Current = Current->backward;
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+
+        NodeDiscarded = 1;
+        break;
+      }
+    } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
+
+    if (!NodeDiscarded)
     {
       if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
       {

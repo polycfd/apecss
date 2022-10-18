@@ -29,8 +29,6 @@ static const char APECSS_RELEASE_DATE[] = "16-Oct-2022";
 // Floating point precision
 // #define APECSS_PRECISION_LONGDOUBLE
 
-char *dummy;  // Dummy required for string-to-float macro
-
 // Data types
 #if defined(APECSS_PRECISION_LONGDOUBLE)
 typedef long double APECSS_FLOAT;
@@ -44,7 +42,7 @@ typedef long double APECSS_FLOAT;
 #define APECSS_EXP(a) (expl(a))
 #define APECSS_LOG(a) (logl(a))
 #define APECSS_CEIL(a) (ceill(a))
-#define APECSS_STRINGTOFLOAT(a) (strtold(a, &dummy))
+#define APECSS_STRINGTOFLOAT(a) (strtold(a, NULL))
 #else
 typedef double APECSS_FLOAT;
 #define APECSS_EPS (1.0e-15)
@@ -57,7 +55,7 @@ typedef double APECSS_FLOAT;
 #define APECSS_EXP(a) (exp(a))
 #define APECSS_LOG(a) (log(a))
 #define APECSS_CEIL(a) (ceil(a))
-#define APECSS_STRINGTOFLOAT(a) (strtod(a, &dummy))
+#define APECSS_STRINGTOFLOAT(a) (strtod(a, NULL))
 #endif
 
 // Simple operations
@@ -229,6 +227,7 @@ struct APECSS_Emissions
 {
   int Type;
   APECSS_FLOAT CutOffDistance;
+  APECSS_FLOAT KB_IterTolerance;
 
   int nNodes;
   struct APECSS_EmissionNode *FirstNode;  // First node of the linked list
@@ -433,6 +432,7 @@ int apecss_bubble_solverprogress_finalscreen();
 // ---------------------
 // emissions.c
 
+int apecss_emissions_initializestruct(struct APECSS_Bubble *Bubble);
 int apecss_emissions_initializenone(struct APECSS_Bubble *Bubble);
 int apecss_emissions_initializelinkedlist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_freenone(struct APECSS_Bubble *Bubble);
@@ -546,6 +546,9 @@ APECSS_FLOAT apecss_rp_gilmorevelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, st
 // ---------------------
 // results.c
 
+int apecss_results_initializestruct(struct APECSS_Bubble *Bubble);
+int apecss_results_rayleighplesset_initializestruct(struct APECSS_Bubble *Bubble);
+int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_storenone(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_initialize(struct APECSS_Bubble *Bubble);

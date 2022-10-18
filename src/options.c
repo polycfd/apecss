@@ -97,12 +97,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         }
         else if (strncasecmp(option2, "emissions", 9) == 0)
         {
-          Bubble->Emissions = (struct APECSS_Emissions*) malloc(sizeof(struct APECSS_Emissions));
-          Bubble->Emissions->Type = APECSS_EMISSION_NONE;
-          Bubble->Emissions->CutOffDistance = 1.0e-3;
-          Bubble->Emissions->nNodes = 0;
-          Bubble->Emissions->FirstNode = NULL;
-          Bubble->Emissions->LastNode = NULL;
+          if (Bubble->Emissions == NULL) apecss_emissions_initializestruct(Bubble);
 
           if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
           {
@@ -128,6 +123,13 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
             l = apecss_readoneoption(OptionsFile, option3);
             Bubble->Emissions->CutOffDistance = APECSS_STRINGTOFLOAT(option3);
           }
+        }
+        else if (strncasecmp(option2, "kbitertolerance", 15) == 0)
+        {
+          if (Bubble->Emissions == NULL) apecss_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Emissions->KB_IterTolerance = APECSS_STRINGTOFLOAT(option3);
         }
         else if (strncasecmp(option2, "initialradius", 13) == 0)
         {
@@ -407,14 +409,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
     /****************************************************************/
     else if (strncasecmp(option, "results", 7) == 0)
     {
-      if (Bubble->Results == NULL)
-      {
-        Bubble->Results = (struct APECSS_Results*) malloc(sizeof(struct APECSS_Results));
-        sprintf(Bubble->Results->dir, "./");
-        Bubble->Results->digits = 6;
-        Bubble->Results->RayleighPlesset = NULL;
-        Bubble->Results->Emissions = NULL;
-      }
+      if (Bubble->Results == NULL) apecss_results_initializestruct(Bubble);
 
       StatusSection = 1;
       while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
@@ -426,24 +421,11 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         }
         else if (strncasecmp(option2, "bubble", 6) == 0)
         {
-          if (Bubble->Results->RayleighPlesset == NULL)
-          {
-            Bubble->Results->RayleighPlesset = (struct APECSS_ResultsBubble*) malloc(sizeof(struct APECSS_ResultsBubble));
-            Bubble->Results->RayleighPlesset->freq = 1;
-            Bubble->Results->RayleighPlesset->n = 0;
-            Bubble->Results->RayleighPlesset->nAllocated = 0;
-            Bubble->Results->RayleighPlesset->nUserODEs = 0;
-          }
+          if (Bubble->Results->RayleighPlesset == NULL) apecss_results_rayleighplesset_initializestruct(Bubble);
         }
         else if (strncasecmp(option2, "outputfreqrp", 12) == 0)
         {
-          if (Bubble->Results->RayleighPlesset == NULL)
-          {
-            Bubble->Results->RayleighPlesset = (struct APECSS_ResultsBubble*) malloc(sizeof(struct APECSS_ResultsBubble));
-            Bubble->Results->RayleighPlesset->n = 0;
-            Bubble->Results->RayleighPlesset->nAllocated = 0;
-            Bubble->Results->RayleighPlesset->nUserODEs = 0;
-          }
+          if (Bubble->Results->RayleighPlesset == NULL) apecss_results_rayleighplesset_initializestruct(Bubble);
 
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->Results->RayleighPlesset->freq = atoi(option3);
@@ -471,44 +453,14 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         }
         else if (strncasecmp(option2, "outputfreqspacelocation", 23) == 0)
         {
-          if (Bubble->Results->Emissions == NULL)
-          {
-            Bubble->Results->Emissions = (struct APECSS_ResultsEmissions*) malloc(sizeof(struct APECSS_ResultsEmissions));
-            Bubble->Results->Emissions->nTimeInstances = 0;
-            Bubble->Results->Emissions->nextTimeInstance = 0;
-            Bubble->Results->Emissions->TimeInstances = NULL;
-            Bubble->Results->Emissions->freqSpaceLocations = 1;
-            Bubble->Results->Emissions->nSpaceLocations = 0;
-            Bubble->Results->Emissions->SpaceLocation = NULL;
-            Bubble->Results->Emissions->nNodes = 0;
-            Bubble->Results->Emissions->Node = NULL;
-            Bubble->Results->Emissions->MinMaxPeriod = 0;
-            Bubble->Results->Emissions->Node_Rmin = NULL;
-            Bubble->Results->Emissions->Node_Umin = NULL;
-            Bubble->Results->Emissions->Node_pLmax = NULL;
-          }
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
 
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->Results->Emissions->freqSpaceLocations = atoi(option3);
         }
         else if (strncasecmp(option2, "emissionstime", 13) == 0)
         {
-          if (Bubble->Results->Emissions == NULL)
-          {
-            Bubble->Results->Emissions = (struct APECSS_ResultsEmissions*) malloc(sizeof(struct APECSS_ResultsEmissions));
-            Bubble->Results->Emissions->nTimeInstances = 0;
-            Bubble->Results->Emissions->nextTimeInstance = 0;
-            Bubble->Results->Emissions->TimeInstances = NULL;
-            Bubble->Results->Emissions->freqSpaceLocations = 1;
-            Bubble->Results->Emissions->nSpaceLocations = 0;
-            Bubble->Results->Emissions->SpaceLocation = NULL;
-            Bubble->Results->Emissions->nNodes = 0;
-            Bubble->Results->Emissions->Node = NULL;
-            Bubble->Results->Emissions->MinMaxPeriod = 0;
-            Bubble->Results->Emissions->Node_Rmin = NULL;
-            Bubble->Results->Emissions->Node_Umin = NULL;
-            Bubble->Results->Emissions->Node_pLmax = NULL;
-          }
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
 
           l = apecss_readoneoption(OptionsFile, option3);
           APECSS_FLOAT t = APECSS_STRINGTOFLOAT(option3);
@@ -534,22 +486,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         }
         else if (strncasecmp(option2, "emissionsspace", 14) == 0)
         {
-          if (Bubble->Results->Emissions == NULL)
-          {
-            Bubble->Results->Emissions = (struct APECSS_ResultsEmissions*) malloc(sizeof(struct APECSS_ResultsEmissions));
-            Bubble->Results->Emissions->nTimeInstances = 0;
-            Bubble->Results->Emissions->nextTimeInstance = 0;
-            Bubble->Results->Emissions->TimeInstances = NULL;
-            Bubble->Results->Emissions->freqSpaceLocations = 1;
-            Bubble->Results->Emissions->nSpaceLocations = 0;
-            Bubble->Results->Emissions->SpaceLocation = NULL;
-            Bubble->Results->Emissions->nNodes = 0;
-            Bubble->Results->Emissions->Node = NULL;
-            Bubble->Results->Emissions->MinMaxPeriod = 0;
-            Bubble->Results->Emissions->Node_Rmin = NULL;
-            Bubble->Results->Emissions->Node_Umin = NULL;
-            Bubble->Results->Emissions->Node_pLmax = NULL;
-          }
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
 
           l = apecss_readoneoption(OptionsFile, option3);
           APECSS_FLOAT r = APECSS_STRINGTOFLOAT(option3);
@@ -585,22 +522,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         }
         else if (strncasecmp(option2, "emissionsnode", 13) == 0)
         {
-          if (Bubble->Results->Emissions == NULL)
-          {
-            Bubble->Results->Emissions = (struct APECSS_ResultsEmissions*) malloc(sizeof(struct APECSS_ResultsEmissions));
-            Bubble->Results->Emissions->nTimeInstances = 0;
-            Bubble->Results->Emissions->nextTimeInstance = 0;
-            Bubble->Results->Emissions->TimeInstances = NULL;
-            Bubble->Results->Emissions->freqSpaceLocations = 1;
-            Bubble->Results->Emissions->nSpaceLocations = 0;
-            Bubble->Results->Emissions->SpaceLocation = NULL;
-            Bubble->Results->Emissions->nNodes = 0;
-            Bubble->Results->Emissions->Node = NULL;
-            Bubble->Results->Emissions->MinMaxPeriod = 0;
-            Bubble->Results->Emissions->Node_Rmin = NULL;
-            Bubble->Results->Emissions->Node_Umin = NULL;
-            Bubble->Results->Emissions->Node_pLmax = NULL;
-          }
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
 
           l = apecss_readoneoption(OptionsFile, option3);
           int id = atoi(option3);
@@ -630,22 +552,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         }
         else if (strncasecmp(option2, "emissionsminmax", 15) == 0)
         {
-          if (Bubble->Results->Emissions == NULL)
-          {
-            Bubble->Results->Emissions = (struct APECSS_ResultsEmissions*) malloc(sizeof(struct APECSS_ResultsEmissions));
-            Bubble->Results->Emissions->nTimeInstances = 0;
-            Bubble->Results->Emissions->nextTimeInstance = 0;
-            Bubble->Results->Emissions->TimeInstances = NULL;
-            Bubble->Results->Emissions->freqSpaceLocations = 1;
-            Bubble->Results->Emissions->nSpaceLocations = 0;
-            Bubble->Results->Emissions->SpaceLocation = NULL;
-            Bubble->Results->Emissions->nNodes = 0;
-            Bubble->Results->Emissions->Node = NULL;
-            Bubble->Results->Emissions->MinMaxPeriod = 0;
-            Bubble->Results->Emissions->Node_Rmin = NULL;
-            Bubble->Results->Emissions->Node_Umin = NULL;
-            Bubble->Results->Emissions->Node_pLmax = NULL;
-          }
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
 
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->Results->Emissions->MinMaxPeriod = atoi(option3);
