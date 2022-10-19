@@ -11,7 +11,7 @@ PressureAmbient 1.0e5
 END
 
 GAS
-EOS IG
+EoS IG
 PolytropicExponent 1.095
 END
 

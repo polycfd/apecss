@@ -21,49 +21,49 @@ int apecss_gas_setdefaultoptions(struct APECSS_Bubble *Bubble)
 {
   Bubble->Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
 
-  Bubble->Gas->EOS = APECSS_GAS_IG;
+  Bubble->Gas->EoS = APECSS_GAS_IG;
   Bubble->Gas->Gamma = 1.4;
   Bubble->Gas->B = 0.0;
   Bubble->Gas->b = 0.0;
   Bubble->Gas->h = 0.0;
   Bubble->Gas->dmol = -1.0;
   Bubble->Gas->mmol = -1.0;
-  Bubble->Gas->pref = -1.0e10;  // Either set by user input or set to ambient pressure
+  Bubble->Gas->pref = -APECSS_LARGE;  // Either set by user input or set to ambient pressure
   Bubble->Gas->rhoref = 1.2;
 
   Bubble->Gas->get_pressure = apecss_gas_pressure_ig;
   Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_ig;
 
-  return 0;
+  return (0);
 }
 
 int apecss_gas_processoptions(struct APECSS_Bubble *Bubble)
 {
   // Set the appropriate function pointers associated with the gas equation of state
-  if (Bubble->Gas->EOS == APECSS_GAS_IG)
+  if (Bubble->Gas->EoS == APECSS_GAS_IG)
   {
     Bubble->Gas->get_pressure = apecss_gas_pressure_ig;
     Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_ig;
   }
-  else if (Bubble->Gas->EOS == APECSS_GAS_NASG)
+  else if (Bubble->Gas->EoS == APECSS_GAS_NASG)
   {
     Bubble->Gas->get_pressure = apecss_gas_pressure_nasg;
     Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_nasg;
   }
-  else if (Bubble->Gas->EOS == APECSS_GAS_HC)
+  else if (Bubble->Gas->EoS == APECSS_GAS_HC)
   {
     Bubble->Gas->get_pressure = apecss_gas_pressure_hc;
     Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_hc;
   }
   else
   {
-    apecss_erroronscreen(1, "Defined gas model unknown.");
+    apecss_erroronscreen(1, "Defined equation of state for the gas is unknown.");
   }
 
   // Set the reference pressure
   if (Bubble->Gas->pref < -Bubble->Gas->B) Bubble->Gas->pref = Bubble->p0;
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------

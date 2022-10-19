@@ -26,10 +26,10 @@ static const char APECSS_RELEASE_DATE[] = "16-Oct-2022";
 // CONSTANTS & MACROS
 // -------------------------------------------------------------------
 
-// Floating point precision
+// Floating point precision (default is double precision)
 // #define APECSS_PRECISION_LONGDOUBLE
 
-// Data types
+// Functions dependent on chosen floating point precision
 #if defined(APECSS_PRECISION_LONGDOUBLE)
 typedef long double APECSS_FLOAT;
 #define APECSS_EPS (1.0e-18)
@@ -75,51 +75,56 @@ typedef double APECSS_FLOAT;
 #define APECSS_AVOGADRO (6.02214076e23)
 #define APECSS_LN_OF_2 (0.693147180559945309)
 #define APECSS_LN_OF_10 (2.302585092994045684)
+#define APECSS_LARGE (1.0e15)
 
 // Runge-Kutta scheme
 #define APECSS_RK54_7M (0)  // RK5(4)7M (minimum truncation) coefficients of Dormand & Prince (1980)
 #define APECSS_RK54_7S (1)  // RK5(4)7S (stability optimized) coefficients of Dormand & Prince (1980)
 
-// Bubble model (bit-wise)
+// Bubble model
 #define APECSS_BUBBLEMODEL_RP (1)  // Standard Rayleigh-Plesset model
 #define APECSS_BUBBLEMODEL_RP_ACOUSTICRADIATION (2)  // Rayleigh-Plesset model incl. acoustic radiation term
-#define APECSS_BUBBLEMODEL_KELLERMIKSIS (4)  // Keller-Miksis model
-#define APECSS_BUBBLEMODEL_GILMORE (8)  // Gilmore model
+#define APECSS_BUBBLEMODEL_KELLERMIKSIS (3)  // Keller-Miksis model
+#define APECSS_BUBBLEMODEL_GILMORE (4)  // Gilmore model
 
-// Gas equations of state (bit-wise)
+// Gas equations of state
 #define APECSS_GAS_IG (1)  // ideal gas
 #define APECSS_GAS_HC (2)  // hard-core gas
-#define APECSS_GAS_NASG (4)  // Noble-Abel stiffend gas
+#define APECSS_GAS_NASG (3)  // Noble-Abel stiffend gas
 
-// Liquid models (bit-wise)
+// Liquid equations of state
+#define APECSS_LIQUID_TAIT (1)  // Tait EoS
+#define APECSS_LIQUID_NASG (2)  // Noble-Abel stiffend gas EoS
+
+// Liquid models
 #define APECSS_LIQUID_NEWTONIAN (1)  // Newtonian fluid
 #define APECSS_LIQUID_KELVINVOIGT (2)  // Kelvin-Voigt solid
-#define APECSS_LIQUID_ZENER (4)  // Zener solid, requires two additional ODEs
-#define APECSS_LIQUID_OLDROYDB (8)  // Oldroyd-B liquid, requires two additional ODEs
+#define APECSS_LIQUID_ZENER (3)  // Zener solid, requires two additional ODEs
+#define APECSS_LIQUID_OLDROYDB (4)  // Oldroyd-B liquid, requires two additional ODEs
 
 // Lipid coating model (bit-wise)
-#define APECSS_LIPIDCOATING_NONE (1)
-#define APECSS_LIPIDCOATING_MARMOTTANT (2)
-#define APECSS_LIPIDCOATING_GOMPERTZFUNCTION (4)
+#define APECSS_LIPIDCOATING_NONE (1)  // Clean interface
+#define APECSS_LIPIDCOATING_MARMOTTANT (2)  // Lipid-coating model of Marmottant et al. (2005)
+#define APECSS_LIPIDCOATING_GOMPERTZFUNCTION (4)  // Lipid-coating model of Guemmer et al. (2021)
 
-// Excitation types (bit-wise)
-#define APECSS_EXCITATION_NONE (0)
-#define APECSS_EXCITATION_SIN (1)
+// Excitation types
+#define APECSS_EXCITATION_NONE (0)  // No excitation
+#define APECSS_EXCITATION_SIN (1)  // Sinusoidal excitation
 
-// Emission type (bit-wise)
-#define APECSS_EMISSION_NONE (0)
-#define APECSS_EMISSION_INCOMPRESSIBLE (1)
-#define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)
-#define APECSS_EMISSION_QUASIACOUSTIC (4)
-#define APECSS_EMISSION_KIRKWOODBETHE (8)
+// Emission type
+#define APECSS_EMISSION_NONE (0)  // No emissions are computed
+#define APECSS_EMISSION_INCOMPRESSIBLE (1)  // Incompressible emissions, see Neppiras (1980)
+#define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound
+#define APECSS_EMISSION_QUASIACOUSTIC (3)  // Quasi-acoustic model of Gilmore (1952)
+#define APECSS_EMISSION_KIRKWOODBETHE (4)  // Fully-compressible model based on the Kirkwood-Bethe hypothesis
 
 // Misc
-#define APECSS_DATA_ALLOC_INCREMENT (10000)
-#define APECSS_STRINGLENGTH (512)
-#define APECSS_STRINGLENGTH_SPRINTF (1024)
-#define APECSS_STRINGLENGTH_SPRINTF_LONG (2048)
+#define APECSS_DATA_ALLOC_INCREMENT (10000)  // Allocation increment for the arrays in which the results are stored
+#define APECSS_STRINGLENGTH (512)  // Standard string length
+#define APECSS_STRINGLENGTH_SPRINTF (1024)  // String length for printing in the terminal
+#define APECSS_STRINGLENGTH_SPRINTF_LONG (2048)  // Length of a long string for printing in the terminal
 
-// Debugging aids
+// Debugging aids, returning the line number and file name in which the macro is called
 #define APECSS_WHERE printf("HERE - %s:%d\n", __FILE__, __LINE__);
 #define APECSS_WHERE_INT(a) printf("HERE - %s:%d = %i\n", __FILE__, __LINE__, a);
 #if defined(APECSS_PRECISION_LONGDOUBLE)
@@ -136,17 +141,17 @@ struct APECSS_Bubble;  // Dummy for the function pointer below
 
 struct APECSS_Gas
 {
-  int EOS;
+  int EoS;  // Equation of state
 
   APECSS_FLOAT Gamma;  // Polytropic exponent
   APECSS_FLOAT B;  // Attractive pressure constant [Pa]
   APECSS_FLOAT b;  // Co-volume [m^3/kg]
   APECSS_FLOAT h;  // van der Waals hardcore radius [m]
-  APECSS_FLOAT dmol;  // Molecular diameter [m]
+  APECSS_FLOAT dmol;  // Molecular kinetic diameter [m]
   APECSS_FLOAT mmol;  // Molecular weight [kg/mol]
   APECSS_FLOAT pref;  // Reference pressure [Pa]
   APECSS_FLOAT rhoref;  // Reference density [kg/m^3]
-  APECSS_FLOAT Kref;  // Constant reference coefficient of a polytropic EOS
+  APECSS_FLOAT Kref;  // Constant reference coefficient of a polytropic EoS
 
   // Pointers to the functions describing the gas pressure and its derivative
   APECSS_FLOAT (*get_pressure)(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble);
@@ -155,7 +160,8 @@ struct APECSS_Gas
 
 struct APECSS_Liquid
 {
-  int Type;
+  int Type;  // Type of liquid (i.e. Newtonian or viscoelastic)
+  int EoS;  // Equation of state
 
   APECSS_FLOAT Gamma;  // Polytropic exponent
   APECSS_FLOAT B;  // Attractive pressure constant [Pa]
@@ -167,16 +173,17 @@ struct APECSS_Liquid
   APECSS_FLOAT pref;  // Reference pressure [Pa]
   APECSS_FLOAT rhoref;  // Reference density [kg/m^3]
   APECSS_FLOAT cref;  // Reference speed of sound [m/s^2]
-  APECSS_FLOAT Kref;  // Constant reference coefficient of a polytropic EOS
-  APECSS_FLOAT G;  // Shear modulus
-  APECSS_FLOAT eta;  // Polymer viscosity
-  APECSS_FLOAT lambda;  // Relaxation time
+  APECSS_FLOAT Kref;  // Constant reference coefficient of a polytropic EoS
+  APECSS_FLOAT G;  // Shear modulus [Pa]
+  APECSS_FLOAT eta;  // Polymer viscosity [Pa s]
+  APECSS_FLOAT lambda;  // Relaxation time [s]
 
+  // Pointers to the functions describing the properties of the liquid
   APECSS_FLOAT (*get_density)(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
   APECSS_FLOAT (*get_soundspeed)(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
   APECSS_FLOAT (*get_enthalpy)(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
 
-  // Pointers to the functions describing the liquid pressure and its derivative
+  // Pointers to the functions describing the liquid pressure and its derivative at the bubble wall
   APECSS_FLOAT (*get_pressure_bubblewall)(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_bubblewall_expl)(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
@@ -185,7 +192,7 @@ struct APECSS_Liquid
   APECSS_FLOAT (*get_pressurederivative_viscous_expl)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_viscous_impl)(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 
-  // Pointers to the functions describing the state of the liquid at infinity
+  // Pointers to the functions describing the liquid pressure and its derivative at infinity
   APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 };
@@ -204,6 +211,7 @@ struct APECSS_Interface
   APECSS_FLOAT GompertzB;  // B coefficient of the Marmottant-Gompertz model
   APECSS_FLOAT GompertzC;  // C coefficient of the Marmottant-Gompertz model
 
+  // Pointer to the function defining the surface tension coefficient
   APECSS_FLOAT (*get_surfacetension)(APECSS_FLOAT R, struct APECSS_Interface *Interface);
 
   // Pointers to the functions describing the pressure and its derivative due to surface tension
@@ -213,26 +221,31 @@ struct APECSS_Interface
 
 struct APECSS_EmissionNode
 {
-  int id;
+  int id;  // Unique ID of the emission node
   APECSS_FLOAT r;  // Radial coordinate
+  APECSS_FLOAT h;  // Enthalpy
   APECSS_FLOAT p;  // Pressure
   APECSS_FLOAT u;  // Velocity
   APECSS_FLOAT f;  // = const.
   APECSS_FLOAT g;  // = const.
-  struct APECSS_EmissionNode *forward;
-  struct APECSS_EmissionNode *backward;
+  struct APECSS_EmissionNode *forward;  // Forward (i.e. outward) neighbor
+  struct APECSS_EmissionNode *backward;  // Backward (i.e. inward) neighbor
 };
 
 struct APECSS_Emissions
 {
-  int Type;
-  APECSS_FLOAT CutOffDistance;
-  APECSS_FLOAT KB_IterTolerance;
+  int Type;  // Model for the acoustic emissions
+  APECSS_FLOAT CutOffDistance;  // Distance above which the nodes are deleted
+  APECSS_FLOAT KB_IterTolerance;  // Iteration tolerance to obtain pressure in the general Kirkwood-Bethe model
 
-  int nNodes;
+  int nNodes;  // Total number of emission nodes in the linked list
   struct APECSS_EmissionNode *FirstNode;  // First node of the linked list
   struct APECSS_EmissionNode *LastNode;  // Last node of the linked list
+
+  // Pointer to the function advancing the emission nodes
   int (*advance)(struct APECSS_Bubble *Bubble);
+
+  // Pointer to the function with the appropriate advecting velocity of the emission nodes
   APECSS_FLOAT (*get_advectingvelocity)(APECSS_FLOAT u);
 };
 
@@ -242,8 +255,8 @@ struct APECSS_NumericsODE
 
   APECSS_FLOAT dtMin;  // Minimum allowable time-step
   APECSS_FLOAT dtMax;  // Maximum allowable time-step
-  APECSS_FLOAT minScale;  // Minimum allowable value by which the dt-controller multipliesdt
-  APECSS_FLOAT maxScale;  // Maximum allowable value by which the dt-controller multipliesdt
+  APECSS_FLOAT minScale;  // Minimum allowable value by which the dt-controller multiplies dt
+  APECSS_FLOAT maxScale;  // Maximum allowable value by which the dt-controller multiplies dt
   APECSS_FLOAT tol;  // Desired tolerance of the solution
   APECSS_FLOAT control_coeff_alpha;
   APECSS_FLOAT control_coeff_q;
@@ -283,57 +296,63 @@ struct APECSS_ResultsBubble
   APECSS_FLOAT *pL;  // Pressure in the liquid at the bubble wall [Pa]
   APECSS_FLOAT *cL;  // Speed of sound in the liquid at the bubble wall [m/s]
 
-  int nUserODEs;  // The solutions of the first nUserODEs additional ODEs defined by the user are written to file
-  APECSS_FLOAT **UserODEsSol;
-  char **UserODEsName;
+  int nUserODEs;  // The solutions of the first nUserODEs additional user-defined ODEs are written to file
+  APECSS_FLOAT **UserODEsSol;  // Solution of the user-defined ODEs to be written to file
+  char **UserODEsName;  // Name of the value of the user-defined ODEs to be written to file (e.g. 'T' for temperature)
 };
 
 struct APECSS_ResultsEmissionsSpace
 {
   int n;  // Number of stored results
   int nAllocated;  // Length of the arrays
-  APECSS_FLOAT RadialLocation;
-  APECSS_FLOAT *t;
-  APECSS_FLOAT *p;
-  APECSS_FLOAT *u;
-  APECSS_FLOAT *c;
-  APECSS_FLOAT *pInf;
+  APECSS_FLOAT RadialLocation;  // Radial location at which the results are recorded [m]
+  APECSS_FLOAT *t;  // Time [s]
+  APECSS_FLOAT *p;  // Absolute pressure [Pa]
+  APECSS_FLOAT *u;  // Velocity [m/s]
+  APECSS_FLOAT *c;  // Speed of sound [m/s]
+  APECSS_FLOAT *pInf;  // Pressure at infinity at the given time [Pa]
 };
 
 struct APECSS_ResultsEmissionsNode
 {
-  int id;
+  int id;  // Desired ID of the emission node that it to be written out
   int n;  // Number of stored results
   int nAllocated;  // Length of the arrays
-  int *real_id;
-  APECSS_FLOAT *r;
-  APECSS_FLOAT *t;
-  APECSS_FLOAT *p;
-  APECSS_FLOAT *u;
-  APECSS_FLOAT *c;
-  APECSS_FLOAT *pInf;
+  int *real_id;  // Actual ID of the emission node
+  APECSS_FLOAT *r;  // Radial location [m]
+  APECSS_FLOAT *t;  // Time [s]
+  APECSS_FLOAT *p;  // Absolute pressure [Pa]
+  APECSS_FLOAT *u;  // Velocity [m/s]
+  APECSS_FLOAT *c;  // Speed of sound [m/s]
+  APECSS_FLOAT *pInf;  // Pressure at infinity at the given time [Pa]
 };
 
 struct APECSS_ResultsEmissions
 {
-  int nTimeInstances;
-  int nextTimeInstance;
-  APECSS_FLOAT *TimeInstances;
+  // Results of the acoustic emissions at specific time instances (option: EmissionsTime)
+  int nTimeInstances;  // Number of time instances at which the acoustic emissions ought to be written out
+  int nextTimeInstance;  // Count of the next time instance to be written out
+  APECSS_FLOAT *TimeInstances;  // Time instances that are to be written out
 
+  // Results of the acoustic emissions recorded at specific radial locations (option: EmissionsSpace)
   int freqSpaceLocations;  // Frequency with which the results are stored (with respect to the time-step number)
-  int nSpaceLocations;
-  struct APECSS_ResultsEmissionsSpace *SpaceLocation;
+  int nSpaceLocations;  // Number of radial locations
+  struct APECSS_ResultsEmissionsSpace *SpaceLocation;  // Array of structures containing the results at the specified radial locations
 
-  int nNodes;
-  struct APECSS_ResultsEmissionsNode *Node;
+  // Results of a specific emission node (option: EmissionsNode)
+  int nNodes;  // Number of nodes
+  struct APECSS_ResultsEmissionsNode *Node;  // Array of structures containing the results for the specified nodes
 
-  int MinMaxPeriod;
-  struct APECSS_ResultsEmissionsNode *Node_Rmin, *Node_Umin, *Node_pLmax;
-  APECSS_FLOAT Rmin, Umin, pLmax;
+  // Results of the acoustic emission at min/max instances (option EmissionsMinMax)
+  int MinMaxPeriod;  // Excitation period in which the min/max instances are to be written out
+  struct APECSS_ResultsEmissionsNode *Node_Rmin, *Node_Umin, *Node_pLmax;  // Array of structures containing the results for the specified nodes
+  APECSS_FLOAT Rmin, Umin, pLmax;  // Respective min/max values
 
+  // Pointer to the function allocating the solution arrays
   int (*allocation_nodespecific)(struct APECSS_Bubble *Bubble);
   int (*allocation_nodeminmax)(struct APECSS_Bubble *Bubble);
 
+  // Pointer to the function storing the solution
   int (*store_nodespecific)(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble);
   int (*store_nodeminmax)(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble);
 };
@@ -343,31 +362,29 @@ struct APECSS_Results
   int digits;  // Number of digits for the output
   char dir[APECSS_STRINGLENGTH_SPRINTF];  // Directory path where the results are stored
 
-  struct APECSS_ResultsBubble *RayleighPlesset;
-  struct APECSS_ResultsEmissions *Emissions;
+  struct APECSS_ResultsBubble *RayleighPlesset;  // Structure containing the results of the Rayleigh-Plesset model (if applicable)
+  struct APECSS_ResultsEmissions *Emissions;  // Structure containing the results of the acoustic emissions (if applicable)
 };
 
 struct APECSS_Bubble
 {
-  int id;  // Bubble ID
   APECSS_FLOAT tStart;  // Start time [s]
   APECSS_FLOAT tEnd;  // End time [s]
 
   APECSS_FLOAT dt;  // Time-step
   int dtNumber;  // Time-step number
   int nSubIter;  // Total number of sub-iterations to control the error
-  APECSS_FLOAT *k2, *k3, *k4, *k5, *k6, *k7, *kLast;
+  APECSS_FLOAT *k2, *k3, *k4, *k5, *k6, *k7, *kLast;  // Intermediate solutions of the Runge-Kutta solver
 
   int RPModel;  // Model governing the bubble dynamics
 
   // Primary variables
-  APECSS_FLOAT t;  // Physical time [s]
+  APECSS_FLOAT t;  // Time [s]
   APECSS_FLOAT R;  // Radius of the bubble [m]
   APECSS_FLOAT U;  // Velocity of the bubble wall [m/s]
 
   // Ambient and initial conditions
   APECSS_FLOAT p0;  // Ambient pressure [Pa]
-  APECSS_FLOAT T0;  // Ambient temperature [K]
   APECSS_FLOAT R0;  // Initial radius [m]
   APECSS_FLOAT U0;  // Initial velocity [m/s]
   APECSS_FLOAT pG0;  // Initial gas pressure [Pa]
@@ -378,23 +395,23 @@ struct APECSS_Bubble
   int nUserODEs;  // Number of additional user-defined ODEs
   APECSS_FLOAT *ODEsSol;  // Solution of each ODE
   APECSS_FLOAT (**ode)(APECSS_FLOAT *, APECSS_FLOAT, struct APECSS_Bubble *);  // Array of pointers to the functions containing the ODEs
-  struct APECSS_NumericsODE *NumericsODE;
+  struct APECSS_NumericsODE *NumericsODE;  // Structure containg the parameters of the Runge-Kutta solver
 
   // Properties of the fluids and interface
   struct APECSS_Gas *Gas;
   struct APECSS_Liquid *Liquid;
   struct APECSS_Interface *Interface;
 
-  // Excitation of the bubble
+  // Excitation of the bubble (if applicable)
   struct APECSS_Excitation *Excitation;
 
-  // Lagrangian emissions
+  // Lagrangian emissions (if applicable)
   struct APECSS_Emissions *Emissions;
   int (*emissions_initialize)(struct APECSS_Bubble *Bubble);
   int (*emissions_update)(struct APECSS_Bubble *Bubble);
   int (*emissions_free)(struct APECSS_Bubble *Bubble);
 
-  // Results
+  // Results (if applicable)
   struct APECSS_Results *Results;
   int (*results_rayleighplesset_store)(struct APECSS_Bubble *Bubble);
   int (*results_emissionstime_write)(struct APECSS_Bubble *Bubble);
@@ -404,7 +421,7 @@ struct APECSS_Bubble
   int (*results_emissionsnode_alloc)(struct APECSS_Bubble *Bubble);
   int (*results_emissionsnode_store)(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble);
 
-  // Progress screen
+  // Progress screen (if applicable)
   int (*progress_initial)();
   int (*progress_update)(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
   int (*progress_final)();
@@ -443,7 +460,8 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble);
 int apecss_emissions_removenode(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
-int apecss_emissions_advance_kirkwoodbethe(struct APECSS_Bubble *Bubble);
+int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
+int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnzero(APECSS_FLOAT u);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u);
 
@@ -484,10 +502,13 @@ APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_gompertzmarmottan
 int apecss_liquid_setdefaultoptions(struct APECSS_Bubble *Bubble);
 int apecss_liquid_processoptions(struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_density_fixed(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
+APECSS_FLOAT apecss_liquid_density_tait(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_density_nasg(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_soundspeed_fixed(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
+APECSS_FLOAT apecss_liquid_soundspeed_tait(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_soundspeed_nasg(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_enthalpy_quasiacoustic(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
+APECSS_FLOAT apecss_liquid_enthalpy_tait(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_enthalpy_nasg(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_pressure_bubblewall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressure_bubblewall_kelvinvoigt(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
@@ -514,7 +535,7 @@ APECSS_FLOAT apecss_liquid_pressurederivative_viscous_marmottantimpl(APECSS_FLOA
 
 APECSS_FLOAT apecss_odesolver(struct APECSS_Bubble *Bubble);
 int apecss_odesolver_settimestep(struct APECSS_NumericsODE *ODEs, APECSS_FLOAT err, APECSS_FLOAT timetoend, APECSS_FLOAT *dt);
-int apecss_odesolver_rungekuttacoeffs(struct APECSS_NumericsODE *ODEs, int nODEs);
+int apecss_odesolver_rungekuttacoeffs(struct APECSS_NumericsODE *ODEs);
 
 // ---------------------
 // onscreen.c

@@ -102,7 +102,7 @@ APECSS_FLOAT apecss_odesolver(struct APECSS_Bubble *Bubble)
                                 Bubble->NumericsODE->e5 * Bubble->k5[i] + Bubble->NumericsODE->e6 * Bubble->k6[i] + Bubble->NumericsODE->e7 * Bubble->k7[i]) *
                          Bubble->dt / (APECSS_ABS(Bubble->ODEsSol[i]) + APECSS_SMALL));
 
-  return err;
+  return (err);
 }
 
 int apecss_odesolver_settimestep(struct APECSS_NumericsODE *ODEs, APECSS_FLOAT err, APECSS_FLOAT timetoend, APECSS_FLOAT *dt)
@@ -119,10 +119,10 @@ int apecss_odesolver_settimestep(struct APECSS_NumericsODE *ODEs, APECSS_FLOAT e
   // Apply upper and lower limit to time step size
   *dt = APECSS_MIN3(APECSS_MAX(*dt, ODEs->dtMin), ODEs->dtMax, timetoend);
 
-  return 0;
+  return (0);
 }
 
-int apecss_odesolver_rungekuttacoeffs(struct APECSS_NumericsODE *ODEs, int nODEs)
+int apecss_odesolver_rungekuttacoeffs(struct APECSS_NumericsODE *ODEs)
 {
   if (ODEs->RKtype == APECSS_RK54_7M)
   {
@@ -233,5 +233,5 @@ int apecss_odesolver_rungekuttacoeffs(struct APECSS_NumericsODE *ODEs, int nODEs
   ODEs->e6 = ODEs->b6 - ODEs->bs6;
   ODEs->e7 = ODEs->b7 - ODEs->bs7;
 
-  return 0;
+  return (0);
 }

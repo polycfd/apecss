@@ -22,11 +22,12 @@ int apecss_liquid_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
 
   Bubble->Liquid->Type = APECSS_LIQUID_NEWTONIAN;
-  Bubble->Liquid->Gamma = 1.186;
+  Bubble->Liquid->EoS = -1;
+  Bubble->Liquid->Gamma = 7.15;
   Bubble->Liquid->B = 0.0;
   Bubble->Liquid->b = 0.0;
   Bubble->Liquid->mu = 0.001;
-  Bubble->Liquid->pref = -1.0e10;  // Either set by user input or set to ambient pressure
+  Bubble->Liquid->pref = -APECSS_LARGE;  // Either set by user input or set to ambient pressure
   Bubble->Liquid->rhoref = 1000.0;
   Bubble->Liquid->cref = 1500.0;
   Bubble->Liquid->G = 0.0;
@@ -44,44 +45,50 @@ int apecss_liquid_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->Liquid->get_pressurederivative_viscous_expl = apecss_liquid_pressurederivative_viscous_cleanexpl;
   Bubble->Liquid->get_pressurederivative_viscous_impl = apecss_liquid_pressurederivative_viscous_cleanimpl;
 
-  return 0;
+  return (0);
 }
 
 int apecss_liquid_processoptions(struct APECSS_Bubble *Bubble)
 {
+  // Set the function pointers that define the equation of state of the liquid
   if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
   {
-    Bubble->Liquid->get_density = apecss_liquid_density_nasg;
-    Bubble->Liquid->get_soundspeed = apecss_liquid_soundspeed_nasg;
-    Bubble->Liquid->get_enthalpy = apecss_liquid_enthalpy_nasg;
+    if (Bubble->Liquid->EoS < 0) Bubble->Liquid->EoS = APECSS_LIQUID_TAIT;
+    if (Bubble->Liquid->pref < -Bubble->Liquid->B) Bubble->Liquid->pref = Bubble->p0;
+
+    if (Bubble->Liquid->EoS == APECSS_LIQUID_TAIT)
+    {
+      Bubble->Liquid->get_density = apecss_liquid_density_tait;
+      Bubble->Liquid->get_soundspeed = apecss_liquid_soundspeed_tait;
+      Bubble->Liquid->get_enthalpy = apecss_liquid_enthalpy_tait;
+
+      // Compute the reference coefficient for the liquid
+      Bubble->Liquid->Kref = Bubble->Liquid->rhoref / (APECSS_POW(Bubble->Liquid->pref + Bubble->Liquid->B, 1.0 / Bubble->Liquid->Gamma));
+    }
+    else if (Bubble->Liquid->EoS == APECSS_LIQUID_NASG)
+    {
+      Bubble->Liquid->get_density = apecss_liquid_density_nasg;
+      Bubble->Liquid->get_soundspeed = apecss_liquid_soundspeed_nasg;
+      Bubble->Liquid->get_enthalpy = apecss_liquid_enthalpy_nasg;
+
+      // Compute the reference coefficient for the liquid
+      Bubble->Liquid->Kref = Bubble->Liquid->rhoref / (APECSS_POW(Bubble->Liquid->pref + Bubble->Liquid->B, 1.0 / Bubble->Liquid->Gamma) *
+                                                       (1.0 - Bubble->Liquid->b * Bubble->Liquid->rhoref));
+    }
+    else
+    {
+      apecss_erroronscreen(-1, "Unknown equation of state defined for the liquid for the Gilmore model.");
+    }
+
+    if (Bubble->Liquid->Kref <= 0.0) apecss_erroronscreen(-1, "K reference factor of the liquid is unphysical (Kref <= 0).");
   }
   else
   {
     Bubble->Liquid->get_density = apecss_liquid_density_fixed;
     Bubble->Liquid->get_soundspeed = apecss_liquid_soundspeed_fixed;
     Bubble->Liquid->get_enthalpy = apecss_liquid_enthalpy_quasiacoustic;
-  }
 
-  if (Bubble->Liquid->pref < -Bubble->Liquid->B) Bubble->Liquid->pref = Bubble->p0;
-
-  // Set the function pointers for the properties of the liquid at infinity
-  if (Bubble->Excitation != NULL)
-  {
-    if (Bubble->Excitation->type == APECSS_EXCITATION_SIN)
-    {
-      Bubble->Liquid->get_pressure_infinity = apecss_liquid_pressure_infinity_sinexcitation;
-      Bubble->Liquid->get_pressurederivative_infinity = apecss_liquid_pressurederivative_infinity_sinexcitation;
-    }
-    else
-    {
-      Bubble->Liquid->get_pressure_infinity = apecss_liquid_pressure_infinity_noexcitation;
-      Bubble->Liquid->get_pressurederivative_infinity = apecss_liquid_pressurederivative_infinity_noexcitation;
-    }
-  }
-  else
-  {
-    Bubble->Liquid->get_pressure_infinity = apecss_liquid_pressure_infinity_noexcitation;
-    Bubble->Liquid->get_pressurederivative_infinity = apecss_liquid_pressurederivative_infinity_noexcitation;
+    if (Bubble->Liquid->pref < 0.0) Bubble->Liquid->pref = Bubble->p0;
   }
 
   // Set the function pointers that define the type of the liquid
@@ -108,17 +115,27 @@ int apecss_liquid_processoptions(struct APECSS_Bubble *Bubble)
     Bubble->Liquid->get_pressurederivative_bubblewall_expl = apecss_liquid_pressurederivative_bubblewall_exploldroydb;
   }
 
-  Bubble->Liquid->Kref = Bubble->Liquid->rhoref / (APECSS_POW(Bubble->Liquid->pref + Bubble->Liquid->B, 1.0 / Bubble->Liquid->Gamma) *
-                                                   (1.0 - Bubble->Liquid->b * Bubble->Liquid->rhoref));
-
-  if (Bubble->Liquid->Kref <= 0.0)
+  // Set the function pointers for the properties of the liquid at infinity
+  if (Bubble->Excitation != NULL)
   {
-    char str[APECSS_STRINGLENGTH_SPRINTF];
-    sprintf(str, "K reference factor of the liquid is unphysical (Kref <= 0).");
-    apecss_erroronscreen(-1, str);
+    if (Bubble->Excitation->type == APECSS_EXCITATION_SIN)
+    {
+      Bubble->Liquid->get_pressure_infinity = apecss_liquid_pressure_infinity_sinexcitation;
+      Bubble->Liquid->get_pressurederivative_infinity = apecss_liquid_pressurederivative_infinity_sinexcitation;
+    }
+    else
+    {
+      Bubble->Liquid->get_pressure_infinity = apecss_liquid_pressure_infinity_noexcitation;
+      Bubble->Liquid->get_pressurederivative_infinity = apecss_liquid_pressurederivative_infinity_noexcitation;
+    }
+  }
+  else
+  {
+    Bubble->Liquid->get_pressure_infinity = apecss_liquid_pressure_infinity_noexcitation;
+    Bubble->Liquid->get_pressurederivative_infinity = apecss_liquid_pressurederivative_infinity_noexcitation;
   }
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
@@ -126,6 +143,11 @@ int apecss_liquid_processoptions(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_liquid_density_fixed(APECSS_FLOAT p, struct APECSS_Liquid *Liquid) { return (Liquid->rhoref); }
+
+APECSS_FLOAT apecss_liquid_density_tait(APECSS_FLOAT p, struct APECSS_Liquid *Liquid)
+{
+  return (Liquid->Kref * APECSS_POW((p + Liquid->B), (1.0 / Liquid->Gamma)));
+}
 
 APECSS_FLOAT apecss_liquid_density_nasg(APECSS_FLOAT p, struct APECSS_Liquid *Liquid)
 {
@@ -135,12 +157,22 @@ APECSS_FLOAT apecss_liquid_density_nasg(APECSS_FLOAT p, struct APECSS_Liquid *Li
 
 APECSS_FLOAT apecss_liquid_soundspeed_fixed(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid) { return (Liquid->cref); }
 
+APECSS_FLOAT apecss_liquid_soundspeed_tait(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid)
+{
+  return (APECSS_SQRT(Liquid->Gamma * (p + Liquid->B) / rho));
+}
+
 APECSS_FLOAT apecss_liquid_soundspeed_nasg(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid)
 {
   return (APECSS_SQRT(Liquid->Gamma * (p + Liquid->B) / (rho * (1.0 - Liquid->b * rho))));
 }
 
 APECSS_FLOAT apecss_liquid_enthalpy_quasiacoustic(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid) { return (p / rho); }
+
+APECSS_FLOAT apecss_liquid_enthalpy_tait(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid)
+{
+  return (Liquid->Gamma * (p + Liquid->B) / ((Liquid->Gamma - 1.0) * rho));
+}
 
 APECSS_FLOAT apecss_liquid_enthalpy_nasg(APECSS_FLOAT p, APECSS_FLOAT rho, struct APECSS_Liquid *Liquid)
 {

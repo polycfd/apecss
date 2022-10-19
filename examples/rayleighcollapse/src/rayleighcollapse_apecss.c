@@ -89,5 +89,5 @@ int main(int argc, char **args)
   /* Make sure all allocated memory is freed */
   apecss_bubble_freearrays(&Bubble);
 
-  return 0;
+  return (0);
 }

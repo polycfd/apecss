@@ -16,7 +16,7 @@
 int apecss_writeonscreen(char* str)
 {
   printf("| APECSS | %s\n", str);
-  return 0;
+  return (0);
 }
 
 int apecss_erroronscreen(int num, char* message)
@@ -39,7 +39,7 @@ int apecss_erroronscreen(int num, char* message)
     printf("------------------------------------------------------------------------------------ \n");
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_infoscreen()
@@ -56,5 +56,5 @@ int apecss_infoscreen()
   printf("with double precision \n");
 #endif
 
-  return 0;
+  return (0);
 }

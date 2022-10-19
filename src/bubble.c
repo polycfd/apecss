@@ -24,17 +24,19 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
 
   // Ambient conditions
   Bubble->p0 = 1.0e5;
-  Bubble->T0 = 293.15;
 
   // Initial gas pressure in the bubble
-  Bubble->pG0 = -1.0e10;
+  Bubble->pG0 = -APECSS_LARGE;
 
   // ODEs
-  Bubble->dt = 1.0e-10;
+  Bubble->dt = 1.0e-10;  // Initial time-step
   Bubble->nODEs = 2;  // ODEs for the bubble radius and bubble wall velocity
   Bubble->nUserODEs = 0;  // Number of ODEs defined by the user
 
+  // Allocate the structure for the ODE solver parameters
   Bubble->NumericsODE = (struct APECSS_NumericsODE *) malloc(sizeof(struct APECSS_NumericsODE));
+
+  // Default parameters for the ODE solver
   Bubble->NumericsODE->RKtype = APECSS_RK54_7M;
   Bubble->NumericsODE->tol = 1.0e-10;
   Bubble->NumericsODE->maxSubIter = 20;
@@ -65,12 +67,12 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->results_emissionsnode_store = apecss_results_emissionsnode_storenone;
   Bubble->results_emissionsnodeminmax_identify = apecss_results_emissionsnodeminmax_identifynone;
 
-  return 0;
+  return (0);
 }
 
 int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
 {
-  // ODEs to describe viscoelasticity
+  // Increment the number of ODEs if additional ODEs for viscoelasticity are to be solved
   if (Bubble->Liquid->Type == APECSS_LIQUID_ZENER || Bubble->Liquid->Type == APECSS_LIQUID_OLDROYDB) Bubble->nODEs += 2;
 
   // Allocate the solution array and the array for the function pointers of the ODEs
@@ -78,6 +80,7 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
   Bubble->ODEsSol = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
   for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = 0.0;
 
+  // Alocate the arrays for the intermediate solutions of the ODE for the Runge-Kutta solver
   Bubble->k2 = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
   Bubble->k3 = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
   Bubble->k4 = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
@@ -89,19 +92,21 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
   // ---------------------------------------
   // RP model
 
-  if (Bubble->RPModel & APECSS_BUBBLEMODEL_GILMORE)
+  if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
     Bubble->ode[0] = apecss_rp_gilmorevelocity_ode;
-  else if (Bubble->RPModel & APECSS_BUBBLEMODEL_KELLERMIKSIS)
+  else if (Bubble->RPModel == APECSS_BUBBLEMODEL_KELLERMIKSIS)
     Bubble->ode[0] = apecss_rp_kellermiksisvelocity_ode;
-  else if (Bubble->RPModel & APECSS_BUBBLEMODEL_RP_ACOUSTICRADIATION)
+  else if (Bubble->RPModel == APECSS_BUBBLEMODEL_RP_ACOUSTICRADIATION)
     Bubble->ode[0] = apecss_rp_rayleighplessetacousticrationvelocity_ode;
   else
     Bubble->ode[0] = apecss_rp_rayleighplessetvelocity_ode;
 
   Bubble->ode[1] = apecss_rp_bubbleradius_ode;
 
-  // Bubble->nODEs has to reflect the number of actually defined ODEs, e.g. so that
-  // additional user-defined ODEs can easily be added.
+  // ---------------------------------------
+  // Bubble->nODEs is now reset (!!!), as it has to reflect the number of actually defined ODEs,
+  // e.g. so that additional user-defined ODEs can easily be added.
+
   Bubble->nODEs = 2;
 
   // ---------------------------------------
@@ -123,7 +128,7 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
   // ---------------------------------------
   // ODE solver
 
-  apecss_odesolver_rungekuttacoeffs(Bubble->NumericsODE, Bubble->nODEs);
+  apecss_odesolver_rungekuttacoeffs(Bubble->NumericsODE);
 
   // ---------------------------------------
   // Emissions
@@ -146,7 +151,13 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
     }
     else if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
     {
-      Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe;
+      if (Bubble->Liquid->EoS == APECSS_LIQUID_TAIT)
+        Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_tait;
+      else if (Bubble->Liquid->EoS == APECSS_LIQUID_NASG)
+        Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_general;
+      else
+        apecss_erroronscreen(-1, "Unknown equation of state defined for the liquid for the emissions.");
+
       Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnvelocity;
     }
   }
@@ -240,7 +251,7 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
     Bubble->results_emissionsnodeminmax_identify = apecss_results_emissionsnodeminmax_identifynone;
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
@@ -250,36 +261,40 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   // ---------------------------------------
   // Gas
 
-  if (Bubble->Gas->EOS & APECSS_GAS_NASG)
+  if (Bubble->Gas->EoS == APECSS_GAS_NASG)
   {
     if (Bubble->Gas->mmol > 0.0 && Bubble->Gas->dmol > 0.0)
     {
+      // Compute the co-volume based on the molecule properties
       Bubble->Gas->b = APECSS_AVOGADRO * 16.0 * APECSS_PI * APECSS_POW3(0.5 * Bubble->Gas->dmol) / (3.0 * Bubble->Gas->mmol);
     }
     else if (Bubble->Gas->b < 0.0)
     {
       char str[APECSS_STRINGLENGTH_SPRINTF];
-      sprintf(str, "Co-volume of the gas cannot be computed. Insufficient data.");
+      sprintf(str, "Co-volume of the gas cannot be computed and has not been predefined. Insufficient data.");
       apecss_erroronscreen(-1, str);
     }
 
+    // Compute the reference coefficient for the gas
     Bubble->Gas->Kref =
         Bubble->Gas->rhoref / (APECSS_POW(Bubble->Gas->pref + Bubble->Gas->B, 1.0 / Bubble->Gas->Gamma) * (1.0 - Bubble->Gas->b * Bubble->Gas->rhoref));
   }
-  else if (Bubble->Gas->EOS & APECSS_GAS_HC)
+  else if (Bubble->Gas->EoS == APECSS_GAS_HC)
   {
     if (Bubble->Gas->mmol > 0.0 && Bubble->Gas->dmol > 0.0)
     {
+      // Compute the hardcore radius based on the molecule properties
       APECSS_FLOAT mgref = Bubble->Gas->rhoref * 4.0 * APECSS_PI * APECSS_POW3(Bubble->R0) / 3.0;
       Bubble->Gas->h = APECSS_POW(APECSS_AVOGADRO * mgref * 4.0 * APECSS_POW3(0.5 * Bubble->Gas->dmol) / (Bubble->Gas->mmol), APECSS_ONETHIRD);
     }
     else if (Bubble->Gas->h < 0.0)
     {
       char str[APECSS_STRINGLENGTH_SPRINTF];
-      sprintf(str, "Hardcore radius of the gas cannot be computed. Insufficient data.");
+      sprintf(str, "Hardcore radius of the gas cannot be computed and has not been predefined. Insufficient data.");
       apecss_erroronscreen(-1, str);
     }
 
+    // Compute the reference coefficient for the gas
     Bubble->Gas->Kref = Bubble->Gas->rhoref / (APECSS_POW(Bubble->Gas->pref, 1.0 / Bubble->Gas->Gamma));
   }
   else
@@ -297,6 +312,9 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
     apecss_erroronscreen(-1, str);
   }
 
+  // ---------------------------------------
+  // Interface
+
   if (Bubble->Interface->LipidCoatingModel & APECSS_LIPIDCOATING_MARMOTTANT)
   {
     if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + 2.0 * Bubble->Interface->sigma0 / Bubble->R0;
@@ -313,12 +331,13 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   }
   else
   {
+    // Set the initial gas pressure to the Laplace pressure
     if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + 2.0 * Bubble->Interface->sigma / Bubble->R0;
   }
 
   // ---------------------------------------
   // Initial gas pressure assumed to result from polytropic expansion/compression from the reference state
-  if (Bubble->Gas->EOS & APECSS_GAS_NASG)
+  if (Bubble->Gas->EoS == APECSS_GAS_NASG)
   {
     APECSS_FLOAT peff = APECSS_POW((Bubble->pG0 + Bubble->Gas->B), (1.0 / Bubble->Gas->Gamma));
     Bubble->rhoG0 = Bubble->Gas->Kref * peff / (1.0 + Bubble->Gas->b * Bubble->Gas->Kref * peff);
@@ -329,7 +348,7 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   }
 
   // ---------------------------------------
-  // Solution
+  // Initialize the intermediate solution arrays
 
   for (register int i = 0; i < Bubble->nODEs; i++)
   {
@@ -363,7 +382,7 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
 
   if (Bubble->Results != NULL && Bubble->Results->RayleighPlesset != NULL) apecss_results_rayleighplesset_initialize(Bubble);
 
-  return 0;
+  return (0);
 }
 
 int apecss_bubble_freearrays(struct APECSS_Bubble *Bubble)
@@ -400,7 +419,7 @@ int apecss_bubble_freearrays(struct APECSS_Bubble *Bubble)
     }
   }
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
@@ -409,14 +428,15 @@ int apecss_bubble_freearrays(struct APECSS_Bubble *Bubble)
 
 int apecss_bubble_solve(struct APECSS_Bubble *Bubble)
 {
+  // ---------------------------------------
+  // Getting ready
+
+  // Initialize the counters
   Bubble->dtNumber = 0;
   Bubble->nSubIter = 0;
 
   // Set start time
   Bubble->t = Bubble->tStart;
-
-  // ---------------------------------------
-  // Getting ready
 
   // Emissions
   Bubble->emissions_initialize(Bubble);
@@ -495,22 +515,22 @@ int apecss_bubble_solve(struct APECSS_Bubble *Bubble)
   Bubble->emissions_free(Bubble);
   free(OldSol);
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
 // PROGRESS SCREEN
 // -------------------------------------------------------------------
 
-int apecss_bubble_solverprogress_initialnone() { return 0; }
+int apecss_bubble_solverprogress_initialnone() { return (0); }
 
 int apecss_bubble_solverprogress_initialscreen()
 {
   fprintf(stderr, "| APECSS | Progress %%: ");
-  return 0;
+  return (0);
 }
 
-int apecss_bubble_solverprogress_updatenone(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime) { return 0; }
+int apecss_bubble_solverprogress_updatenone(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime) { return (0); }
 
 int apecss_bubble_solverprogress_updatescreen(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime)
 {
@@ -524,13 +544,13 @@ int apecss_bubble_solverprogress_updatescreen(int *prog, APECSS_FLOAT t, APECSS_
     (*prog)++;
   }
 
-  return 0;
+  return (0);
 }
 
-int apecss_bubble_solverprogress_finalnone() { return 0; }
+int apecss_bubble_solverprogress_finalnone() { return (0); }
 
 int apecss_bubble_solverprogress_finalscreen()
 {
   fprintf(stderr, "100\n");
-  return 0;
+  return (0);
 }

@@ -12,7 +12,7 @@ InitialGasPressure 1.0e3
 END
 
 GAS
-EOS IG
+EoS IG
 PolytropicExponent 1.4
 END
 

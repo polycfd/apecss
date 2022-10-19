@@ -11,12 +11,13 @@ PressureAmbient 1.0e5
 END
 
 GAS
-EOS IG
+EoS IG
 PolytropicExponent 1.4
 ReferenceDensity 1.2
 END
 
 LIQUID
+EoS Tait
 LiquidType Zener
 ReferenceDensity 1000.0
 ReferenceSoundSpeed 1500.0

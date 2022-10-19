@@ -19,6 +19,7 @@
 
 APECSS_FLOAT apecss_viscoelastic_zenertaurr_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
+  /** ODE for the radial stress at the bubble wall, according to Eq. (7) of Hua & Johnsen, Physics of Fluids 25 (2013), 083101 **/
   APECSS_FLOAT U = Sol[0];
   APECSS_FLOAT R = Sol[1];
   APECSS_FLOAT taurr = Sol[3];
@@ -29,6 +30,7 @@ APECSS_FLOAT apecss_viscoelastic_zenertaurr_ode(APECSS_FLOAT *Sol, APECSS_FLOAT 
 
 APECSS_FLOAT apecss_viscoelastic_zenervarsigma_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
+  /** ODE for the auxilliary variable associated with the stress at the bubble wall, according to Eq. (6) of Hua & Johnsen, Physics of Fluids 25 (2013), 083101 **/
   APECSS_FLOAT U = Sol[0];
   APECSS_FLOAT R = Sol[1];
   APECSS_FLOAT varsigma = Sol[2];
@@ -44,6 +46,7 @@ APECSS_FLOAT apecss_viscoelastic_zenervarsigma_ode(APECSS_FLOAT *Sol, APECSS_FLO
 
 APECSS_FLOAT apecss_viscoelastic_oldroydb1_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
+  /** ODE for auxilliary variable 1 associated with the stress at the bubble wall, according to Eq. (6) of Jimenez-Fernandez & Crespo, Ultrasonics 43 (2005), 643–651 **/
   APECSS_FLOAT U = Sol[0];
   APECSS_FLOAT R = Sol[1];
   APECSS_FLOAT S1 = Sol[2];
@@ -53,6 +56,7 @@ APECSS_FLOAT apecss_viscoelastic_oldroydb1_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t
 
 APECSS_FLOAT apecss_viscoelastic_oldroydb2_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
+  /** ODE for auxilliary variable 2 associated with the stress at the bubble wall, according to Eq. (7) of Jimenez-Fernandez & Crespo, Ultrasonics 43 (2005), 643–651 **/
   APECSS_FLOAT U = Sol[0];
   APECSS_FLOAT R = Sol[1];
   APECSS_FLOAT S2 = Sol[3];

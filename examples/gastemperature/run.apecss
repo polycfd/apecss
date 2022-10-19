@@ -8,18 +8,17 @@ BUBBLE
 InitialRadius 130.0e-6
 RPModel KM
 PressureAmbient 1.013e5
-TemperatureAmbient 293.15
 END
 
 GAS
-EOS IG
+EoS IG
 PolytropicExponent 1.4
 ReferenceDensity 1.2
 END
 
 LIQUID
 ReferenceDensity 1000.0
-ReferenceSoundSpeed 1481
+ReferenceSoundSpeed 1481.0
 Viscosity 0.001
 END
 

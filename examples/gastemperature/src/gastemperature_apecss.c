@@ -24,7 +24,7 @@ APECSS_FLOAT gas_energy_strickersingleode(APECSS_FLOAT *Sol, APECSS_FLOAT t, str
 
 // Globally-defined variables (indicated for clarity with leading and trailing underscores)
 int _pos_energy_ode_;
-APECSS_FLOAT _cv_, _k_;
+APECSS_FLOAT _cv_, _k_, _T0_;
 
 int main(int argc, char **args)
 {
@@ -94,6 +94,7 @@ int main(int argc, char **args)
   // Set the parameters and functions for the gas energy model
   _cv_ = 720.0;  // Isochoric heat capacity of the gas
   _k_ = 0.025;  // Thermal conductivity
+  _T0_ = 293.15;  // Ambient temperature
 
   // (Optional) The solutions of the additional ODEs may be stored with the RP solution
   if (Bubble.Results != NULL && Bubble.Results->RayleighPlesset != NULL)
@@ -113,6 +114,10 @@ int main(int argc, char **args)
 
   // Bubble.nODEs represents at this point the total count of ODEs that is used for allocating the corresponding arrays
   Bubble.nODEs += Bubble.nUserODEs;
+
+  // Note that Bubble.nODEs is reset after initial allocation in apecss_options_process() and,
+  // subsequently, counted upwards again as the functions of the ODEs are defined.
+
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Process all options */
@@ -125,7 +130,7 @@ int main(int argc, char **args)
   // Add the temperature ODE to the set of solved ODEs
   _pos_energy_ode_ = Bubble.nODEs;  // Simplfies finding the corresponding solution
   Bubble.ode[_pos_energy_ode_] = gas_energy_strickersingleode;
-  Bubble.ODEsSol[_pos_energy_ode_] = Bubble.T0;
+  Bubble.ODEsSol[_pos_energy_ode_] = _T0_;
   Bubble.nODEs++;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -146,7 +151,7 @@ int main(int argc, char **args)
   /* Make sure all allocated memory is freed */
   apecss_bubble_freearrays(&Bubble);
 
-  return 0;
+  return (0);
 }
 
 APECSS_FLOAT gas_energy_strickersingleode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
@@ -158,7 +163,7 @@ APECSS_FLOAT gas_energy_strickersingleode(APECSS_FLOAT *Sol, APECSS_FLOAT t, str
   // see Stricker, Prosperetti & Lohse, J. Acoust. Soc. Am. 130 (2011), 3243
   APECSS_FLOAT lth = APECSS_MIN(APECSS_SQRT(R * _k_ / (APECSS_ABS(U) * apecss_gas_density_constmass(R, Bubble) * Bubble->Gas->Gamma * _cv_ + APECSS_SMALL)),
                                 R / APECSS_PI);  // Thermal lengthscale
-  APECSS_FLOAT Qcond = 4.0 * APECSS_PI * APECSS_POW2(R) * _k_ * (Bubble->T0 - TG) / lth;  // Heat due to conduction between liquid and gas
+  APECSS_FLOAT Qcond = 4.0 * APECSS_PI * APECSS_POW2(R) * _k_ * (_T0_ - TG) / lth;  // Heat due to conduction between liquid and gas
   APECSS_FLOAT Wvol = Bubble->Gas->get_pressure(Sol, Bubble) * 4.0 * APECSS_PI * APECSS_POW2(R) * U;  // Volume work
 
   return ((Qcond - Wvol) / (_cv_ * Bubble->rhoG0 * 4.0 * APECSS_ONETHIRD * APECSS_PI * APECSS_POW3(Bubble->R0)));

@@ -16,22 +16,24 @@
 
 int apecss_options_setdefault(struct APECSS_Bubble* Bubble)
 {
+  // Call all functions to set default values
   apecss_gas_setdefaultoptions(Bubble);
   apecss_interface_setdefaultoptions(Bubble);
   apecss_liquid_setdefaultoptions(Bubble);
   apecss_bubble_setdefaultoptions(Bubble);
 
-  return 0;
+  return (0);
 }
 
 int apecss_options_process(struct APECSS_Bubble* Bubble)
 {
+  // Call all functions to process the provided options
   apecss_gas_processoptions(Bubble);
   apecss_interface_processoptions(Bubble);
   apecss_liquid_processoptions(Bubble);
   apecss_bubble_processoptions(Bubble);
 
-  return 0;
+  return (0);
 }
 
 int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
@@ -141,11 +143,6 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->p0 = APECSS_STRINGTOFLOAT(option3);
         }
-        else if (strncasecmp(option2, "temperatureambient", 18) == 0)
-        {
-          l = apecss_readoneoption(OptionsFile, option3);
-          Bubble->T0 = APECSS_STRINGTOFLOAT(option3);
-        }
         else if (strncasecmp(option2, "initialgaspressure", 18) == 0)
         {
           l = apecss_readoneoption(OptionsFile, option3);
@@ -183,15 +180,15 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
             line += l - 1;
             if (strncasecmp(option3, "ig", 2) == 0)
             {
-              Bubble->Gas->EOS = APECSS_GAS_IG;
+              Bubble->Gas->EoS = APECSS_GAS_IG;
             }
             else if (strncasecmp(option3, "hc", 2) == 0)
             {
-              Bubble->Gas->EOS = APECSS_GAS_HC;
+              Bubble->Gas->EoS = APECSS_GAS_HC;
             }
-            else if (strncasecmp(option3, "nasg", 3) == 0)
+            else if (strncasecmp(option3, "nasg", 4) == 0)
             {
-              Bubble->Gas->EOS = APECSS_GAS_NASG;
+              Bubble->Gas->EoS = APECSS_GAS_NASG;
             }
           }
         }
@@ -280,6 +277,26 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
             else if (strncasecmp(option3, "oldroydb", 8) == 0)
             {
               Bubble->Liquid->Type = APECSS_LIQUID_OLDROYDB;
+            }
+          }
+        }
+        else if (strncasecmp(option2, "eos", 3) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            if (strncasecmp(option3, "tait", 4) == 0)
+            {
+              Bubble->Liquid->EoS = APECSS_LIQUID_TAIT;
+            }
+            else if (strncasecmp(option3, "nasg", 4) == 0)
+            {
+              Bubble->Liquid->EoS = APECSS_LIQUID_NASG;
             }
           }
         }
@@ -557,15 +574,15 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->Results->Emissions->MinMaxPeriod = atoi(option3);
 
-          Bubble->Results->Emissions->Rmin = 1.0e10;
+          Bubble->Results->Emissions->Rmin = APECSS_LARGE;
           Bubble->Results->Emissions->Node_Rmin = (struct APECSS_ResultsEmissionsNode*) malloc(sizeof(struct APECSS_ResultsEmissionsNode));
           apecss_results_emissionsnode_initializenode(Bubble->Results->Emissions->Node_Rmin);
 
-          Bubble->Results->Emissions->Umin = 1.0e10;
+          Bubble->Results->Emissions->Umin = APECSS_LARGE;
           Bubble->Results->Emissions->Node_Umin = (struct APECSS_ResultsEmissionsNode*) malloc(sizeof(struct APECSS_ResultsEmissionsNode));
           apecss_results_emissionsnode_initializenode(Bubble->Results->Emissions->Node_Umin);
 
-          Bubble->Results->Emissions->pLmax = -1.0e10;
+          Bubble->Results->Emissions->pLmax = -APECSS_LARGE;
           Bubble->Results->Emissions->Node_pLmax = (struct APECSS_ResultsEmissionsNode*) malloc(sizeof(struct APECSS_ResultsEmissionsNode));
           apecss_results_emissionsnode_initializenode(Bubble->Results->Emissions->Node_pLmax);
         }
@@ -648,7 +665,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
 
   fclose(OptionsFile);
 
-  return 0;
+  return (0);
 }
 
 int apecss_readoneoption(FILE* OptionsFile, char* option)
@@ -713,7 +730,7 @@ int apecss_lineget(char* str, FILE* OptionsFile)
     }
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_linegetskip(char* str, FILE* OptionsFile)
@@ -735,5 +752,5 @@ int apecss_linegetskip(char* str, FILE* OptionsFile)
     }
   }
 
-  return 0;
+  return (0);
 }

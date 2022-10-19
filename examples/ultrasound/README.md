@@ -6,11 +6,8 @@ This examples simulates a lipid-coated microbubble using the Rayleigh-Plesset mo
 #### Lipid-coated microbubble (with emissions)
 This examples simulated a lipid-coated microbubble using the Gilmore model and records its acoustic emissions based on the Kirkwood-Bethe hypothesis. The lipid-monolayer coating is modelled using the Marmottant-Gompertz model and the bubble is assumed to contain sulfur hexafluoride (SF6). Using [lipidcoated_emissions.apecss](lipidcoated_emissions.apecss) with ````./build/ultrasound_apecss -options lipidcoated_emissions.apecss -tend 11e-6 -freq 1e6 -amp 600e3````, a bubble excited by ultrasound with a frequency of 1 MHz and a pressure amplitude of 600 kPa is simulated.
 
-#### Sonoluminescence (simple)
-Using [sonolumin_simple.apess](sonolum_simple.apecss) with ````./build/ultrasound_apecss -options sonolum_simple.apecss -tend 40e-6 -freq 25e3 -amp 135e3````, this example reproduces Figure 2 of [Denner, _Ultrasonics Sonochemistry_ 79 (2021), 105307](https://doi.org/10.1016/j.ultsonch.2020.105307).
-
 #### Sonoluminescence (with emissions)
-Using [sonolumin_emissions.apess](sonolum_emissions.apecss) with ````./build/ultrasound_apecss -options sonolum_emissions.apecss -tend 40e-6 -freq 23.5e3 -amp 145e3````, this example
+Using [sonolumin_emissions.apess](sonolum_emissions.apecss) with ````./build/ultrasound_apecss -options sonolum_emissions.apecss -tend 40e-6 -freq 23.5e3 -amp 145e3````, this example reproduces the argon bubble studied by [Holzfuss, _Proc. R. Soc. A: Math. Phys. Eng. Sci._ 466 (2010), 1829](https://doi.org/10.1098/rspa.2009.0594) in the context of sonoluminesence. The acoustic emissions at _pLmax_ may be compared to Figure 5 of Holzfuss' work.
 
 #### Kelvin-Voigt
 Using [kelvinvoigt.apess](kelvinvoigt.apecss) with ````./build/ultrasound_apecss -options kelvinvoigt.apecss -tend 6e-6 -freq 1e6 -amp 3e6````, this example reproduces Figure 5b of [Yang & Church, _Journal of the Acoustical Society of America_ 118 (2005), 3595](https://doi.org/10.1121/1.2118307).

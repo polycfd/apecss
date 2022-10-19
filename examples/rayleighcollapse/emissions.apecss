@@ -13,7 +13,7 @@ InitialGasPressure 1.0e3
 END
 
 GAS
-EOS NASG
+EoS NASG
 ReferencePressure 1.0e5
 ReferenceDensity 1.2
 PolytropicExponent 1.4
@@ -24,10 +24,9 @@ END
 LIQUID
 ReferencePressure 1.0e5
 ReferenceDensity 997.0
-PolytropicExponent 1.11
-CoVolume 6.8e-4
-TaitPressureConst 6.48e8
 Viscosity 0.001
+PolytropicExponent 7.15
+TaitPressureConst 3.046e8
 END
 
 INTERFACE

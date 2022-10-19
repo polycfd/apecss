@@ -33,7 +33,7 @@ int apecss_interface_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_clean;
   Bubble->Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_clean;
 
-  return 0;
+  return (0);
 }
 
 int apecss_interface_processoptions(struct APECSS_Bubble *Bubble)
@@ -69,11 +69,11 @@ int apecss_interface_processoptions(struct APECSS_Bubble *Bubble)
     Bubble->Liquid->get_pressurederivative_viscous_impl = apecss_liquid_pressurederivative_viscous_cleanimpl;
   }
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
-// SURFACE TENSION
+// SURFACE TENSION COEFFICIENT
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_interface_surfacetension_clean(APECSS_FLOAT R, struct APECSS_Interface *Interface) { return (Interface->sigma); }

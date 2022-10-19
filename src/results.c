@@ -19,28 +19,31 @@
 
 int apecss_results_initializestruct(struct APECSS_Bubble *Bubble)
 {
+  // Initialize the results structure attached to the bubble
   Bubble->Results = (struct APECSS_Results *) malloc(sizeof(struct APECSS_Results));
   sprintf(Bubble->Results->dir, "./");
   Bubble->Results->digits = 6;
   Bubble->Results->RayleighPlesset = NULL;
   Bubble->Results->Emissions = NULL;
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_rayleighplesset_initializestruct(struct APECSS_Bubble *Bubble)
 {
+  // Initialize the structure for the Rayleigh-Plesset results
   Bubble->Results->RayleighPlesset = (struct APECSS_ResultsBubble *) malloc(sizeof(struct APECSS_ResultsBubble));
   Bubble->Results->RayleighPlesset->freq = 1;
   Bubble->Results->RayleighPlesset->n = 0;
   Bubble->Results->RayleighPlesset->nAllocated = 0;
   Bubble->Results->RayleighPlesset->nUserODEs = 0;
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble)
 {
+  // Initialize the structure for the results of the acoustic emissions
   Bubble->Results->Emissions = (struct APECSS_ResultsEmissions *) malloc(sizeof(struct APECSS_ResultsEmissions));
   Bubble->Results->Emissions->nTimeInstances = 0;
   Bubble->Results->Emissions->nextTimeInstance = 0;
@@ -55,26 +58,49 @@ int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Results->Emissions->Node_Umin = NULL;
   Bubble->Results->Emissions->Node_pLmax = NULL;
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
 //  BUBBLE
 // -------------------------------------------------------------------
 
-int apecss_results_rayleighplesset_storenone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_rayleighplesset_initialize(struct APECSS_Bubble *Bubble)
+{
+  Bubble->Results->RayleighPlesset->t = NULL;
+  Bubble->Results->RayleighPlesset->dt = NULL;
+  Bubble->Results->RayleighPlesset->R = NULL;
+  Bubble->Results->RayleighPlesset->U = NULL;
+  Bubble->Results->RayleighPlesset->pG = NULL;
+  Bubble->Results->RayleighPlesset->pL = NULL;
+  Bubble->Results->RayleighPlesset->cL = NULL;
+
+  for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
+    Bubble->Results->RayleighPlesset->UserODEsSol[userode] = NULL;
+
+  Bubble->Results->RayleighPlesset->n = 0;
+  Bubble->Results->RayleighPlesset->nAllocated = 0;
+
+  return (0);
+}
+
+int apecss_results_rayleighplesset_storenone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
 {
-  if (!(Bubble->dtNumber % Bubble->Results->RayleighPlesset->freq))
+  if (!(Bubble->dtNumber % Bubble->Results->RayleighPlesset->freq))  // Check if it's time to write out the RP results
   {
-    if (Bubble->Results->RayleighPlesset->n == Bubble->Results->RayleighPlesset->nAllocated)
+    if (Bubble->Results->RayleighPlesset->n == Bubble->Results->RayleighPlesset->nAllocated)  // Extend the length of the result arrays
     {
+      // Allocate a temporary array to hold the results
       APECSS_FLOAT *temp;
       temp = malloc(Bubble->Results->RayleighPlesset->n * sizeof(APECSS_FLOAT));
+
+      // Define the new length of the result arrays
       Bubble->Results->RayleighPlesset->nAllocated =
           Bubble->Results->RayleighPlesset->n + APECSS_CEIL(APECSS_DATA_ALLOC_INCREMENT / Bubble->Results->RayleighPlesset->freq);
 
+      // Extend the length of all arrays
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++) temp[i] = Bubble->Results->RayleighPlesset->t[i];
       free(Bubble->Results->RayleighPlesset->t);
       Bubble->Results->RayleighPlesset->t = malloc(Bubble->Results->RayleighPlesset->nAllocated * sizeof(APECSS_FLOAT));
@@ -153,62 +179,7 @@ int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
     ++(Bubble->Results->RayleighPlesset->n);
   }
 
-  return 0;
-}
-
-int apecss_results_rayleighplesset_initialize(struct APECSS_Bubble *Bubble)
-{
-  Bubble->Results->RayleighPlesset->t = NULL;
-  Bubble->Results->RayleighPlesset->dt = NULL;
-  Bubble->Results->RayleighPlesset->R = NULL;
-  Bubble->Results->RayleighPlesset->U = NULL;
-  Bubble->Results->RayleighPlesset->pG = NULL;
-  Bubble->Results->RayleighPlesset->pL = NULL;
-  Bubble->Results->RayleighPlesset->cL = NULL;
-  for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
-    Bubble->Results->RayleighPlesset->UserODEsSol[userode] = NULL;
-
-  Bubble->Results->RayleighPlesset->n = 0;
-  Bubble->Results->RayleighPlesset->nAllocated = 0;
-
-  return 0;
-}
-
-int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble)
-{
-  if (Bubble->Results->RayleighPlesset->nAllocated)
-  {
-    free(Bubble->Results->RayleighPlesset->t);
-    Bubble->Results->RayleighPlesset->t = NULL;
-    free(Bubble->Results->RayleighPlesset->dt);
-    Bubble->Results->RayleighPlesset->dt = NULL;
-    free(Bubble->Results->RayleighPlesset->R);
-    Bubble->Results->RayleighPlesset->R = NULL;
-    free(Bubble->Results->RayleighPlesset->U);
-    Bubble->Results->RayleighPlesset->U = NULL;
-
-    free(Bubble->Results->RayleighPlesset->pG);
-    Bubble->Results->RayleighPlesset->pG = NULL;
-    free(Bubble->Results->RayleighPlesset->pL);
-    Bubble->Results->RayleighPlesset->pL = NULL;
-
-    if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
-    {
-      free(Bubble->Results->RayleighPlesset->cL);
-      Bubble->Results->RayleighPlesset->cL = NULL;
-    }
-
-    for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
-    {
-      free(Bubble->Results->RayleighPlesset->UserODEsSol[userode]);
-      Bubble->Results->RayleighPlesset->UserODEsSol[userode] = NULL;
-    }
-
-    Bubble->Results->RayleighPlesset->n = 0;
-    Bubble->Results->RayleighPlesset->nAllocated = 0;
-  }
-
-  return 0;
+  return (0);
 }
 
 int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
@@ -351,14 +322,51 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
     apecss_results_rayleighplesset_free(Bubble);
   }
 
-  return 0;
+  return (0);
+}
+
+int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble)
+{
+  if (Bubble->Results->RayleighPlesset->nAllocated)
+  {
+    free(Bubble->Results->RayleighPlesset->t);
+    Bubble->Results->RayleighPlesset->t = NULL;
+    free(Bubble->Results->RayleighPlesset->dt);
+    Bubble->Results->RayleighPlesset->dt = NULL;
+    free(Bubble->Results->RayleighPlesset->R);
+    Bubble->Results->RayleighPlesset->R = NULL;
+    free(Bubble->Results->RayleighPlesset->U);
+    Bubble->Results->RayleighPlesset->U = NULL;
+
+    free(Bubble->Results->RayleighPlesset->pG);
+    Bubble->Results->RayleighPlesset->pG = NULL;
+    free(Bubble->Results->RayleighPlesset->pL);
+    Bubble->Results->RayleighPlesset->pL = NULL;
+
+    if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
+    {
+      free(Bubble->Results->RayleighPlesset->cL);
+      Bubble->Results->RayleighPlesset->cL = NULL;
+    }
+
+    for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
+    {
+      free(Bubble->Results->RayleighPlesset->UserODEsSol[userode]);
+      Bubble->Results->RayleighPlesset->UserODEsSol[userode] = NULL;
+    }
+
+    Bubble->Results->RayleighPlesset->n = 0;
+    Bubble->Results->RayleighPlesset->nAllocated = 0;
+  }
+
+  return (0);
 }
 
 // -------------------------------------------------------------------
 // EMISSIONS  (time instance)
 // -------------------------------------------------------------------
 
-int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
 {
@@ -426,15 +434,17 @@ int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
     Bubble->Results->Emissions->nextTimeInstance++;
   }
 
-  return 0;
+  return (0);
 }
 
 APECSS_FLOAT apecss_results_emissionstime_checknone(struct APECSS_Bubble *Bubble) { return (Bubble->tEnd); }
 
 APECSS_FLOAT apecss_results_emissionstime_checktime(struct APECSS_Bubble *Bubble)
 {
+  // The last event is obviously the end of the simulation
   APECSS_FLOAT nexttime = Bubble->tEnd;
 
+  // If there are any more time instances to be written out, they need to be considered
   if (Bubble->Results->Emissions->nextTimeInstance < Bubble->Results->Emissions->nTimeInstances)
     nexttime = APECSS_MIN(nexttime, Bubble->Results->Emissions->TimeInstances[Bubble->Results->Emissions->nextTimeInstance]);
 
@@ -445,21 +455,25 @@ APECSS_FLOAT apecss_results_emissionstime_checktime(struct APECSS_Bubble *Bubble
 // EMISSIONS  (space locations)
 // -------------------------------------------------------------------
 
-int apecss_results_emissionsspace_storenone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionsspace_storenone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
 {
-  for (register int l = 0; l < Bubble->Results->Emissions->nSpaceLocations; l++)
+  for (register int l = 0; l < Bubble->Results->Emissions->nSpaceLocations; l++)  // Loop over all radial locations
   {
-    if (!(Bubble->dtNumber % Bubble->Results->Emissions->freqSpaceLocations))
+    if (!(Bubble->dtNumber % Bubble->Results->Emissions->freqSpaceLocations))  // Check if it's time to write out the RP results
     {
-      if (Bubble->Results->Emissions->SpaceLocation[l].n == Bubble->Results->Emissions->SpaceLocation[l].nAllocated)
+      if (Bubble->Results->Emissions->SpaceLocation[l].n == Bubble->Results->Emissions->SpaceLocation[l].nAllocated)  // Extend the length of the result arrays
       {
+        // Allocate a temporary array to hold the results
         APECSS_FLOAT *temp;
         temp = malloc(Bubble->Results->Emissions->SpaceLocation[l].n * sizeof(APECSS_FLOAT));
+
+        // Define the new length of the result arrays
         Bubble->Results->Emissions->SpaceLocation[l].nAllocated =
             Bubble->Results->Emissions->SpaceLocation[l].n + APECSS_CEIL(APECSS_DATA_ALLOC_INCREMENT / Bubble->Results->Emissions->freqSpaceLocations);
 
+        // Extend the length of all arrays
         for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++) temp[i] = Bubble->Results->Emissions->SpaceLocation[l].t[i];
         free(Bubble->Results->Emissions->SpaceLocation[l].t);
         Bubble->Results->Emissions->SpaceLocation[l].t = malloc(Bubble->Results->Emissions->SpaceLocation[l].nAllocated * sizeof(APECSS_FLOAT));
@@ -501,6 +515,7 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
       APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
       APECSS_FLOAT r = Bubble->Results->Emissions->SpaceLocation[l].RadialLocation;
 
+      // Find the relevant nodes and interpolate the quantities to be written out
       if (r > Bubble->R)
       {
         struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
@@ -570,7 +585,7 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
     }
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
@@ -596,7 +611,7 @@ int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
         fprintf(file_ptr, " ");
         fprintf(file_ptr, "time");
         fprintf(file_ptr, " ");
-        fprintf(file_ptr, "dp");
+        fprintf(file_ptr, "p");
         fprintf(file_ptr, " ");
         fprintf(file_ptr, "u");
         fprintf(file_ptr, " ");
@@ -657,7 +672,7 @@ int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
     apecss_results_emissionsspace_free(Bubble);
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
@@ -673,7 +688,7 @@ int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
       free(Bubble->Results->Emissions->SpaceLocation[l].u);
       Bubble->Results->Emissions->SpaceLocation[l].u = NULL;
 
-      if (Bubble->Emissions->Type == APECSS_EMISSION_INCOMPRESSIBLE)
+      if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
       {
         free(Bubble->Results->Emissions->SpaceLocation[l].c);
         Bubble->Results->Emissions->SpaceLocation[l].c = NULL;
@@ -687,7 +702,7 @@ int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
     }
   }
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
@@ -696,13 +711,17 @@ int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
 
 int apecss_results_emissionsnodespecific_storenone(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble)
 {
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnodespecific_storeall(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble)
 {
-  for (register int i = 0; i < Bubble->Results->Emissions->nNodes; i++)
+  for (register int i = 0; i < Bubble->Results->Emissions->nNodes; i++)  // Loop over all nodes that are to stored
   {
+    // The node must fulfill the following criteria:
+    // 1) It must be the actual node that was specified by the user or it was emitted afterwards, in case the specified node was discarded
+    // 2) It must not be at the end of the linked list, as condition could not be evaluated
+    // 3) The forward neighbor needs to had been emitted befor the specified node
     if (Node->id >= Bubble->Results->Emissions->Node[i].id && Node->forward != NULL && Node->forward->id < Bubble->Results->Emissions->Node[i].id)
     {
       int n = Bubble->Results->Emissions->Node[i].n;
@@ -718,66 +737,66 @@ int apecss_results_emissionsnodespecific_storeall(struct APECSS_EmissionNode *No
     }
   }
 
-  return 0;
+  return (0);
 }
 
-int apecss_results_emissionsnodespecific_allocnone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionsnodespecific_allocnone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionsnodespecific_allocall(struct APECSS_Bubble *Bubble)
 {
-  for (register int nn = 0; nn < Bubble->Results->Emissions->nNodes; nn++)
+  for (register int i = 0; i < Bubble->Results->Emissions->nNodes; i++)
   {
-    int n = Bubble->Results->Emissions->Node[nn].n;
+    int n = Bubble->Results->Emissions->Node[i].n;
 
-    if (n == Bubble->Results->Emissions->Node[nn].nAllocated)
+    if (n == Bubble->Results->Emissions->Node[i].nAllocated)  // Extend the length of the result arrays
     {
-      apecss_results_emissionsnode_allocnode(&(*Bubble).Results->Emissions->Node[nn]);
+      apecss_results_emissionsnode_allocnode(&(*Bubble).Results->Emissions->Node[i]);
     }
-    else if (Bubble->Results->Emissions->Node[nn].n > Bubble->Results->Emissions->Node[nn].nAllocated)
+    else if (Bubble->Results->Emissions->Node[i].n > Bubble->Results->Emissions->Node[i].nAllocated)
     {
       char str[APECSS_STRINGLENGTH_SPRINTF];
-      sprintf(str, "Array allocation for emission node %i is invalid (Result number: %i, Allocated %i)", Bubble->Results->Emissions->Node[nn].id, n,
-              Bubble->Results->Emissions->Node[nn].nAllocated);
+      sprintf(str, "Array allocation for emission node %i is invalid (Result number: %i, Allocated %i)", Bubble->Results->Emissions->Node[i].id, n,
+              Bubble->Results->Emissions->Node[i].nAllocated);
       apecss_erroronscreen(-1, str);
     }
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnodespecific_write(struct APECSS_Bubble *Bubble)
 {
   if (Bubble->Results->Emissions != NULL)
   {
-    for (register int n = 0; n < Bubble->Results->Emissions->nNodes; n++)
+    for (register int i = 0; i < Bubble->Results->Emissions->nNodes; i++)
     {
-      if (Bubble->Results->Emissions->Node[n].n)
+      if (Bubble->Results->Emissions->Node[i].n)
       {
         char path[APECSS_STRINGLENGTH_SPRINTF_LONG];
-        sprintf(path, "%s/EmissionsNode_%i.txt", Bubble->Results->dir, Bubble->Results->Emissions->Node[n].id);
+        sprintf(path, "%s/EmissionsNode_%i.txt", Bubble->Results->dir, Bubble->Results->Emissions->Node[i].id);
 
-        apecss_results_emissionsnode_writenode(&(*Bubble).Results->Emissions->Node[n], path, Bubble->Results->digits);
+        apecss_results_emissionsnode_writenode(&(*Bubble).Results->Emissions->Node[i], path, Bubble->Results->digits);
       }
     }
 
     apecss_results_emissionsnodespecific_free(Bubble);
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnodespecific_free(struct APECSS_Bubble *Bubble)
 {
   for (register int i = 0; i < Bubble->Results->Emissions->nNodes; i++) apecss_results_emissionsnode_freenode(&(*Bubble).Results->Emissions->Node[i]);
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
 // EMISSIONS  (min/max values)
 // -------------------------------------------------------------------
 
-int apecss_results_emissionsnodeminmax_identifynone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionsnodeminmax_identifynone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionsnodeminmax_identifyall(struct APECSS_Bubble *Bubble)
 {
@@ -785,7 +804,7 @@ int apecss_results_emissionsnodeminmax_identifyall(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT t = Bubble->t + Bubble->dt;
   APECSS_FLOAT period = (APECSS_FLOAT) Bubble->Results->Emissions->MinMaxPeriod;
 
-  if ((t >= (period - 1.0) * inv_f) && (t < period * inv_f))
+  if ((t >= (period - 1.0) * inv_f) && (t < period * inv_f))  // Check if this is the specified period
   {
     if (Bubble->R < Bubble->Results->Emissions->Rmin)
     {
@@ -814,32 +833,36 @@ int apecss_results_emissionsnodeminmax_identifyall(struct APECSS_Bubble *Bubble)
     }
   }
 
-  return 0;
+  return (0);
 }
 
-int apecss_results_emissionsnodeminmax_allocnone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionsnodeminmax_allocnone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionsnodeminmax_allocall(struct APECSS_Bubble *Bubble)
 {
-  if (Bubble->Results->Emissions->Node_Rmin->n == Bubble->Results->Emissions->Node_Rmin->nAllocated)
+  if (Bubble->Results->Emissions->Node_Rmin->n == Bubble->Results->Emissions->Node_Rmin->nAllocated)  // Extend the length of the result arrays
     apecss_results_emissionsnode_allocnode(Bubble->Results->Emissions->Node_Rmin);
 
-  if (Bubble->Results->Emissions->Node_Umin->n == Bubble->Results->Emissions->Node_Umin->nAllocated)
+  if (Bubble->Results->Emissions->Node_Umin->n == Bubble->Results->Emissions->Node_Umin->nAllocated)  // Extend the length of the result arrays
     apecss_results_emissionsnode_allocnode(Bubble->Results->Emissions->Node_Umin);
 
-  if (Bubble->Results->Emissions->Node_pLmax->n == Bubble->Results->Emissions->Node_pLmax->nAllocated)
+  if (Bubble->Results->Emissions->Node_pLmax->n == Bubble->Results->Emissions->Node_pLmax->nAllocated)  // Extend the length of the result arrays
     apecss_results_emissionsnode_allocnode(Bubble->Results->Emissions->Node_pLmax);
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnodeminmax_storenone(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble)
 {
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnodeminmax_storeall(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble)
 {
+  // The node must fulfill the following criteria:
+  // 1) It must be the actual node that was specified by the user or it was emitted afterwards, in case the specified node was discarded
+  // 2) It must not be at the end of the linked list, as condition could not be evaluated
+  // 3) The forward neighbor needs to had been emitted befor the specified node
   if (Node->id >= Bubble->Results->Emissions->Node_Rmin->id && Node->forward != NULL && Node->forward->id < Bubble->Results->Emissions->Node_Rmin->id)
   {
     int n = Bubble->Results->Emissions->Node_Rmin->n;
@@ -882,7 +905,7 @@ int apecss_results_emissionsnodeminmax_storeall(struct APECSS_EmissionNode *Node
     Bubble->Results->Emissions->Node_pLmax->n++;
   }
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnodeminmax_write(struct APECSS_Bubble *Bubble)
@@ -917,7 +940,7 @@ int apecss_results_emissionsnodeminmax_write(struct APECSS_Bubble *Bubble)
     }
   }
 
-  return 0;
+  return (0);
 }
 
 // -------------------------------------------------------------------
@@ -936,17 +959,17 @@ int apecss_results_emissionsnode_initializenode(struct APECSS_ResultsEmissionsNo
   Node->c = NULL;
   Node->pInf = NULL;
 
-  return 0;
+  return (0);
 }
 
-int apecss_results_emissionsnode_allocnone(struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionsnode_allocnone(struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionsnode_allocall(struct APECSS_Bubble *Bubble)
 {
   Bubble->Results->Emissions->allocation_nodespecific(Bubble);
   Bubble->Results->Emissions->allocation_nodeminmax(Bubble);
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnode_allocnode(struct APECSS_ResultsEmissionsNode *Node)
@@ -1011,17 +1034,17 @@ int apecss_results_emissionsnode_allocnode(struct APECSS_ResultsEmissionsNode *N
     Node->pInf = malloc(Node->nAllocated * sizeof(APECSS_FLOAT));
   }
 
-  return 0;
+  return (0);
 }
 
-int apecss_results_emissionsnode_storenone(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble) { return 0; }
+int apecss_results_emissionsnode_storenone(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble) { return (0); }
 
 int apecss_results_emissionsnode_storeall(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble)
 {
   Bubble->Results->Emissions->store_nodespecific(Node, c, pinf, Bubble);
   Bubble->Results->Emissions->store_nodeminmax(Node, c, pinf, Bubble);
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnode_writenode(struct APECSS_ResultsEmissionsNode *Node, char *path, int digits)
@@ -1082,7 +1105,7 @@ int apecss_results_emissionsnode_writenode(struct APECSS_ResultsEmissionsNode *N
 
   fclose(file_ptr);
 
-  return 0;
+  return (0);
 }
 
 int apecss_results_emissionsnode_freenode(struct APECSS_ResultsEmissionsNode *Node)
@@ -1106,5 +1129,5 @@ int apecss_results_emissionsnode_freenode(struct APECSS_ResultsEmissionsNode *No
     Node->nAllocated = 0;
   }
 
-  return 0;
+  return (0);
 }
