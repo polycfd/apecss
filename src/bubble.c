@@ -131,34 +131,37 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
   apecss_odesolver_rungekuttacoeffs(Bubble->NumericsODE);
 
   // ---------------------------------------
-  // Emissions
+  // Emissions linked list
 
   if (Bubble->Emissions != NULL)
   {
-    Bubble->emissions_initialize = apecss_emissions_initializelinkedlist;
-    Bubble->emissions_update = apecss_emissions_updatelinkedlist;
-    Bubble->emissions_free = apecss_emissions_freelinkedlist;
+    if (Bubble->Emissions->Type != APECSS_EMISSION_INCOMPRESSIBLE)
+    {
+      Bubble->emissions_initialize = apecss_emissions_initializelinkedlist;
+      Bubble->emissions_update = apecss_emissions_updatelinkedlist;
+      Bubble->emissions_free = apecss_emissions_freelinkedlist;
 
-    if (Bubble->Emissions->Type == APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE)
-    {
-      Bubble->Emissions->advance = apecss_emissions_advance_finitetimeincompressible;
-      Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
-    }
-    else if (Bubble->Emissions->Type == APECSS_EMISSION_QUASIACOUSTIC)
-    {
-      Bubble->Emissions->advance = apecss_emissions_advance_quasiacoustic;
-      Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
-    }
-    else if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
-    {
-      if (Bubble->Liquid->EoS == APECSS_LIQUID_TAIT)
-        Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_tait;
-      else if (Bubble->Liquid->EoS == APECSS_LIQUID_NASG)
-        Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_general;
-      else
-        apecss_erroronscreen(-1, "Unknown equation of state defined for the liquid for the emissions.");
+      if (Bubble->Emissions->Type == APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE)
+      {
+        Bubble->Emissions->advance = apecss_emissions_advance_finitetimeincompressible;
+        Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
+      }
+      else if (Bubble->Emissions->Type == APECSS_EMISSION_QUASIACOUSTIC)
+      {
+        Bubble->Emissions->advance = apecss_emissions_advance_quasiacoustic;
+        Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
+      }
+      else if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+      {
+        if (Bubble->Liquid->EoS == APECSS_LIQUID_TAIT)
+          Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_tait;
+        else if (Bubble->Liquid->EoS == APECSS_LIQUID_NASG)
+          Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_general;
+        else
+          apecss_erroronscreen(-1, "Unknown equation of state defined for the liquid for the emissions.");
 
-      Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnvelocity;
+        Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnvelocity;
+      }
     }
   }
   else
@@ -196,8 +199,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
       else
         Bubble->results_emissionsspace_store = apecss_results_emissionsspace_storenone;
 
-      Bubble->results_emissionsnode_alloc = apecss_results_emissionsnode_allocnone;  // default
-      Bubble->results_emissionsnode_store = apecss_results_emissionsnode_storenone;  // default
+      Bubble->results_emissionsnode_alloc = apecss_results_emissionsnode_allocnone;
+      Bubble->results_emissionsnode_store = apecss_results_emissionsnode_storenone;
 
       if (Bubble->Results->Emissions->nNodes)
       {

@@ -109,7 +109,12 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
           else
           {
             line += l - 1;
-            if (strncasecmp(option3, "fti", 3) == 0 || strncasecmp(option3, "finitetimeincompressible", 24) == 0)
+
+            if (strncasecmp(option3, "incompressible", 14) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_INCOMPRESSIBLE;
+            }
+            else if (strncasecmp(option3, "fti", 3) == 0 || strncasecmp(option3, "finitetimeincompressible", 24) == 0)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE;
             }
@@ -468,7 +473,7 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
             if (stat(Bubble->Results->dir, &st) == -1) mkdir(Bubble->Results->dir, 0700);
           }
         }
-        else if (strncasecmp(option2, "outputfreqspacelocation", 23) == 0)
+        else if (strncasecmp(option2, "outputfreqEmissionsSpace", 24) == 0)
         {
           if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
 

@@ -8,7 +8,7 @@ Key features of APECSS are:
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
 - Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
 - All ODEs are solved with an in-built 5th-order Runge-Kutta scheme with 4th-order error estimate, based on Dormand and Prince (1980).
-- APECSS has no external dependencies, aside from some common C headers (math.h, stdio.h, stdlib.h, string.h).
+- APECSS has no external dependencies, aside from the standard _math_ library and some common C headers (math.h, stdio.h, stdlib.h, string.h).
 
 ## Developers
 - [Fabian Denner](mailto:fabian.denner@ovgu.de) (principal developer, maintainer)
@@ -18,10 +18,10 @@ Key features of APECSS are:
 APECSS is under the copyright of its developers and made available as open-source software under the terms of the [Mozilla Public License Version 2.0](LICENSE.txt).
 
 ## Repository Structure
-The APECSS repository is structured as follows
-- The [documentation](/documentation/) folder contains a short documentation of APECSS, written in Latex.
-- The [examples](/examples/) folder contains representative examples of how to use APECSS and to demonstrate the most important features of APECSS. These examples also serve to validate APECSS against results reported in the literature.
-- The [include](/include/) folder contains [apecss.h](/include/apecss.h) header file, in which all variable, macro and function of APECSS are defined.
+The APECSS repository is structured as follows:
+- The [documentation](/documentation/) folder contains a short documentation of APECSS, written in Latex. The documentation discusses the theory behind APECSS, explains the code structure and how to use APECSS. The documentation will be amended and expanded over time.
+- The [examples](/examples/) folder contains representative examples of how to use APECSS and to demonstrate the most important features of APECSS. These examples also serve to validate APECSS against results reported in the literature. A short explanation on how to run the examples is given in the [Quick Start Guide](#quick-start-guide) below.
+- The [include](/include/) folder contains the [apecss.h](/include/apecss.h) header file, in which all variables, macros and functions of APECSS are defined.
 - The [lib](/lib/) folder in which the APECSS library is compiled (at least if you follow the [Quick Start Guide](#quick-start-guide) below).
 - The [src](/src/) folder contains all source files (*.c) of APECSS.
 - The [.clang-format](.clang-format) file, which defines the formatting rules for the source code.
@@ -34,7 +34,7 @@ Getting started with APECSS is easy. After downloading APECSS in the directory `
 - ````APECSS_DIR```` to the directory in which APECSS is located. Using bash, for instance, simply execute the command ````export APECSS_DIR=<path to APECSS>```` or, even better, add this command to your bash profile.
 - ````USRLIB_DIR```` to the directory in which libm.a or libm.dylib (the standard _math_ library) is located. This may, for instance, be ````/usr/lib64/```` on Linux systems or ````/usr/lib/```` on MacOS systems.
 
-Now navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This command will compile the APECSS library using the cmake with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've succesfully compiled the APECSS library!
+Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've succesfully compiled APECSS!
 
 There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. Some representative examples are given in the ````$APECSS_DIR/examples```` directory. Each directory contains the following:
 - A ````README.md```` file explaining the purpose and specificities of this/these example(s).

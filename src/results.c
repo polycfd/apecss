@@ -31,6 +31,8 @@ int apecss_results_initializestruct(struct APECSS_Bubble *Bubble)
 
 int apecss_results_rayleighplesset_initializestruct(struct APECSS_Bubble *Bubble)
 {
+  if (Bubble->Results == NULL) apecss_results_initializestruct(Bubble);
+
   // Initialize the structure for the Rayleigh-Plesset results
   Bubble->Results->RayleighPlesset = (struct APECSS_ResultsBubble *) malloc(sizeof(struct APECSS_ResultsBubble));
   Bubble->Results->RayleighPlesset->freq = 1;
@@ -43,6 +45,8 @@ int apecss_results_rayleighplesset_initializestruct(struct APECSS_Bubble *Bubble
 
 int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble)
 {
+  if (Bubble->Results == NULL) apecss_results_initializestruct(Bubble);
+
   // Initialize the structure for the results of the acoustic emissions
   Bubble->Results->Emissions = (struct APECSS_ResultsEmissions *) malloc(sizeof(struct APECSS_ResultsEmissions));
   Bubble->Results->Emissions->nTimeInstances = 0;
