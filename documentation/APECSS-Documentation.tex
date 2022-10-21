@@ -1,7 +1,8 @@
-\documentclass[a4,11pt]{report}
+\documentclass[11pt]{report}
 \usepackage{amsmath,amssymb,esint}
 \usepackage{amsthm,fixmath}
-\usepackage[margin=2cm, a4paper]{geometry}
+\usepackage[english]{babel}
+\usepackage[a4paper,total={170mm,257mm},]{geometry}
 \usepackage{epsfig}
 \usepackage[format=hang,justification=centering]{subfig}
 \usepackage{multirow}
@@ -12,6 +13,7 @@
 \usepackage{float}
 \usepackage{enumitem}
 \usepackage{color}
+\usepackage[x11names]{xcolor}
 \usepackage{setspace}
 \usepackage{listings}
 \usepackage[UKenglish]{isodate}
@@ -20,6 +22,7 @@
 \usepackage{longtable}
 
 \pagestyle{fancyplain}  
+
 \lstset{  
 language=C,                % choose the language of the code
 basicstyle=\footnotesize,       % the size of the fonts that are used
@@ -40,63 +43,45 @@ breaklines=true,        % sets automatic line breaking
 breakatwhitespace=false,    % sets if automatic breaks should only happen at whitespace
 escapeinside={\%*}{*)}          % if you want to add a comment within your code
 }
+
 \graphicspath{{figures/}} 
 
-\usepackage{tikz}
-\usepackage{pgfplots}
-\usetikzlibrary{positioning}
-
-\usepackage{url}
-
 \usepackage[intoc]{nomencl}
-\RequirePackage{ifthen}
-
 \setcounter{secnumdepth}{3}
 \setcounter{tocdepth}{2}
-
-\pagestyle{fancy}
-\renewcommand{\headrulewidth}{0pt}
-\fancyhf{}
-\cfoot{\thepage}
-
 \setcounter{topnumber}{4}
 \setcounter{totalnumber}{5}
 \renewcommand{\topfraction}{1}
 \renewcommand{\bottomfraction}{1}
 \renewcommand{\textfraction}{0.01}
 \newfloat{Program}{h}{lop}[chapter]
-
-\renewcommand{\vec}[1]{{\boldsymbol #1}}
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
-\newcommand{\vect}[1]{{\boldsymbol #1}}
-\newcommand{\tens}[1]{{\boldsymbol #1}}
-\newcommand{\gem}[1]{{\overline{#1}}}
-\newcommand{\be}{\begin{equation}}
-\newcommand{\ee}{\end{equation}}
-\newcommand{\ve}{\hat{e}}
-\newcommand{\filt}[1]{{\tilde{#1}}}
-\newcommand{\filtw}[1]{{\widetilde{#1}}}
-\newcommand{\favre}[1]{{\widetilde{#1}}}
-\def\P{\partial}
-\newcommand{\flu}[1]{#1 \prime}
-\newcommand{\multi}[0]{\textsf{\textsc{MultiFlow}} }
-\newcommand{\vari}[1]{{\tt #1}}
-\newcommand{\cfx}[0]{ {\em CFX}}
-\newcommand{\oper}[1]{\Bbb #1 }
-
 \newcommand{\thedate}{\today}
 \cleanlookdateon
 
-\hypersetup{
-	colorlinks = true,
-	urlcolor = blue,
-	linkcolor = red,
-	citecolor = blue
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhf{}
+\lfoot{https://github.com/polycfd/apecss}
+\cfoot{\thepage}
+\rfoot{\thedate}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \lfoot{https://github.com/polycfd/apecss}
+  \cfoot{\thepage}
+  \rfoot{\thedate}
+  \renewcommand{\headrulewidth}{0pt}% Line at the header invisible
+  \renewcommand{\footrulewidth}{0.4pt}% Line at the footer visible
 }
+
+\hypersetup{colorlinks = true, urlcolor = RoyalBlue3, linkcolor = RoyalBlue3, citecolor = RoyalBlue3}
 
 \setlength{\parindent}{0cm}
 \setlength{\parskip}{0.7em}
 \setlength{\itemsep}{1pt}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{document}
 % Title Page
@@ -108,7 +93,7 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 \HRule \\[0.4cm]
 {\huge APECSS}\\[0.05cm] {\large (Acoustic Pulse Emitted by Cavitation in Spherical Symmetry)}\\[0.1cm]
 \HRule \\[2cm]
-% Author and supervisor
+
 \includegraphics[width=7cm]{figures/apecssbubble.pdf}
 
 \vspace{5cm}
@@ -116,12 +101,14 @@ Fabian Denner\\
 S\"oren Schenke
 \vfill
 
-\emph{\thedate}
+\thedate
 
 \end{center}
 \end{titlepage}
 
+{\hypersetup{linkcolor=black}
 \tableofcontents 
+}
 
 \input{chapters/about.tex}
 \input{chapters/using.tex}
