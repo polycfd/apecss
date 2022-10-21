@@ -2,7 +2,7 @@
 
 The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type (RP) model, assuming spherical symmetry. This requires to choose a suitable RP model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). The results that APECSS can write out based on the RP model are explained in Section \ref{sec:bubbleresults}.
 
-All ordinary differential equations (ODEs) are solved using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is chosen. 
+APECSS solves all ordinary differential equations (ODEs) using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is chosen. 
 
 \vspace{0.8em}
 
@@ -13,6 +13,12 @@ All ordinary differential equations (ODEs) are solved using the embedded RK5(4) 
 {\tt BUBBLE} & {\tt InitialRadius <float>} & The initial radius $R_0$ of the bubble.\\ 
  & {\tt PressureAmbient <float>} & The ambient pressure $p_0$.\\ 
  & {\tt InitialGasPressure <float>} & The initial gas pressure $p_{\mathrm{G},0}$, if different from $p_0$ or the corresponding Laplace pressure.\\ 
+{\tt ODESOLVER} & {\tt RK 7M} & Minimum truncation (7M) coefficients of the RK5(4) scheme of \citet{Dormand1980}. This is the default.\\ 
+& {\tt RK 7S} & Stability optimized (7S) coefficients of the RK5(4) scheme of \citet{Dormand1980}.\\ 
+& {\tt Tolerance <float>} & The desired solution tolerance.\\ 
+& {\tt MinTimeStep <float>} & Minimum allowable time-step $\Delta t$.\\ 
+& {\tt MaxTimeStep <float>} & Maximum allowable time-step $\Delta t$.\\ 
+& {\tt MaxSubIterations <float>} & Maximum number of sub-iterations in a given time-step.\\ 
  \hline
 \end{tabular} \vspace{1em}
 
@@ -68,7 +74,7 @@ where $c_\mathrm{L}$ is the speed of sound of the liquid at the bubble wall, and
 \section{The gas}
 \label{sec:gas}
 
-In APECSS, every bubble needs to contain a gas, which requires to select an appropriate equation of state and defined meaningful properties.
+In APECSS, every bubble needs to contain a gas, which requires to select an appropriate equation of state and define meaningful properties.
 
 \vspace{0.8em}
 
@@ -96,12 +102,12 @@ Using the ideal gas EoS, the pressure and its derivative are given as
   p_\text{G} &= p_\text{G,ref} \left(\frac{\rho}{\rho_\text{g,ref}}\right)^{\Gamma_\text{g}}\\
   \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \, p_\text{G}}{\rho_\text{G}},\\
 \end{align}
-including a van-der-Waals hardcore in the ideal gas model, the pressure and its derivative follow as
+including a van-der-Waals hardcore (HC) in the ideal gas model, the pressure and its derivative follow as
 \begin{align}
   p_\text{G} &= p_\text{G,ref} \left(\frac{\rho^3-r_\text{hc}^3}{\rho_\text{g,ref}^3-r_\text{hc}^3}\right)^{\Gamma_\text{g}}\\
   \dot{p}_\text{G} &= -3 \, \frac{p_\text{G} \, \Gamma_\text{g} \, R^2 \, \dot{R}}{R^3-r_\text{hc}^3},
 \end{align}
-and using the Noble-Abel-stiffened-gas EoS, the pressure and its derivative are \citep{Denner2021}
+and using the Noble-Abel-stiffened-gas (NASG) EoS, the pressure and its derivative are \citep{Denner2021}
 \begin{align}
   p_\text{G} &= (p_\text{G,ref} + B_\text{g}) \left[\frac{\rho_\text{g} \, (1-b_\text{g} \, \rho_\text{g,ref})}{\rho_\text{g,ref} \, (1- b_\text{g} \, \rho_\text{G})} \right]^{\Gamma_\text{g}} - B_\text{g}\\
   \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \left(p_\text{G} + B_\text{g} \right)}{\rho_\text{G} \left(1- b_\text{g} \, \rho_\text{G} \right)}
@@ -134,7 +140,7 @@ The semi-empirical constant $f_\mathrm{mol}$ is based on the repulsive forces ac
 \section{The liquid}
 \label{sec:liquid}
 
-In the same way that every bubble needs a to contain a gas, in APECSS every bubble needs to be surrounded by a fluid, which requires to select an appropriate equation of state and fluid type, as well as define meaningful properties.
+In the same way that every bubble needs a to contain a gas, in APECSS every bubble needs to be surrounded by a liquid, which requires to select an appropriate equation of state and fluid type, as well as define meaningful properties.
 
 \vspace{0.8em}
 
@@ -371,9 +377,9 @@ The results of the bubble dynamics can be written to disk, if the user wants tha
     \textbf{Section} &\textbf{Command} & \textbf{Description} 
 \vspace{1mm} \\ \hline
 {\tt RESULTS} & {\tt Bubble} & Results of the bubble dynamics are written to file.\\ 
-& {\tt OutputFreqRP <float>} & Results of the bubble dynamics are stored every so many time steps (default: 1).\\ 
+& {\tt OutputFreqRP <int>} & Results of the bubble dynamics are stored every so many time steps (default: 1).\\ 
 & {\tt OutputPath <string>} & Path to the directory where all the results should be written in to (default: {\tt ./}).\\
-& {\tt OutputDigits <float>} & Results are written out with as many digits (default: 6).\\
+& {\tt OutputDigits <int>} & Results are written out with as many digits (default: 6).\\
  \hline
 \end{tabular} \vspace{1em}
 
@@ -389,12 +395,3 @@ For the bubble dynamics, the following quantities as a function of time are writ
   \item Speed of sound of the liquid at the bubble wall, $c_\mathrm{L}$, if the Gilmore model is applied.
   \item The result of any additional user-defined ODE solved, if applicable.
 \end{itemize}
-An example of this output is shown in Figure \ref{fig:bubbleresult} for the example {\tt /example/rayleighcollapse/}, executed with the options file {\tt simple.apecss}.
-
-\begin{figure}[h!]
-\begin{center}
-  \includegraphics[scale=1]{RayleighCollapse.pdf}
-  \caption{Bubble radius $R$, bubble wall velocity $\dot{R}$ and gas pressure $p_\mathrm{G}$ as a function of time $t$ of a bubble undergoing a repeated Rayleigh collapse.}
-  \label{fig:bubbleresult}
-\end{center}
-\end{figure}

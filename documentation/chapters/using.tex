@@ -6,28 +6,20 @@
 Installing APECSS is easy. After downloading APECSS in the directory {\tt <path to APECSS>}, define the following environment variables:\vspace{-1em}
 \begin{itemize}[noitemsep]
 \item {\tt APECSS\_DIR} to the directory in which APECSS is located. Using {\tt bash}, for instance, simply execute the command {\tt export APECSS\_DIR <path to APECSS>} or, even better, add this command to your {\tt bash} profile.
-\item {\tt USRLIB\_DIR} to the directory in which libm.a or {\tt libm.dylib} (the standard \textit{math} library) is located. This may, for instance, be {\tt /usr/lib64/} on Linux systems or {\tt /usr/lib/} on MacOS systems.
+\item {\tt USRLIB\_DIR} to the directory in which {\tt libm.a} or {\tt libm.dylib} (the standard \textit{math} library) is located. This may, for instance, be {\tt /usr/lib64/} on Linux systems or {\tt /usr/lib/} on MacOS systems.
 \end{itemize}
 
-Now navigate into the folder {\tt \$APECSS\_DIR/lib} and execute {\tt ./compile\_lib.sh}. This command will compile the APECSS library using the {\tt cmake} with the {\tt CMakeLists.txt} file provided in this folder. By default, APECSS is compiled with double precision and in \textit{Release} mode, meaning all optimization flags are enabled. That's it, you've succesfully installed the APECSS library!
+Now, navigate into the folder {\tt \$APECSS\_DIR/lib} and execute {\tt ./compile\_lib.sh}. This shell script will compile the APECSS library using {\tt cmake} with the {\tt CMakeLists.txt} file provided in this folder. By default, APECSS is compiled with double precision and in \textit{Release} mode, meaning all optimization flags are enabled. That's it, you've succesfully installed APECSS!
 
 \section{Running APECSS}
 
-There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. 
-
-Some representative examples are given in the {\tt \$APECSS\_DIR/examples} directory. Each directory contains the following:\vspace{-1em}
-\begin{itemize}[noitemsep]
-  \item A {\tt README.txt} file explaining the purpose and specificities of this/these example(s).
-  \item A {\tt src/} folder with a file called {\tt *\_apecss.c} that acts as the standalone interface to the APECSS library. This file contains the {\tt main()} function and any additional functionality required to simulate a specific scenario.
-  \item A {\tt build/} folder containing the {\tt CMakeLists.txt} file and a shell script {\tt compile.sh} with which this example can be compiled using the command {\tt ./compile.sh}.
-  \item One or several {\tt *.apecss} files in which the options for a specific case are defined.
-\end{itemize}
+There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software code or you can program an interface to use APECSS as a standalone program. 
 
 \subsection{The {\tt *.apecss} options file}
 
-The {\tt *.apecss} file is the primary way of passing options, such as the size of the bubble, the density of the liquid or the type of results you want to have written out, to APECSS. In the examples provided in the {\tt \$APECSS\_DIR/examples} directory, the name of the  {\tt *.apecss} file is passed as an argument with the call to run APECSS, e.g.~executing {\tt ./<APECSS-example> -options run.apecss} to use the an options file named {\tt run.apecss}.
+The {\tt *.apecss} file is the primary way of passing options, such as the size of the bubble, the density of the liquid or the type of results you want to have written out, to APECSS. 
 
-Any {\tt *.apecss} file has the following sections:
+Any {\tt *.apecss} file may contain the following sections:
 \vspace{-1em}
 \begin{itemize}[noitemsep]
   \item {\tt BUBBLE}: Information related to the bubble, such as its initial radius $R_0$ or the Rayleigh-Plesset model that is used to solve its dynamics.
@@ -41,6 +33,19 @@ Each section is terminated with {\tt END}. Any of these sections and any of the 
 
 The relevant options that are available are discussed in the following chapters of this documentation in the context of the theoretical framework of APECSS. For instance, the available options used to define a certain Rayleigh-Plesset model are discussed in Section \ref{sec:rpmodels}, where the theory of the implemented Rayleigh-Plesset models is described. 
 
+\subsection{Examples}
+
+Some representative examples are given in the {\tt \$APECSS\_DIR/examples} directory. Each directory contains the following:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item A {\tt README.txt} file explaining the purpose and specificities of this/these example(s).
+  \item A {\tt src/} folder with a file called {\tt *\_apecss.c} that acts as the standalone interface to the APECSS library. This file contains the {\tt main()} function and any additional functionality required to simulate a specific scenario.
+  \item A {\tt build/} folder containing the {\tt CMakeLists.txt} file and a shell script {\tt compile.sh} with which this example can be compiled using the command {\tt ./compile.sh}.
+  \item One or several {\tt *.apecss} files in which the options for a specific case are defined.
+\end{itemize}
+
+In the examples provided in the {\tt \$APECSS\_DIR/examples} directory, the name of the  {\tt *.apecss} file is passed as an argument with the call to run APECSS, e.g.~executing {\tt ./<APECSS-example> -options run.apecss} to use the an options file named {\tt run.apecss}.
+
+Detailed information about each example, how to run it and what the results might be compared to can be found in the accompanying {\tt README.txt} file.
 
 \section{Units}
 
@@ -58,13 +63,13 @@ APECSS assumes SI units or any appropriate combination of SI units at all times,
 
 \section{Programming in APECSS}
 
-All routines are placed in source files that relate to parts of the code, distinguished by physical phenomena (e.g.~{\tt nonspherical.c}), fluid type (e.g.~{\tt liquid.c}) or computational operations (e.g.~{\tt results.c}). 
+All routines are placed in source files that relate to parts of the code, distinguished by physical phenomena (e.g.~{\tt emissions.c}), fluid type (e.g.~{\tt liquid.c}) or computational operations (e.g.~{\tt results.c}). 
 
-All decalarations and definitions are located in the header file {\tt apecss.h}. 
+All declarations and definitions are located in the header file {\tt apecss.h}. 
 
 \subsection{Macros}
 
-Macros are used as shortcuts to define frequently-used constants (e.g.~{\tt APECSS\_PI}), for frequently-used computational operations (e.g.~{\tt APECSS\_MAX}) and for computational operations that depend on the chosen machine precision (e.g.~{\tt APECSS\_SIN}). Furthermore, options related to different numerical models are represented by logically named flags.
+Macros are used as shortcuts to define frequently-used constants (e.g.~{\tt APECSS\_PI}), for frequently-used computational operations (e.g.~{\tt APECSS\_MAX}) and for computational operations that depend on the chosen machine precision (e.g.~{\tt APECSS\_SQRT}). Furthermore, options related to different numerical models are represented by logically named flags.
 
 \subsubsection{Macros related to machine precision}
 
@@ -175,7 +180,7 @@ Model to compute the acoustic emissions of the bubble:\vspace{-1em}
 
 \subsubsection{Others}
 
-Other predefined macros are used to define the verbosity of APECSS, the length of strings and arrays, as well as to help with debugging:\vspace{-1em}
+Other predefined macros are used to define the length of strings and arrays, as well as to help with debugging:\vspace{-1em}
 \begin{itemize}[noitemsep]
   \item {\tt APECSS\_DATA\_ALLOC\_INCREMENT}: The increment for dynamics re-allocation of arrays.
   \item {\tt APECSS\_STRINGLENGTH}: The standard length of a string.
@@ -191,7 +196,7 @@ Other predefined macros are used to define the verbosity of APECSS, the length o
 
 Structures ({\tt struct}) are used in APECSS to group variables and functions, and to provide a modular layout of the code that enables reusing different parts of it.
 
-The structure {\tt APECSS\_Bubble} is the central structure of APECSS as it contains all the information related to a bubble. There is, of course, no a priori limit on how many copies of this structure you can have, for instance, a multi-bubble simulation with 100 bubbles would naturally have 100 objects of type {\tt struct APECSS\_Bubble}. Aside from key information, such as the bubble radius, the {\tt APECSS\_Bubble} structure contains pointers to the properties of the liquid the bubble is immersed in ({\tt struct APECSS\_Liquid}), the properties of the gas the bubble contains ({\tt struct APECSS\_Gas}) and the properties of its interface ({\tt struct APECSS\_Interface}). If applicable, the {\tt APECSS\_Bubble} structure also points to the structure with the information of the driving acoustic excitation ({\tt struct APECSS\_Excitation}), the structure handling the acoustic emissions ({\tt struct APECSS\_Emissions}), and the structure containing the desired results ({\tt struct APECSS\_Results}). Lastly, the {\tt APECSS\_Bubble} structure has function pointers to functions related to one of its optional structures (e.g.~for the emissions) that are directly called in the context of the bubble, i.e.~where it is not a priori known if the optional structure is allocated or not.
+The structure {\tt APECSS\_Bubble} is the central structure of APECSS as it contains all the information related to a bubble. There is, of course, no {\it a priori} limit on how many copies of this structure you can have, for instance, a multi-bubble simulation with 100 bubbles would naturally have 100 objects of type {\tt struct APECSS\_Bubble}. Aside from key information about the bubble, such as the bubble radius, the {\tt APECSS\_Bubble} structure contains pointers to the properties of the liquid the bubble is immersed in ({\tt struct APECSS\_Liquid}), the properties of the gas the bubble contains ({\tt struct APECSS\_Gas}) and the properties of its interface ({\tt struct APECSS\_Interface}). If applicable, the {\tt APECSS\_Bubble} structure also points to the structure with the information of the driving acoustic excitation ({\tt struct APECSS\_Excitation}), the structure handling the acoustic emissions ({\tt struct APECSS\_Emissions}), and the structure containing the desired results ({\tt struct APECSS\_Results}). 
 
 The (optional) structure {\tt APECSS\_Emissions} is, as the name suggests, related to the acoustic emissions of a bubble. If allocated, it contains information about how to handle the acoustic emissions, function pointers referring to the functions used to advance the acoustic emissions using a Lagrangian approach and, very importantly, the linked list of emissions nodes ({\tt struct APECSS\_EmissionNode}) that carry the actual information of the acoustic emissions. The {\tt APECSS\_EmissionNode} structure holds the information (e.g.~radial location, velocity, pressure) associated with a specific emission node.
 
@@ -200,7 +205,7 @@ The (optional) structure {\tt APECSS\_Results} holds all the results the user ma
 
 \subsection{A word on function pointers}
 
-APECSS uses function pointers extensively. Function pointers are an elegant means in {\tt C} to add complexity and functionality to code yet still retain a slim code, avoid redudant code and, if nothing else, to avoid a large number of costly conditional statements. However, function pointers can quickly make a code unreadable and obscure what is actually happening if they are used without care. In order to keep the use of function pointers in APECSS transparent, the adopt the convention that \underline{all} function pointers are set in {\tt apecss\_*\_processoptions()} functions, e.g.~{\tt apecss\_gas\_processoptions()}.
+APECSS uses function pointers extensively. Function pointers are an elegant means in {\tt C} to add complexity and functionality yet still retain a slim code, avoid redudant code and, if nothing else, avoid a large number of costly conditional statements. However, function pointers can quickly make a code unreadable and obscure what is actually happening if they are used without care. In order to keep the use of function pointers in APECSS transparent, the adopted convention is that \underline{all} function pointers are set in {\tt apecss\_*\_processoptions()} functions, e.g.~{\tt apecss\_gas\_processoptions()}.
 
 \subsection{Code formatting}
 
