@@ -2,10 +2,30 @@
 
 APECSS is a software tool to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written exclusively in C and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
-APECSS is under the copyright of its developers and made available as open-source software under the terms of the [Mozilla Public License Version 2.0](LICENSE.txt).
+The main features of APECSS are:\vspace{-1em}
+\begin{itemize}[noitemsep]
+\item Includes widely-used models for the bubble dynamics (Rayleigh-Plesset, Keller-Miksis, Gilmore).
+\item Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
+\item Prediction of the formation and attenuation of shock fronts emitted by the bubble.
+\item Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
+\item Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
+\item All ODEs are solved with an in-built fifth-order Runge-Kutta scheme with fourth-order error estimate, based on \citet{Dormand1980}.
+\item APECSS has no external dependencies, aside from some common C headers (math.h, stdio.h, stdlib.h, string.h).
+\end{itemize}
+
+The APECSS repository is located at \href{https://github.com/polycfd/apecss}{\texttt{https://github.com/polycfd/apecss}} and structured as follows:\vspace{-1em}
+\begin{itemize}[noitemsep]
+    \item The {\tt documentation/} folder contains a short documentation of APECSS, written in Latex.
+    \item The {\tt examples/} folder contains representative examples of how to use APECSS and to demonstrate the most important features of APECSS. These examples also serve to validate APECSS against results reported in the literature.
+    \item The {\tt include/} folder contains the {\tt apecss.h} header file, in which all variable, macro and function of APECSS are defined.
+    \item The {\tt lib/} folder in which the APECSS library is compiled (at least if you follow the \ref{sec:installation}).
+    \item The {\tt src} folder contains all source files ({\tt *.c}) of APECSS.
+    \item The {\tt .clang-format} file, which defines the formatting rules for the source code. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.
+    \item The {\tt .gitignore} file telling \textit{git} which folders and files to ignore.
+    \item The {\tt LICENSE.txt} file containing the Mozilla Public License Version 2.0.
+    \item The {\tt README.txt} file with the most important information about APECSS.
+\end{itemize}
+
+APECSS is under the copyright of its developers and made available as open-source software under the terms of the \href{https://www.mozilla.org/en-US/MPL/2.0/}{Mozilla Public License Version 2.0}.
 
 The development of APECSS has directly benefitted from research funding provided by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation), grant number 441063377.
-
-\section{Overview}
-
-\section{Project structure}

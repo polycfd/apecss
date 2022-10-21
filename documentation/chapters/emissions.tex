@@ -1,3 +1,24 @@
 \chapter{Acoustic emissions}
 
-\ldots
+\vspace{0.8em}
+
+\noindent
+\begin{tabular}{p{0.12\textwidth} p{0.32\textwidth} p{0.45\textwidth}}
+    \textbf{Section} &\textbf{Command} & \textbf{Description} 
+\vspace{1mm} \\ \hline
+{\tt BUBBLE} & {\tt Emissions Incompressible} & Computes the acoustic emissions under the common incompressible assumption.\\ 
+& {\tt Emissions FTI} & Computes the acoustic emissions under the assumption of an incompressible fluid but propagating the emissions with the speed of sound.\\ 
+& {\tt Emissions QA} & Computes the acoustic emissions using the quasi-acoustic model of \citet{Gilmore1952}.\\ 
+& {\tt Emissions KB} & Computes the acoustic emissions based on the Kirkwood-Bethe hypothesis.\\ 
+ & {\tt KBIterTolerance <float>} & Sets the tolerance for the iterative pressure evaluation when the emissions are computed based on the Kirkwood-Bethe hypothesis.\\ 
+ \hline
+\end{tabular} \vspace{1em}
+
+\section{Incompressible assumption}
+
+\section{Quasi-acoustic model}
+
+\section{Emissions based on the Kirkwood-Bethe hypothesis}
+\label{sec:emissionskb}
+
+\section{Results}
