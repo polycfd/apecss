@@ -223,97 +223,42 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
       FILE *file_ptr;
       file_ptr = fopen(path, "w");
 
-      fprintf(file_ptr, "#");
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "timeStep");
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "time");
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "dt");
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "R");
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "U");
+      fprintf(file_ptr, "# timeStep time dt R U pG pL");
 
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "pG");
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "pL");
-
-      if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
-      {
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "cL");
-      }
+      if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " cL");
 
       for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
-      {
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%s", Bubble->Results->RayleighPlesset->UserODEsName[userode]);
-      }
+        fprintf(file_ptr, " %s", Bubble->Results->RayleighPlesset->UserODEsName[userode]);
 
       fprintf(file_ptr, " \n");
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++)
       {
-        fprintf(file_ptr, "%d", i * Bubble->Results->RayleighPlesset->freq);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->t[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->dt[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->R[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i]);
+        fprintf(file_ptr, "%d %.*Le %.*Le %.*Le %.*Le %.*Le %.*Le", i * Bubble->Results->RayleighPlesset->freq, Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->t[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->dt[i], Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->R[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i], Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->pG[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i]);
 
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->pG[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i]);
-
-        if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
-        {
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->cL[i]);
-        }
+        if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->cL[i]);
 
         for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
-        {
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->UserODEsSol[userode][i]);
-        }
+          fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->UserODEsSol[userode][i]);
 
         fprintf(file_ptr, " \n");
       }
 #else
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++)
       {
-        fprintf(file_ptr, "%d", i * Bubble->Results->RayleighPlesset->freq);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->t[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->dt[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->R[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->pG[i]);
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i]);
+        fprintf(file_ptr, "%d %.*e %.*e %.*e %.*e %.*e %.*e", i * Bubble->Results->RayleighPlesset->freq, Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->t[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->dt[i], Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->R[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i], Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->pG[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i]);
 
-        if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
-        {
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->cL[i]);
-        }
+        if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->cL[i]);
 
         for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
-        {
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->UserODEsSol[userode][i]);
-        }
+          fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->UserODEsSol[userode][i]);
 
         fprintf(file_ptr, " \n");
       }
@@ -380,20 +325,7 @@ int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
     FILE *file_ptr;
     file_ptr = fopen(path, "w");
 
-    fprintf(file_ptr, "#");
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "real-id");
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "r");
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "p");
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "u");
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "c");
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "pinf");
-    fprintf(file_ptr, " \n");
+    fprintf(file_ptr, "# real-id r p u c pinf \n");
 
     struct APECSS_EmissionNode *Node = Bubble->Emissions->FirstNode;
 
@@ -403,29 +335,13 @@ int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
       fprintf(file_ptr, " ");
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
-      fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Node->r);
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Node->p);
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Node->u);
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*Le", Bubble->Results->digits,
-              Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid));
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble));
-      fprintf(file_ptr, " \n");
+      fprintf(file_ptr, "%.*Le %.*Le %.*Le %.*Le %.*Le \n", Bubble->Results->digits, Node->r, Bubble->Results->digits, Node->p, Bubble->Results->digits,
+              Node->u, Bubble->Results->digits, Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid),
+              Bubble->Results->digits, Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble));
 #else
-      fprintf(file_ptr, "%.*e", Bubble->Results->digits, Node->r);
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*e", Bubble->Results->digits, Node->p);
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*e", Bubble->Results->digits, Node->u);
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*e", Bubble->Results->digits,
-              Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid));
-      fprintf(file_ptr, " ");
-      fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble));
-      fprintf(file_ptr, " \n");
+      fprintf(file_ptr, "%.*e %.*e %.*e %.*e %.*e \n", Bubble->Results->digits, Node->r, Bubble->Results->digits, Node->p, Bubble->Results->digits, Node->u,
+              Bubble->Results->digits, Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid),
+              Bubble->Results->digits, Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble));
 #endif
 
       Node = Node->forward;
@@ -617,61 +533,31 @@ int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
         FILE *file_ptr;
         file_ptr = fopen(path, "w");
 
-        fprintf(file_ptr, "#");
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "time");
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "p");
-        fprintf(file_ptr, " ");
-        fprintf(file_ptr, "u");
-        fprintf(file_ptr, " ");
-
-        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
-        {
-          fprintf(file_ptr, "c");
-          fprintf(file_ptr, " ");
-        }
-
-        fprintf(file_ptr, "pInf");
-        fprintf(file_ptr, " \n");
+        fprintf(file_ptr, "# time p u");
+        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE) fprintf(file_ptr, " c");
+        fprintf(file_ptr, " pInf \n");
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
         for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++)
         {
-          fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i]);
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].p[i]);
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
-          fprintf(file_ptr, " ");
+          fprintf(file_ptr, "%.*Le %.*Le %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
+                  Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
 
           if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
-          {
-            fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
-            fprintf(file_ptr, " ");
-          }
+            fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
 
-          fprintf(file_ptr, "%.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
-          fprintf(file_ptr, " \n");
+          fprintf(file_ptr, " %.*Le \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
         }
 #else
         for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++)
         {
-          fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i]);
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].p[i]);
-          fprintf(file_ptr, " ");
-          fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
-          fprintf(file_ptr, " ");
+          fprintf(file_ptr, "%.*e %.*e %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
+                  Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
 
           if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
-          {
-            fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
-            fprintf(file_ptr, " ");
-          }
+            fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
 
-          fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
-          fprintf(file_ptr, " \n");
+          fprintf(file_ptr, " %.*e \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
         }
 #endif
 
@@ -1062,22 +948,7 @@ int apecss_results_emissionsnode_writenode(struct APECSS_ResultsEmissionsNode *N
   FILE *file_ptr;
   file_ptr = fopen(path, "w");
 
-  fprintf(file_ptr, "#");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "real-id");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "r");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "t");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "p");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "u");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "c");
-  fprintf(file_ptr, " ");
-  fprintf(file_ptr, "pinf");
-  fprintf(file_ptr, " \n");
+  fprintf(file_ptr, "# real-id r t p u c pinf \n");
 
   for (register int i = 0; i < Node->n; i++)
   {
@@ -1085,31 +956,11 @@ int apecss_results_emissionsnode_writenode(struct APECSS_ResultsEmissionsNode *N
     fprintf(file_ptr, " ");
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
-    fprintf(file_ptr, "%.*Le", digits, Node->r[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*Le", digits, Node->t[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*Le", digits, Node->p[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*Le", digits, Node->u[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*Le", digits, Node->c[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*Le", digits, Node->pInf[i]);
-    fprintf(file_ptr, " \n");
+    fprintf(file_ptr, "%.*Le %.*Le %.*Le %.*Le %.*Le %.*Le \n", digits, Node->r[i], digits, Node->t[i], digits, Node->p[i], digits, Node->u[i], digits,
+            Node->c[i], digits, Node->pInf[i]);
 #else
-    fprintf(file_ptr, "%.*e", digits, Node->r[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*e", digits, Node->t[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*e", digits, Node->p[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*e", digits, Node->u[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*e", digits, Node->c[i]);
-    fprintf(file_ptr, " ");
-    fprintf(file_ptr, "%.*e", digits, Node->pInf[i]);
-    fprintf(file_ptr, " \n");
+    fprintf(file_ptr, "%.*e %.*e %.*e %.*e %.*e %.*e \n", digits, Node->r[i], digits, Node->t[i], digits, Node->p[i], digits, Node->u[i], digits, Node->c[i],
+            digits, Node->pInf[i]);
 #endif
   }
 
