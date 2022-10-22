@@ -99,23 +99,23 @@ In APECSS, every bubble needs to contain a gas, which requires to select an appr
 
 Using the ideal gas EoS, the pressure and its derivative are given as
 \begin{align}
-  p_\text{G} &= p_\text{G,ref} \left(\frac{\rho}{\rho_\text{g,ref}}\right)^{\Gamma_\text{g}}\\
-  \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \, p_\text{G}}{\rho_\text{G}},\\
+  p_\text{G} &= p_\text{G,ref} \left(\frac{R_0}{R}\right)^{3 \Gamma_\text{g}}\\
+  \dot{p}_\text{G} &= -3 \, \frac{p_\text{G} \, \Gamma_\text{g} \, \dot{R}}{R},\\
 \end{align}
 including a van-der-Waals hardcore (HC) in the ideal gas model, the pressure and its derivative follow as
 \begin{align}
-  p_\text{G} &= p_\text{G,ref} \left(\frac{\rho^3-r_\text{hc}^3}{\rho_\text{g,ref}^3-r_\text{hc}^3}\right)^{\Gamma_\text{g}}\\
+  p_\text{G} &= p_\text{G,ref} \left(\frac{R_0^3-r_\text{hc}^3}{R^3-r_\text{hc}^3}\right)^{\Gamma_\text{g}}\\
   \dot{p}_\text{G} &= -3 \, \frac{p_\text{G} \, \Gamma_\text{g} \, R^2 \, \dot{R}}{R^3-r_\text{hc}^3},
 \end{align}
 and using the Noble-Abel-stiffened-gas (NASG) EoS, the pressure and its derivative are \citep{Denner2021}
 \begin{align}
   p_\text{G} &= (p_\text{G,ref} + B_\text{g}) \left[\frac{\rho_\text{g} \, (1-b_\text{g} \, \rho_\text{g,ref})}{\rho_\text{g,ref} \, (1- b_\text{g} \, \rho_\text{G})} \right]^{\Gamma_\text{g}} - B_\text{g}\\
-  \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \left(p_\text{G} + B_\text{g} \right)}{\rho_\text{G} \left(1- b_\text{g} \, \rho_\text{G} \right)}
+  \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \left(p_\text{G} + B_\text{g} \right)}{\rho_\text{G} \left(1- b_\text{g} \, \rho_\text{G} \right)}.
 \end{align}
-For all three equations of state, the the gas density and its derivative are given by 
+For all three equations of state, the gas density and its derivative are given by 
 \begin{align}
   \rho_\text{G} &= \rho_\text{g,ref} \left(\frac{R_0}{R}\right)^3 \label{eq:rhoG}\\
-  \dot{\rho}_\text{G} &= -3 \, \rho_\text{G}\, \frac{\dot{R}}{R}. \label{eq:dot_rhoG}
+  \dot{\rho}_\text{G} &= -3 \, \rho_\text{G}\, \frac{\dot{R}}{R}. \label{eq:dot_rhoG}.
 \end{align}
 
 The hardcore radius $r_\mathrm{hc}$ and the co-volume $b_\mathrm{g}$ are set by default to $-1$. If the {\tt HC} or {\tt NASG} model is chosen, the user either has to pass values for the hardcore radius $r_\mathrm{hc}$ or the co-volume $b_\mathrm{g}$, respectively. Alternatively, the molecular weight $\mathcal{M}_{\text{g}}$ and the molecular kinematic diameter $\mathcal{D}_{\text{g}}$ of the gas may be defined instead of $r_\mathrm{hc}$ or $b_\mathrm{g}$, APECSS then computes, based on the bubble size, the correct hardcore radius $r_\mathrm{hc}$ or  co-volume $b_\mathrm{g}$. Based on the molecular weight $\mathcal{M}_{\text{g}}$, the bubble contains 
