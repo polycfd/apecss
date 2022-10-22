@@ -30,7 +30,6 @@ int main(int argc, char **args)
 {
   char str[APECSS_STRINGLENGTH_SPRINTF];
   char OptionsDir[APECSS_STRINGLENGTH];
-  struct APECSS_Bubble Bubble;
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Initialize the case-dependent simulation parameters
@@ -75,21 +74,25 @@ int main(int argc, char **args)
     }
   }
 
+  /* Allocate and initialize Bubble structure */
+  struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
+  apecss_bubble_initializestruct(Bubble);
+
   /* Set default options for the bubble and the fluids */
-  apecss_options_setdefault(&Bubble);
+  apecss_options_setdefault(Bubble);
 
   /* Read the options file */
-  apecss_options_readfile(&Bubble, OptionsDir);
+  apecss_options_readfile(Bubble, OptionsDir);
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Set the case-dependent simulation parameters
-  Bubble.tStart = 0.0;
-  Bubble.tEnd = (APECSS_FLOAT) tEnd;
-  Bubble.dt = APECSS_MIN(1.0e-7, Bubble.tEnd - Bubble.tStart);  // Initial time-step
-  Bubble.Excitation = (struct APECSS_Excitation *) malloc(sizeof(struct APECSS_Excitation));
-  Bubble.Excitation->type = APECSS_EXCITATION_SIN;
-  Bubble.Excitation->f = (APECSS_FLOAT) fa;
-  Bubble.Excitation->dp = (APECSS_FLOAT) pa;
+  Bubble->tStart = 0.0;
+  Bubble->tEnd = (APECSS_FLOAT) tEnd;
+  Bubble->dt = APECSS_MIN(1.0e-7, Bubble->tEnd - Bubble->tStart);  // Initial time-step
+  Bubble->Excitation = (struct APECSS_Excitation *) malloc(sizeof(struct APECSS_Excitation));
+  Bubble->Excitation->type = APECSS_EXCITATION_SIN;
+  Bubble->Excitation->f = (APECSS_FLOAT) fa;
+  Bubble->Excitation->dp = (APECSS_FLOAT) pa;
 
   // Set the parameters and functions for the gas energy model
   _cv_ = 720.0;  // Isochoric heat capacity of the gas
@@ -97,23 +100,23 @@ int main(int argc, char **args)
   _T0_ = 293.15;  // Ambient temperature
 
   // (Optional) The solutions of the additional ODEs may be stored with the RP solution
-  if (Bubble.Results != NULL && Bubble.Results->RayleighPlesset != NULL)
+  if (Bubble->Results != NULL && Bubble->Results->RayleighPlesset != NULL)
   {
-    Bubble.Results->RayleighPlesset->UserODEsName = malloc(sizeof(char *));
-    Bubble.Results->RayleighPlesset->UserODEsSol = malloc(sizeof(APECSS_FLOAT *));
+    Bubble->Results->RayleighPlesset->UserODEsName = malloc(sizeof(char *));
+    Bubble->Results->RayleighPlesset->UserODEsSol = malloc(sizeof(APECSS_FLOAT *));
 
-    Bubble.Results->RayleighPlesset->UserODEsName[0] = malloc(APECSS_STRINGLENGTH * sizeof(char));
-    sprintf(Bubble.Results->RayleighPlesset->UserODEsName[0], "TG");
+    Bubble->Results->RayleighPlesset->UserODEsName[0] = malloc(APECSS_STRINGLENGTH * sizeof(char));
+    sprintf(Bubble->Results->RayleighPlesset->UserODEsName[0], "TG");
 
     // The solutions of the first nUserODEs additional ODEs defined by the user are written to file
-    Bubble.Results->RayleighPlesset->nUserODEs = 1;
+    Bubble->Results->RayleighPlesset->nUserODEs = 1;
   }
 
   // Set the total number of additional user-defined ODEs
-  Bubble.nUserODEs = 1;
+  Bubble->nUserODEs = 1;
 
   // Bubble.nODEs represents at this point the total count of ODEs that is used for allocating the corresponding arrays
-  Bubble.nODEs += Bubble.nUserODEs;
+  Bubble->nODEs += Bubble->nUserODEs;
 
   // Note that Bubble.nODEs is reset after initial allocation in apecss_options_process() and,
   // subsequently, counted upwards again as the functions of the ODEs are defined.
@@ -121,35 +124,35 @@ int main(int argc, char **args)
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Process all options */
-  apecss_options_process(&Bubble);
+  apecss_options_process(Bubble);
 
   /* Initialize the bubble based on the selected options */
-  apecss_bubble_initialize(&Bubble);
+  apecss_bubble_initialize(Bubble);
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Add the temperature ODE to the set of solved ODEs
-  _pos_energy_ode_ = Bubble.nODEs;  // Simplfies finding the corresponding solution
-  Bubble.ode[_pos_energy_ode_] = gas_energy_strickersingleode;
-  Bubble.ODEsSol[_pos_energy_ode_] = _T0_;
-  Bubble.nODEs++;
+  _pos_energy_ode_ = Bubble->nODEs;  // Simplfies finding the corresponding solution
+  Bubble->ode[_pos_energy_ode_] = gas_energy_strickersingleode;
+  Bubble->ODEsSol[_pos_energy_ode_] = _T0_;
+  Bubble->nODEs++;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Solve the bubble dynamics */
   clock_t starttimebubble = clock();
-  apecss_bubble_solve(&Bubble);
+  apecss_bubble_solve(Bubble);
 
-  sprintf(str, "Solver concluded %i time-steps and %i sub-iterations in %.3f s.", Bubble.dtNumber, Bubble.nSubIter,
+  sprintf(str, "Solver concluded %i time-steps and %i sub-iterations in %.3f s.", Bubble->dtNumber, Bubble->nSubIter,
           (double) (clock() - starttimebubble) / CLOCKS_PER_SEC);
   apecss_writeonscreen(str);
 
   /* Write out all desired results */
-  apecss_results_rayleighplesset_write(&Bubble);
-  apecss_results_emissionsspace_write(&Bubble);
-  apecss_results_emissionsnodespecific_write(&Bubble);
-  apecss_results_emissionsnodeminmax_write(&Bubble);
+  apecss_results_rayleighplesset_write(Bubble);
+  apecss_results_emissionsspace_write(Bubble);
+  apecss_results_emissionsnodespecific_write(Bubble);
+  apecss_results_emissionsnodeminmax_write(Bubble);
 
   /* Make sure all allocated memory is freed */
-  apecss_bubble_freearrays(&Bubble);
+  apecss_bubble_freestruct(Bubble);
 
   return (0);
 }

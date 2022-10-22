@@ -19,7 +19,7 @@
 
 int apecss_interface_setdefaultoptions(struct APECSS_Bubble *Bubble)
 {
-  Bubble->Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
+  if (Bubble->Interface == NULL) Bubble->Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
 
   Bubble->Interface->sigma = 0.0;
   Bubble->Interface->LipidCoatingModel = APECSS_LIPIDCOATING_NONE;

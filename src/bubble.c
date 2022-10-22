@@ -17,21 +17,69 @@
 // SET OPTIONS
 // -------------------------------------------------------------------
 
+int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
+{
+  // Initialize pointers to arrays
+  Bubble->ode = NULL;
+  Bubble->k2 = NULL;
+  Bubble->k3 = NULL;
+  Bubble->k4 = NULL;
+  Bubble->k5 = NULL;
+  Bubble->k6 = NULL;
+  Bubble->k7 = NULL;
+  Bubble->kLast = NULL;
+
+  // Initialize pointer to structures
+  Bubble->NumericsODE = NULL;
+  Bubble->Gas = NULL;
+  Bubble->Liquid = NULL;
+  Bubble->Interface = NULL;
+  Bubble->Excitation = NULL;
+  Bubble->Emissions = NULL;
+  Bubble->Results = NULL;
+
+  // Initialize pointers to functions
+  Bubble->emissions_initialize = NULL;
+  Bubble->emissions_update = NULL;
+  Bubble->emissions_free = NULL;
+  Bubble->progress_initial = NULL;
+  Bubble->progress_update = NULL;
+  Bubble->progress_final = NULL;
+  Bubble->results_rayleighplesset_store = NULL;
+  Bubble->results_emissionstime_write = NULL;
+  Bubble->results_emissionstime_check = NULL;
+  Bubble->results_emissionsspace_store = NULL;
+  Bubble->results_emissionsnode_alloc = NULL;
+  Bubble->results_emissionsnode_store = NULL;
+  Bubble->results_emissionsnodeminmax_identify = NULL;
+
+  return (0);
+}
+
 int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
 {
+  // Time
+  Bubble->tStart = 0.0;
+  Bubble->tEnd = 1.0;
+  Bubble->dt = 1.0e-10;
+
   // Governing RP model
   Bubble->RPModel = APECSS_BUBBLEMODEL_RP;
 
-  // Ambient conditions
-  Bubble->p0 = 1.0e5;
-
-  // Initial gas pressure in the bubble
-  Bubble->pG0 = -APECSS_LARGE;
+  // Bubble properties
+  Bubble->R0 = 1.0;
+  Bubble->R = Bubble->R0;
+  Bubble->U0 = 0.0;
+  Bubble->U = Bubble->U0;
+  Bubble->p0 = 1.0e5;  // Ambient pressure
+  Bubble->pG0 = -APECSS_LARGE;  // Initial gas pressure in the bubble
+  Bubble->rhoG0 = 1.0;
 
   // ODEs
-  Bubble->dt = 1.0e-10;  // Initial time-step
   Bubble->nODEs = 2;  // ODEs for the bubble radius and bubble wall velocity
   Bubble->nUserODEs = 0;  // Number of ODEs defined by the user
+  Bubble->dtNumber = 0;  // Time-step count
+  Bubble->nSubIter = 25;  // Number of maximum sub-iterations in a given time-step
 
   // Allocate the structure for the ODE solver parameters
   Bubble->NumericsODE = (struct APECSS_NumericsODE *) malloc(sizeof(struct APECSS_NumericsODE));
@@ -47,12 +95,7 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->NumericsODE->control_coeff_alpha = 0.9;
   Bubble->NumericsODE->control_coeff_q = 0.1;
 
-  // Initialize pointers to optional structures
-  Bubble->Excitation = NULL;
-  Bubble->Emissions = NULL;
-  Bubble->Results = NULL;
-
-  // Initialize pointers to functions
+  // Set default pointers to functions
   Bubble->emissions_initialize = apecss_emissions_initializenone;
   Bubble->emissions_update = apecss_emissions_updatenone;
   Bubble->emissions_free = apecss_emissions_freenone;
@@ -388,38 +431,98 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
-int apecss_bubble_freearrays(struct APECSS_Bubble *Bubble)
+int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
 {
   free(Bubble->ODEsSol);
+  Bubble->ODEsSol = NULL;
   free(Bubble->ode);
+  Bubble->ode = NULL;
 
   free(Bubble->k2);
+  Bubble->k2 = NULL;
   free(Bubble->k3);
+  Bubble->k3 = NULL;
   free(Bubble->k4);
+  Bubble->k4 = NULL;
   free(Bubble->k5);
+  Bubble->k5 = NULL;
   free(Bubble->k6);
+  Bubble->k6 = NULL;
   free(Bubble->k7);
+  Bubble->k7 = NULL;
   free(Bubble->kLast);
+  Bubble->kLast = NULL;
 
-  if (Bubble->Results != NULL && Bubble->Results->Emissions != NULL)
+  free(Bubble->Gas);
+  Bubble->Gas = NULL;
+  free(Bubble->Liquid);
+  Bubble->Liquid = NULL;
+  free(Bubble->Interface);
+  Bubble->Interface = NULL;
+
+  free(Bubble->NumericsODE);
+  Bubble->NumericsODE = NULL;
+
+  if (Bubble->Emissions != NULL)
   {
-    if (Bubble->Results->Emissions->nTimeInstances)
+    free(Bubble->Emissions);
+    Bubble->Emissions = NULL;
+  }
+
+  if (Bubble->Results != NULL)
+  {
+    if (Bubble->Results->RayleighPlesset != NULL)
     {
-      free(Bubble->Results->Emissions->TimeInstances);
-      Bubble->Results->Emissions->TimeInstances = NULL;
+      free(Bubble->Results->RayleighPlesset);
+      Bubble->Results->RayleighPlesset = NULL;
     }
 
-    if (Bubble->Results->Emissions->nSpaceLocations)
+    if (Bubble->Results->Emissions != NULL)
     {
-      free(Bubble->Results->Emissions->SpaceLocation);
-      Bubble->Results->Emissions->nSpaceLocations = 0;
+      if (Bubble->Results->Emissions->TimeInstances)
+      {
+        free(Bubble->Results->Emissions->TimeInstances);
+        Bubble->Results->Emissions->TimeInstances = NULL;
+      }
+
+      if (Bubble->Results->Emissions->SpaceLocation != NULL)
+      {
+        free(Bubble->Results->Emissions->SpaceLocation);
+        Bubble->Results->Emissions->SpaceLocation = NULL;
+        Bubble->Results->Emissions->nSpaceLocations = 0;
+      }
+
+      if (Bubble->Results->Emissions->Node != NULL)
+      {
+        free(Bubble->Results->Emissions->Node);
+        Bubble->Results->Emissions->Node = NULL;
+        Bubble->Results->Emissions->nNodes = 0;
+      }
+
+      if (Bubble->Results->Emissions->Node_Rmin != NULL)
+      {
+        free(Bubble->Results->Emissions->Node_Rmin);
+        Bubble->Results->Emissions->Node_Rmin = NULL;
+      }
+
+      if (Bubble->Results->Emissions->Node_Umin != NULL)
+      {
+        free(Bubble->Results->Emissions->Node_Umin);
+        Bubble->Results->Emissions->Node_Umin = NULL;
+      }
+
+      if (Bubble->Results->Emissions->Node_pLmax != NULL)
+      {
+        free(Bubble->Results->Emissions->Node_pLmax);
+        Bubble->Results->Emissions->Node_pLmax = NULL;
+      }
+
+      free(Bubble->Results->Emissions);
+      Bubble->Results->Emissions = NULL;
     }
 
-    if (Bubble->Results->Emissions->nNodes)
-    {
-      free(Bubble->Results->Emissions->Node);
-      Bubble->Results->Emissions->nNodes = 0;
-    }
+    free(Bubble->Results);
+    Bubble->Results = NULL;
   }
 
   return (0);

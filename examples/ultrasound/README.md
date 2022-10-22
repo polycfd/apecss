@@ -13,8 +13,7 @@ Using [sonolumin_emissions.apess](sonolum_emissions.apecss) with ````./build/ult
 Using [kelvinvoigt.apess](kelvinvoigt.apecss) with ````./build/ultrasound_apecss -options kelvinvoigt.apecss -tend 6e-6 -freq 1e6 -amp 3e6````, this example reproduces Figure 5b of [Yang & Church, _Journal of the Acoustical Society of America_ 118 (2005), 3595](https://doi.org/10.1121/1.2118307).
 
 #### Zener
-Using [zener.apess](zener.apecss) with ````./build/ultrasound_apecss -options zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6````, this example reproduces Figure 5b of 
-[Zilonova et al., _Ultrasonics Sonochemistry_ 40 (2018), 900](https://doi.org/10.1016/j.ultsonch.2017.08.017).
+Using [zener.apess](zener.apecss) with ````./build/ultrasound_apecss -options zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6````, this example reproduces Figure 5b of [Zilonova et al., _Ultrasonics Sonochemistry_ 40 (2018), 900](https://doi.org/10.1016/j.ultsonch.2017.08.017).
 
 #### Oldroyd-B
 Using [oldroydb.apess](oldroydb.apecss) with ````./build/ultrasound_apecss -options oldroydb.apecss -tend 3e-6 -freq 3e6 -amp 400e3````, this example reproduces Figure 1 (De = 1, lower solid line) of [Jimenez-Fernandez & Crespo, _Ultrasonics_ 43 (2005), 643](https://doi.org/10.1016/j.ultras.2005.03.010).

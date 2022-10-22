@@ -19,7 +19,7 @@
 
 int apecss_liquid_setdefaultoptions(struct APECSS_Bubble *Bubble)
 {
-  Bubble->Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
+  if (Bubble->Liquid == NULL) Bubble->Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
 
   Bubble->Liquid->Type = APECSS_LIQUID_NEWTONIAN;
   Bubble->Liquid->EoS = -1;

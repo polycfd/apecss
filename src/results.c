@@ -298,7 +298,6 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
         fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->R[i]);
         fprintf(file_ptr, " ");
         fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i]);
-
         fprintf(file_ptr, " ");
         fprintf(file_ptr, "%.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->pG[i]);
         fprintf(file_ptr, " ");
@@ -341,7 +340,6 @@ int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble)
     Bubble->Results->RayleighPlesset->R = NULL;
     free(Bubble->Results->RayleighPlesset->U);
     Bubble->Results->RayleighPlesset->U = NULL;
-
     free(Bubble->Results->RayleighPlesset->pG);
     Bubble->Results->RayleighPlesset->pG = NULL;
     free(Bubble->Results->RayleighPlesset->pL);
@@ -580,6 +578,14 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
         {
           apecss_erroronscreen(-1, "Unknown emission type specified in space location.");
         }
+      }
+      else
+      {
+        Bubble->Results->Emissions->SpaceLocation[l].p[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
+        Bubble->Results->Emissions->SpaceLocation[l].u[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
+
+        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+          Bubble->Results->Emissions->SpaceLocation[l].c[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
       }
 
       Bubble->Results->Emissions->SpaceLocation[l].t[Bubble->Results->Emissions->SpaceLocation[l].n] = Bubble->t;
@@ -1116,6 +1122,8 @@ int apecss_results_emissionsnode_freenode(struct APECSS_ResultsEmissionsNode *No
 {
   if (Node->nAllocated)
   {
+    free(Node->real_id);
+    Node->real_id = NULL;
     free(Node->r);
     Node->r = NULL;
     free(Node->t);

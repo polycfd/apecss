@@ -372,9 +372,6 @@ struct APECSS_Bubble
   APECSS_FLOAT tEnd;  // End time [s]
 
   APECSS_FLOAT dt;  // Time-step
-  int dtNumber;  // Time-step number
-  int nSubIter;  // Total number of sub-iterations to control the error
-  APECSS_FLOAT *k2, *k3, *k4, *k5, *k6, *k7, *kLast;  // Intermediate solutions of the Runge-Kutta solver
 
   int RPModel;  // Model governing the bubble dynamics
 
@@ -384,17 +381,20 @@ struct APECSS_Bubble
   APECSS_FLOAT U;  // Velocity of the bubble wall [m/s]
 
   // Ambient and initial conditions
-  APECSS_FLOAT p0;  // Ambient pressure [Pa]
   APECSS_FLOAT R0;  // Initial radius [m]
   APECSS_FLOAT U0;  // Initial velocity [m/s]
+  APECSS_FLOAT p0;  // Ambient pressure [Pa]
   APECSS_FLOAT pG0;  // Initial gas pressure [Pa]
   APECSS_FLOAT rhoG0;  // Initial gas density [kg/m^3]
 
   // ODEs
   int nODEs;  // Total number of ODEs
   int nUserODEs;  // Number of additional user-defined ODEs
+  int dtNumber;  // Time-step number
+  int nSubIter;  // Total number of sub-iterations to control the error
   APECSS_FLOAT *ODEsSol;  // Solution of each ODE
   APECSS_FLOAT (**ode)(APECSS_FLOAT *, APECSS_FLOAT, struct APECSS_Bubble *);  // Array of pointers to the functions containing the ODEs
+  APECSS_FLOAT *k2, *k3, *k4, *k5, *k6, *k7, *kLast;  // Intermediate solutions of the Runge-Kutta solver
   struct APECSS_NumericsODE *NumericsODE;  // Structure containg the parameters of the Runge-Kutta solver
 
   // Properties of the fluids and interface
@@ -434,11 +434,12 @@ struct APECSS_Bubble
 // ---------------------
 // bubble.c
 
+int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble);
 int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble);
 int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble);
 int apecss_bubble_initialize(struct APECSS_Bubble *Bubble);
 int apecss_bubble_solve(struct APECSS_Bubble *Bubble);
-int apecss_bubble_freearrays(struct APECSS_Bubble *Bubble);
+int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble);
 int apecss_bubble_solverprogress_initialnone();
 int apecss_bubble_solverprogress_initialscreen();
 int apecss_bubble_solverprogress_updatenone(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
