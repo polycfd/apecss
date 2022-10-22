@@ -27,7 +27,7 @@ The APECSS repository is structured as follows:
 - The [.clang-format](.clang-format) file, which defines the formatting rules for the source code.
 - The [.gitignore](.gitignore) file telling _git_ which folders and files to ignore.
 - The [LICENSE.txt](LICENSE.txt) file containing the Mozilla Public License Version 2.0.
-- The [README.txt](README.txt) file is the file you are currently reading.
+- The [README.md](README.md) file is the file you are currently reading.
 
 ## Quick Start Guide
 Getting started with APECSS is easy. After downloading APECSS in the directory ````<path to APECSS>````, define the following environment variables:
