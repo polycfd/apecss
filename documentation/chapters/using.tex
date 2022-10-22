@@ -3,10 +3,10 @@
 \section{Installation}
 \label{sec:installation}
 
-Installing APECSS is easy. After downloading APECSS in the directory {\tt <path to APECSS>}, define the following environment variables:\vspace{-1em}
+Installing APECSS is easy. After downloading APECSS in the folder {\tt <path to APECSS>}, define the following environment variables:\vspace{-1em}
 \begin{itemize}[noitemsep]
-\item {\tt APECSS\_DIR} to the directory in which APECSS is located. Using {\tt bash}, for instance, simply execute the command {\tt export APECSS\_DIR <path to APECSS>} or, even better, add this command to your {\tt bash} profile.
-\item {\tt USRLIB\_DIR} to the directory in which {\tt libm.a} or {\tt libm.dylib} (the standard \textit{math} library) is located. This may, for instance, be {\tt /usr/lib64/} on Linux systems or {\tt /usr/lib/} on MacOS systems.
+\item {\tt APECSS\_DIR} to the folder in which APECSS is located. Using {\tt bash}, for instance, simply execute the command {\tt export APECSS\_DIR=<path to APECSS>} or, even better, add this command to your {\tt bash} profile.
+\item {\tt USRLIB\_DIR} to the folder in which {\tt libm.a} or {\tt libm.dylib} (the standard \textit{math} library) is located. This may, for instance, be {\tt /usr/lib64/} on Linux systems or {\tt /usr/lib/} on MacOS systems.
 \end{itemize}
 
 Now, navigate into the folder {\tt \$APECSS\_DIR/lib} and execute {\tt ./compile\_lib.sh}. This shell script will compile the APECSS library using {\tt cmake} with the {\tt CMakeLists.txt} file provided in this folder. By default, APECSS is compiled with double precision and in \textit{Release} mode, meaning all optimization flags are enabled. That's it, you've succesfully installed APECSS!
@@ -19,7 +19,7 @@ There are several ways in which you can use the APECSS library. You can either i
 
 The {\tt *.apecss} file is the primary way of passing options, such as the size of the bubble, the density of the liquid or the type of results you want to have written out, to APECSS. 
 
-Any {\tt *.apecss} file may contain the following sections:
+Any {\tt *.apecss} file may contain the following sections (each terminated with {\tt END}):
 \vspace{-1em}
 \begin{itemize}[noitemsep]
   \item {\tt BUBBLE}: Information related to the bubble, such as its initial radius $R_0$ or the Rayleigh-Plesset model that is used to solve its dynamics.
@@ -29,13 +29,13 @@ Any {\tt *.apecss} file may contain the following sections:
   \item {\tt RESULTS}: Results of the bubble dynamics and the acoustic emissions that should be written out.
   \item {\tt ODESOLVER}: Parameters of the ODE solver.
 \end{itemize}
-Each section is terminated with {\tt END}. Any of these sections and any of the options that may be defined within each section are optional; they are read if they are present, otherwise the default values (typically set in {\tt apecss\_*\_setdefaultoptions()}) or values set in the code calling it will be used. The options file is read by the function {\tt apecss\_options\_readfile()}.
+The options file is read by the function {\tt apecss\_options\_readfile()}. Any of the sections in the {\tt *.apecss} file, and any of the options that may be defined within each section, are optional; they are read if they are present, otherwise the default values (typically set in {\tt apecss\_*\_setdefaultoptions()}) or values set in the code calling it will be used. Comments can be added using {\tt \#}.
 
 The relevant options that are available are discussed in the following chapters of this documentation in the context of the theoretical framework of APECSS. For instance, the available options used to define a certain Rayleigh-Plesset model are discussed in Section \ref{sec:rpmodels}, where the theory of the implemented Rayleigh-Plesset models is described. 
 
 \subsection{Examples}
 
-Some representative examples are given in the {\tt \$APECSS\_DIR/examples} directory. Each directory contains the following:\vspace{-1em}
+Some representative examples are available in the {\tt \$APECSS\_DIR/examples} folder. Each directory contains the following:\vspace{-1em}
 \begin{itemize}[noitemsep]
   \item A {\tt README.txt} file explaining the purpose and specificities of this/these example(s).
   \item A {\tt src/} folder with a file called {\tt *\_apecss.c} that acts as the standalone interface to the APECSS library. This file contains the {\tt main()} function and any additional functionality required to simulate a specific scenario.
@@ -43,7 +43,7 @@ Some representative examples are given in the {\tt \$APECSS\_DIR/examples} direc
   \item One or several {\tt *.apecss} files in which the options for a specific case are defined.
 \end{itemize}
 
-In the examples provided in the {\tt \$APECSS\_DIR/examples} directory, the name of the  {\tt *.apecss} file is passed as an argument with the call to run APECSS, e.g.~executing {\tt ./<APECSS-example> -options run.apecss} to use the an options file named {\tt run.apecss}.
+In the examples provided in the {\tt \$APECSS\_DIR/examples} folder, the name of the  {\tt *.apecss} file is passed as an argument with the call to run APECSS, e.g.~executing {\tt ./<APECSS-example> -options run.apecss} to use an options file named {\tt run.apecss}.
 
 Detailed information about each example, how to run it and what the results might be compared to can be found in the accompanying {\tt README.txt} file.
 
@@ -63,7 +63,7 @@ APECSS assumes SI units or any appropriate combination of SI units at all times,
 
 \section{Programming in APECSS}
 
-All routines are placed in source files that relate to parts of the code, distinguished by physical phenomena (e.g.~{\tt emissions.c}), fluid type (e.g.~{\tt liquid.c}) or computational operations (e.g.~{\tt results.c}). 
+All functions are located in source files ({\tt *.c}) that relate to parts of the code, distinguished by physical phenomena (e.g.~{\tt emissions.c}), fluid type (e.g.~{\tt liquid.c}) or computational operations (e.g.~{\tt results.c}). 
 
 All declarations and definitions are located in the header file {\tt apecss.h}. 
 
@@ -75,7 +75,7 @@ Macros are used as shortcuts to define frequently-used constants (e.g.~{\tt APEC
 
 APECSS can be used with different floating point precisions: double precision (default) and long double precision ({\tt APECSS\_PRECISION\_LONGDOUBLE}).
 
-Based on the chosen precision, {\tt APECCS\_FLOAT} is defined as the standard floating point type. In addition, the following precision-dependent computational operations are defined based on the chosen floating point precision:\vspace{-1em}
+Based on the chosen precision, {\tt APECSS\_FLOAT} is defined as the standard floating point type. In addition, the following precision-dependent computational operations are defined based on the chosen floating point precision:\vspace{-1em}
 \begin{itemize}[noitemsep]
   \item {\tt APECSS\_ABS(a)}: Absolute value of $a$.
   \item {\tt APECSS\_CEIL(a)}: $a$ rounded to the nearest integer larger than $a$.
@@ -83,21 +83,21 @@ Based on the chosen precision, {\tt APECCS\_FLOAT} is defined as the standard fl
   \item {\tt APECCS\_EPS}: Returns a value that is close to machine epsilon.
   \item {\tt APECSS\_EXP(a)}: $\text{e}$ to the power $a$.
   \item {\tt APECSS\_LOG(a)}: Natural logarithm of $a$.
-  \item {\tt APECSS\_POW(a,b)}: Power $b$ of $a$.
+  \item {\tt APECSS\_POW(a,b)}: $a$ to the power $b$.
   \item {\tt APECSS\_SIN(a)}: Sine of $a$.
-  \item {\tt APECSS\_SMALL}: Returns a number significantly smaller than machine.
+  \item {\tt APECSS\_SMALL}: Returns a number significantly smaller than machine epsilon.
   \item {\tt APECSS\_SQRT(a)}: Square root of $a$.
-  \item {\tt APECSS\_STRINGTOFLOAT(a)}: Conversion of a string to float $a$.
+  \item {\tt APECSS\_STRINGTOFLOAT(a)}: Conversion of string $a$ to a float.
 \end{itemize}
-To ensure compatibility for different floating point precisions, it is paramount to use the standard floating point type {\tt APECCS\_FLOAT} and the operator definitions given above consistently throughout APECSS.
+To ensure compatibility for different floating point precisions, it is paramount to use the standard floating point type {\tt APECSS\_FLOAT} and the operator definitions given above consistently throughout APECSS.
 
 \subsubsection{Computational operations and predefined constants}
 
 Macros that provide a shortcut to frequently-used computational operations are:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_POW2(a)}: Returns $a^2$
-  \item {\tt APECSS\_POW3(a)}: Returns $a^3$
-  \item {\tt APECSS\_POW4(a)}: Returns $a^4$
+  \item {\tt APECSS\_POW2(a)}: Returns $a^2$.
+  \item {\tt APECSS\_POW3(a)}: Returns $a^3$.
+  \item {\tt APECSS\_POW4(a)}: Returns $a^4$.
   \item {\tt APECCS\_MAX(a,b)}: Returns the maximum of $a$ and $b$.
   \item {\tt APECSS\_MAX3(a,b,c)}: Returns the maximum of $a$, $b$ and $c$.
   \item {\tt APECSS\_MIN(a,b)}: Returns the minimum of $a$ and $b$.
@@ -106,10 +106,10 @@ Macros that provide a shortcut to frequently-used computational operations are:\
 
 Macros that provide a shortcut to frequently-used constants are:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_PI}: Returns $\pi$
-  \item {\tt APECSS\_E}: Returns $e$
-  \item {\tt APECSS\_ONETHIRD}: Returns $1/3$
-  \item {\tt APECSS\_ONESIXTH}: Returns $1/6$
+  \item {\tt APECSS\_PI}: Returns $\pi$.
+  \item {\tt APECSS\_E}: Returns $\mathrm{e}$.
+  \item {\tt APECSS\_ONETHIRD}: Returns $1/3$.
+  \item {\tt APECSS\_ONESIXTH}: Returns $1/6$.
   \item {\tt APECCS\_AVOGADRO}: Returns the Avogadro constant.
   \item {\tt APECSS\_LN\_OF\_2}: Returns the natural logarithm of 2.
   \item {\tt APECSS\_LN\_OF\_10}: Returns the natural logarithm of 10.
@@ -118,7 +118,9 @@ Macros that provide a shortcut to frequently-used constants are:\vspace{-1em}
 
 \subsubsection{Flags for model options}
 
-All model options are represented by human-readable flags. If explicitly indicated as such, these flags are defined in such a way (with integer values being a multiple of 2), that a bit-wise comparison can be performed. Bit-wise comparison may be used for options that are checked frequently and for options that can have several building blocks.
+All model options are represented by human-readable flags. 
+
+If explicitly indicated as such, these flags are defined in such a way (with integer values being a multiple of 2), that a bit-wise comparison can be performed. Bit-wise comparison may be used for options that are checked frequently and for options that can have several building blocks.
 
 Options of the Runge-Kutta scheme used to discretize the ODEs:\vspace{-1em}
 \begin{itemize}[noitemsep]
@@ -128,37 +130,37 @@ Options of the Runge-Kutta scheme used to discretize the ODEs:\vspace{-1em}
 
 Rayleigh-Plesset schemes:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_BUBBLEMODEL\_RP}: Standard Rayleigh-Plesset model, \eqref{eq:standardRP}
-  \item {\tt APECSS\_BUBBLEMODEL\_RP\_ACOUSTICRADIATION}: Rayleigh-Plesset model incl. acoustic radiation term, \eqref{eq:modRP}
-  \item {\tt APECSS\_BUBBLEMODEL\_KELLERMIKSIS}: Keller-Miksis model, \eqref{eq:keller}
-  \item {\tt APECSS\_BUBBLEMODEL\_GILMORE}: Gilmore model, \eqref{eq:gilmore}
+  \item {\tt APECSS\_BUBBLEMODEL\_RP}: Standard Rayleigh-Plesset model, Eq.~\eqref{eq:standardRP}.
+  \item {\tt APECSS\_BUBBLEMODEL\_RP\_ACOUSTICRADIATION}: Rayleigh-Plesset model with acoustic radiation damping, Eq.~\eqref{eq:modRP}.
+  \item {\tt APECSS\_BUBBLEMODEL\_KELLERMIKSIS}: Keller-Miksis model, Eq.~\eqref{eq:keller}.
+  \item {\tt APECSS\_BUBBLEMODEL\_GILMORE}: Gilmore model, Eq.~\eqref{eq:gilmore}.
 \end{itemize}
 
 Equation of state of the gas:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_GAS\_IG}: Ideal gas EoS
-  \item {\tt APECSS\_GAS\_HC}: Ideal gas EoS with van-der-Waals hardcore
-  \item {\tt APECSS\_GAS\_NASG}: Noble-Abel-stiffened-gas EoS
+  \item {\tt APECSS\_GAS\_IG}: Ideal gas EoS.
+  \item {\tt APECSS\_GAS\_HC}: Ideal gas EoS with van-der-Waals hardcore.
+  \item {\tt APECSS\_GAS\_NASG}: Noble-Abel-stiffened-gas EoS.
 \end{itemize}
 
-Equation of state of the gas:\vspace{-1em}
+Equation of state of the liquid:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_LIQUID\_TAIT}: Tait EoS
-  \item {\tt APECSS\_LIQUID\_NASG}: Noble-Abel-stiffened-gas EoS
+  \item {\tt APECSS\_LIQUID\_TAIT}: Tait EoS.
+  \item {\tt APECSS\_LIQUID\_NASG}: Noble-Abel-stiffened-gas EoS.
 \end{itemize}
 
 Viscoelasticity of the liquid:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_LIQUID\_NEWTONIAN}: Newtonian liquid
-  \item {\tt APECSS\_LIQUID\_KELVINVOIGT}: Kelvin-Voigt solid
-  \item {\tt APECSS\_LIQUID\_ZENER}: Zener solid (standard linear solid model)
-  \item {\tt APECSS\_LIQUID\_OLDROYDB}: Oldroyd-B liquid
+  \item {\tt APECSS\_LIQUID\_NEWTONIAN}: Newtonian liquid.
+  \item {\tt APECSS\_LIQUID\_KELVINVOIGT}: Kelvin-Voigt solid.
+  \item {\tt APECSS\_LIQUID\_ZENER}: Zener solid (standard linear solid model).
+  \item {\tt APECSS\_LIQUID\_OLDROYDB}: Oldroyd-B liquid.
 \end{itemize}
 
-Lipid monolayer coating of the gas-liquid interface:\vspace{-1em}
+Lipid monolayer coating of the gas-liquid interface (bit-wise):\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_LIPIDCOATING\_NONE}: No lipid monolayer coating
-  \item {\tt APECSS\_LIPIDCOATING\_MARMOTTANT}: Lipid monolayer coating described by the model of \citet{Marmottant2005}
+  \item {\tt APECSS\_LIPIDCOATING\_NONE}: No lipid monolayer coating.
+  \item {\tt APECSS\_LIPIDCOATING\_MARMOTTANT}: Lipid monolayer coating described by the model of \citet{Marmottant2005}.
   \item {\tt APECSS\_LIPIDCOATING\_GOMPERTZFUNCTION}: Redefine the Marmottant model with a Gompertz function \citep{Guemmer2021}.
 \end{itemize}
 
@@ -182,10 +184,10 @@ Model to compute the acoustic emissions of the bubble:\vspace{-1em}
 
 Other predefined macros are used to define the length of strings and arrays, as well as to help with debugging:\vspace{-1em}
 \begin{itemize}[noitemsep]
-  \item {\tt APECSS\_DATA\_ALLOC\_INCREMENT}: The increment for dynamics re-allocation of arrays.
+  \item {\tt APECSS\_DATA\_ALLOC\_INCREMENT}: The increment for dynamic re-allocation of arrays.
   \item {\tt APECSS\_STRINGLENGTH}: The standard length of a string.
-  \item {\tt APECSS\_STRINGLENGTH\_SPRINTF}: The standard length of a string to written out in the terminal.
-  \item {\tt APECSS\_STRINGLENGTH\_SPRINTF\_LONG}: The standard length of a long string to written out in the terminal.
+  \item {\tt APECSS\_STRINGLENGTH\_SPRINTF}: The standard length of a string to be written out in the terminal.
+  \item {\tt APECSS\_STRINGLENGTH\_SPRINTF\_LONG}: The standard length of a long string to be  written out in the terminal.
   \item {\tt APECSS\_WHERE}: Outputs in the terminal the file name and line number where the macro is called.
   \item {\tt APECSS\_WHERE\_INT(a)}: Outputs in the terminal the file name and line number where the macro is called, plus the integer value $a$.
   \item {\tt APECSS\_WHERE\_FLOAT(a)}: Outputs in the terminal the file name and line number where the macro is called, plus the floating point value $a$.
@@ -196,17 +198,18 @@ Other predefined macros are used to define the length of strings and arrays, as 
 
 Structures ({\tt struct}) are used in APECSS to group variables and functions, and to provide a modular layout of the code that enables reusing different parts of it.
 
-The structure {\tt APECSS\_Bubble} is the central structure of APECSS as it contains all the information related to a bubble. There is, of course, no {\it a priori} limit on how many copies of this structure you can have, for instance, a multi-bubble simulation with 100 bubbles would naturally have 100 objects of type {\tt struct APECSS\_Bubble}. Aside from key information about the bubble, such as the bubble radius, the {\tt APECSS\_Bubble} structure contains pointers to the properties of the liquid the bubble is immersed in ({\tt struct APECSS\_Liquid}), the properties of the gas the bubble contains ({\tt struct APECSS\_Gas}) and the properties of its interface ({\tt struct APECSS\_Interface}). If applicable, the {\tt APECSS\_Bubble} structure also points to the structure with the information of the driving acoustic excitation ({\tt struct APECSS\_Excitation}), the structure handling the acoustic emissions ({\tt struct APECSS\_Emissions}), and the structure containing the desired results ({\tt struct APECSS\_Results}). 
+The structure {\tt APECSS\_Bubble} is the central structure of APECSS as it contains all the information related to a bubble. There is, of course, no {\it a priori} limit on how many copies of this structure a simulation can have, for instance, a multi-bubble simulation with 100 bubbles would naturally have 100 objects of type {\tt struct APECSS\_Bubble}. Aside from key information about the bubble, such as the bubble radius, the {\tt APECSS\_Bubble} structure contains pointers to the properties of the liquid the bubble is immersed in ({\tt struct APECSS\_Liquid}), the properties of the gas the bubble contains ({\tt struct APECSS\_Gas}) as wel as the properties of its interface ({\tt struct APECSS\_Interface}). If applicable, the {\tt APECSS\_Bubble} structure also points to the structure with the information of the driving acoustic excitation ({\tt struct APECSS\_Excitation}), the structure handling the acoustic emissions ({\tt struct APECSS\_Emissions}), and the structure containing the desired results ({\tt struct APECSS\_Results}). 
 
-The (optional) structure {\tt APECSS\_Emissions} is, as the name suggests, related to the acoustic emissions of a bubble. If allocated, it contains information about how to handle the acoustic emissions, function pointers referring to the functions used to advance the acoustic emissions using a Lagrangian approach and, very importantly, the linked list of emissions nodes ({\tt struct APECSS\_EmissionNode}) that carry the actual information of the acoustic emissions. The {\tt APECSS\_EmissionNode} structure holds the information (e.g.~radial location, velocity, pressure) associated with a specific emission node.
+The (optional) structure {\tt APECSS\_Emissions} is, as the name suggests, related to the acoustic emissions of a bubble. If allocated, it contains information about how to handle the acoustic emissions, function pointers referring to the functions used to advance the acoustic emissions using a Lagrangian wave tracking approach and, very importantly, the linked list of emissions nodes ({\tt struct APECSS\_EmissionNode}) that carry the actual information of the acoustic emissions. The structure {\tt APECSS\_EmissionNode}  holds the information (e.g.~radial location, velocity, pressure) associated with a specific emission node.
 
 The (optional) structure {\tt APECSS\_Results} holds all the results the user may want to have written out. For performance reasons, the results are in general not written to disk on-the-fly, but are stored in arrays and dumbed to disk at the end of the simulation. The {\tt APECSS\_Results} structure contains optional structures for the results of the Rayleigh-Plesset model ({\tt struct APECSS\_ResultsBubble}) and for the acoustic emissions ({\tt APECSS\_ResultsEmissions}).
 
 
 \subsection{A word on function pointers}
 
-APECSS uses function pointers extensively. Function pointers are an elegant means in {\tt C} to add complexity and functionality yet still retain a slim code, avoid redudant code and, if nothing else, avoid a large number of costly conditional statements. However, function pointers can quickly make a code unreadable and obscure what is actually happening if they are used without care. In order to keep the use of function pointers in APECSS transparent, the adopted convention is that \underline{all} function pointers are set in {\tt apecss\_*\_processoptions()} functions, e.g.~{\tt apecss\_gas\_processoptions()}.
+APECSS uses function pointers extensively. Function pointers are an elegant means in {\tt C} to add complexity and functionality yet still retain a slim code, avoid redudant code and, if nothing else, avoid a large number of costly conditional statements. However, function pointers can quickly make a code unreadable and obscure what is actually happening, if they are used without care. In order to keep the use of function pointers in APECSS transparent, the adopted convention is that \underline{all} function pointers are set in {\tt apecss\_*\_processoptions()} functions, e.g.~{\tt apecss\_gas\_processoptions()}.
 
 \subsection{Code formatting}
+\label{sec:clang}
 
-To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the respository.
+To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the respository. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.

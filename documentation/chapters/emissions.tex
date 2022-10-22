@@ -1,6 +1,6 @@
 \chapter{Acoustic emissions}
 
-Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully-compressible liquid. To account for a finite propogation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach.
+Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully-compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
 
 \vspace{0.8em}
 
@@ -46,7 +46,12 @@ and
 \end{equation}
 respectively. The assumption of an incompressible fluid is consistent with the Rayleigh-Plesset models in Eqs.~\eqref{eq:standardRP} and \eqref{eq:modRP}. Note that, because $\mathcal{C} \rightarrow \infty$, these simple incompressible acoustic emissions do not use the Lagrangian wave tracking and no emission nodes are defined and processed, since pressure and velocity are defined instantaneously for all $r$.
 
-Alternatively, APECSS also supports the assumption that the liquid is incompressible but the information associated with the acoustic emissions still propagates with finite speed $\mathcal{C} = c_{\ell,\mathrm{ref}}$ using the Lagrangian wave tracking approach.  This approach, referred to in APECSS as {\tt FTI} or \text{finite-time incompressible}, accurately recovers the time delay between emitting information and this information arriving in a certain location.
+Alternatively, APECSS also supports the assumption that the liquid is incompressible but the information associated with the acoustic emissions still propagates with finite speed $\mathcal{C} = c_{\ell,\mathrm{ref}}$ using the Lagrangian wave tracking approach. 
+The radial location is then given as
+\begin{equation}
+    r(t) \approx R(\tau) + c_{\ell,\mathrm{ref}} \sum_{i=1}^N \Delta t_{i-1}. \label{eq:r_t_fti}
+\end{equation}
+This approach, referred to in APECSS as {\tt FTI} or \text{finite-time incompressible}, accurately recovers the time delay between emitting information at the bubble wall and this information arriving in a certain location.
 
 \section{Quasi-acoustic model}
 \label{sec:emissionsqa}
@@ -69,7 +74,7 @@ The quasi-acoustic model is consistent in its modelling assumptions with the Kel
 \section{Emissions based on the Kirkwood-Bethe hypothesis}
 \label{sec:emissionskb}
 
-Following a similar derivation as for the quasi-acoustic model presented in Section \ref{sec:emissionsqa}, but assuming a fully compressible liquid described by a suitable equation of state, a model for the acoustic emissions based on the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948} can be derived. The velocity, enthalpy and radial location of an emission node are then given as
+Following a similar derivation as for the quasi-acoustic model discussed in Section \ref{sec:emissionsqa}, but assuming a fully-compressible liquid described by a suitable equation of state, a model for the acoustic emissions based on the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948} can be derived. With $\mathcal{C}(r,t) = c(r,t) + u(r,t)$, the velocity, enthalpy and radial location of an emission node are then given as
 \begin{align}
     u(r,t) &= \frac{f(\tau)}{r(t)^2} + \frac{g(\tau)}{r(t) \, [c(r,t) + u(r,t)]}  \label{eq:u_rt_kb} \\
     h(r,t) &= h_\infty(t) + \frac{g(\tau)}{r(t)} - \frac{u(r,t)^2}{2}. \label{eq:h_rt_kb}\\
@@ -99,7 +104,7 @@ Emission nodes with a higher pressure propagate faster than nodes with a lower p
 
 APECSS can write out different results based on the acoustic emissions. Note that APECSS does \underline{not} write any results to disk unless it is specifically ask to do so.
 
-The acoustic emissions can be recorded as a function of time at one or multiple radial locations (cf.~{\tt EmissionsSpace}), or the emissions are written out with respect to their radial location at one or multiple time instances (cf.~{\tt EmissionsTime}), for one or multile specific emission nodes (cf.~{\tt EmissionsNode}) or for selected extrema in a specified period (cf.~{\tt EmissionsMinMax}). This calls can be used multiple times to defined, for instance, multiple radial locations or time instances.
+The acoustic emissions can be recorded as a function of time at one or multiple radial locations (cf.~{\tt EmissionsSpace}), or the emissions are written out with respect to their radial location at one or multiple time instances (cf.~{\tt EmissionsTime}) or emission nodes (cf.~{\tt EmissionsNode}), or for selected extrema in a specified period (cf.~{\tt EmissionsMinMax}). This calls can be used multiple times to defined, for instance, multiple radial locations or time instances.
 
 \vspace{0.8em}
 
@@ -107,7 +112,7 @@ The acoustic emissions can be recorded as a function of time at one or multiple 
 \begin{tabular}{p{0.1\textwidth} p{0.36\textwidth} p{0.49\textwidth}}
     \textbf{Section} &\textbf{Command} & \textbf{Description} 
 \vspace{1mm} \\ \hline
-{\tt RESULTS} & {\tt OutputPath <string>} & Path to the directory where all the results should be written in to (default: {\tt ./}).\\
+{\tt RESULTS} & {\tt OutputPath <string>} & Path to the folder where all the results should be written in to (default: {\tt ./}).\\
 & {\tt OutputDigits <int>} & Results are written out with as many digits (default: 6).\\
 & {\tt EmissionsSpace <float>} & Defines a radial location at which the emissions in the liquid are written out as a function of time. If/while the location is in the gas phase, $0$ is recorded.\\ 
 & {\tt OutputFreqEmissionsSpace <int>} & Results of the emissions at a specific radial location are stored every so many time steps (default: 1).\\ 

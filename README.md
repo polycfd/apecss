@@ -2,7 +2,7 @@
 APECSS is a software toolbox to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written in C and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
 Key features of APECSS are:
-- Includes widely-used models for the bubble dynamics (Rayleigh-Plesset, Keller-Miksis, Gilmore).
+- Bubble dynamics using widely-used models for the bubble dynamics (Rayleigh-Plesset, Keller-Miksis, Gilmore).
 - Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
@@ -20,7 +20,7 @@ APECSS is under the copyright of its developers and made available as open-sourc
 ## Repository Structure
 The APECSS repository is structured as follows:
 - The [documentation](/documentation/) folder contains a short documentation of APECSS, written in Latex. The documentation discusses the theory behind APECSS, explains the code structure and how to use APECSS. The documentation will be amended and expanded over time.
-- The [examples](/examples/) folder contains representative examples of how to use APECSS and to demonstrate the most important features of APECSS. These examples also serve to validate APECSS against results reported in the literature. A short explanation on how to run the examples is given in the [Quick Start Guide](#quick-start-guide) below.
+- The [examples](/examples/) folder contains representative examples of how to use APECSS and to demonstrate the most important features of APECSS. A short explanation on how to run the examples is given in the [Quick Start Guide](#quick-start-guide) below.
 - The [include](/include/) folder contains the [apecss.h](/include/apecss.h) header file, in which all variables, macros and functions of APECSS are defined.
 - The [lib](/lib/) folder in which the APECSS library is compiled (at least if you follow the [Quick Start Guide](#quick-start-guide) below).
 - The [src](/src/) folder contains all source files (*.c) of APECSS.
