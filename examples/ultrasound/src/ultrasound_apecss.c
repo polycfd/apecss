@@ -96,15 +96,15 @@ int main(int argc, char **args)
   {
     // Optional! Displays a progress bar during the simulation, here only
     // if emissions are calculated.
-    Bubble->progress_initial = apecss_bubble_solverprogress_initialscreen;
-    Bubble->progress_update = apecss_bubble_solverprogress_updatescreen;
-    Bubble->progress_final = apecss_bubble_solverprogress_finalscreen;
+    Bubble->progress_initial = apecss_bubble_solver_progress_initialscreen;
+    Bubble->progress_update = apecss_bubble_solver_progress_updatescreen;
+    Bubble->progress_final = apecss_bubble_solver_progress_finalscreen;
   }
   else
   {
-    Bubble->progress_initial = apecss_bubble_solverprogress_initialnone;
-    Bubble->progress_update = apecss_bubble_solverprogress_updatenone;
-    Bubble->progress_final = apecss_bubble_solverprogress_finalnone;
+    Bubble->progress_initial = apecss_bubble_solver_progress_initialnone;
+    Bubble->progress_update = apecss_bubble_solver_progress_updatenone;
+    Bubble->progress_final = apecss_bubble_solver_progress_finalnone;
   }
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -113,7 +113,9 @@ int main(int argc, char **args)
 
   /* Solve the bubble dynamics */
   clock_t starttimebubble = clock();
-  apecss_bubble_solve(Bubble);
+  apecss_bubble_solver_initialize(Bubble);
+  apecss_bubble_solver_run(Bubble->tEnd, Bubble);
+  apecss_bubble_solver_finalize(Bubble);
 
   sprintf(str, "Solver concluded %i time-steps and %i sub-iterations in %.3f s.", Bubble->dtNumber, Bubble->nSubIter,
           (double) (clock() - starttimebubble) / CLOCKS_PER_SEC);

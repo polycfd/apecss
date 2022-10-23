@@ -393,6 +393,8 @@ struct APECSS_Bubble
   int dtNumber;  // Time-step number
   int nSubIter;  // Total number of sub-iterations to control the error
   APECSS_FLOAT *ODEsSol;  // Solution of each ODE
+  APECSS_FLOAT *ODEsSolOld;  // // Old solution of each ODE, required for sub-iterations
+  APECSS_FLOAT err;  // Solution error
   APECSS_FLOAT (**ode)(APECSS_FLOAT *, APECSS_FLOAT, struct APECSS_Bubble *);  // Array of pointers to the functions containing the ODEs
   APECSS_FLOAT *k2, *k3, *k4, *k5, *k6, *k7, *kLast;  // Intermediate solutions of the Runge-Kutta solver
   struct APECSS_NumericsODE *NumericsODE;  // Structure containg the parameters of the Runge-Kutta solver
@@ -415,13 +417,14 @@ struct APECSS_Bubble
   struct APECSS_Results *Results;
   int (*results_rayleighplesset_store)(struct APECSS_Bubble *Bubble);
   int (*results_emissionstime_write)(struct APECSS_Bubble *Bubble);
-  APECSS_FLOAT (*results_emissionstime_check)(struct APECSS_Bubble *Bubble);
+  APECSS_FLOAT (*results_emissionstime_check)(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
   int (*results_emissionsspace_store)(struct APECSS_Bubble *Bubble);
   int (*results_emissionsnodeminmax_identify)(struct APECSS_Bubble *Bubble);
   int (*results_emissionsnode_alloc)(struct APECSS_Bubble *Bubble);
   int (*results_emissionsnode_store)(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble);
 
   // Progress screen (if applicable)
+  int progress;
   int (*progress_initial)();
   int (*progress_update)(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
   int (*progress_final)();
@@ -438,14 +441,16 @@ int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble);
 int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble);
 int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble);
 int apecss_bubble_initialize(struct APECSS_Bubble *Bubble);
-int apecss_bubble_solve(struct APECSS_Bubble *Bubble);
+int apecss_bubble_solver_initialize(struct APECSS_Bubble *Bubble);
+int apecss_bubble_solver_finalize(struct APECSS_Bubble *Bubble);
+int apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
 int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble);
-int apecss_bubble_solverprogress_initialnone();
-int apecss_bubble_solverprogress_initialscreen();
-int apecss_bubble_solverprogress_updatenone(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
-int apecss_bubble_solverprogress_updatescreen(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
-int apecss_bubble_solverprogress_finalnone();
-int apecss_bubble_solverprogress_finalscreen();
+int apecss_bubble_solver_progress_initialnone();
+int apecss_bubble_solver_progress_initialscreen();
+int apecss_bubble_solver_progress_updatenone(int *prog, APECSS_FLOAT elapsedtime, APECSS_FLOAT totaltime);
+int apecss_bubble_solver_progress_updatescreen(int *prog, APECSS_FLOAT elapsedtime, APECSS_FLOAT totaltime);
+int apecss_bubble_solver_progress_finalnone();
+int apecss_bubble_solver_progress_finalscreen();
 
 // ---------------------
 // emissions.c
@@ -578,8 +583,8 @@ int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_results_emissionstime_checknone(struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_results_emissionstime_checktime(struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_results_emissionstime_checknone(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_results_emissionstime_checktime(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsspace_storenone(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble);

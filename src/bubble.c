@@ -20,7 +20,8 @@
 int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
 {
   // Initialize pointers to arrays
-  Bubble->ode = NULL;
+  Bubble->ODEsSol = NULL;
+  Bubble->ODEsSolOld = NULL;
   Bubble->k2 = NULL;
   Bubble->k3 = NULL;
   Bubble->k4 = NULL;
@@ -39,6 +40,7 @@ int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Results = NULL;
 
   // Initialize pointers to functions
+  Bubble->ode = NULL;
   Bubble->emissions_initialize = NULL;
   Bubble->emissions_update = NULL;
   Bubble->emissions_free = NULL;
@@ -99,9 +101,9 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->emissions_initialize = apecss_emissions_initializenone;
   Bubble->emissions_update = apecss_emissions_updatenone;
   Bubble->emissions_free = apecss_emissions_freenone;
-  Bubble->progress_initial = apecss_bubble_solverprogress_initialnone;
-  Bubble->progress_update = apecss_bubble_solverprogress_updatenone;
-  Bubble->progress_final = apecss_bubble_solverprogress_finalnone;
+  Bubble->progress_initial = apecss_bubble_solver_progress_initialnone;
+  Bubble->progress_update = apecss_bubble_solver_progress_updatenone;
+  Bubble->progress_final = apecss_bubble_solver_progress_finalnone;
   Bubble->results_rayleighplesset_store = apecss_results_rayleighplesset_storenone;
   Bubble->results_emissionstime_write = apecss_results_emissionstime_writenone;
   Bubble->results_emissionstime_check = apecss_results_emissionstime_checknone;
@@ -121,6 +123,7 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
   // Allocate the solution array and the array for the function pointers of the ODEs
   Bubble->ode = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
   Bubble->ODEsSol = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
+  Bubble->ODEsSolOld = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
   for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = 0.0;
 
   // Alocate the arrays for the intermediate solutions of the ODE for the Runge-Kutta solver
@@ -435,6 +438,8 @@ int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
 {
   free(Bubble->ODEsSol);
   Bubble->ODEsSol = NULL;
+  free(Bubble->ODEsSolOld);
+  Bubble->ODEsSolOld = NULL;
   free(Bubble->ode);
   Bubble->ode = NULL;
 
@@ -532,11 +537,8 @@ int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
 // SOLVE
 // -------------------------------------------------------------------
 
-int apecss_bubble_solve(struct APECSS_Bubble *Bubble)
+int apecss_bubble_solver_initialize(struct APECSS_Bubble *Bubble)
 {
-  // ---------------------------------------
-  // Getting ready
-
   // Initialize the counters
   Bubble->dtNumber = 0;
   Bubble->nSubIter = 0;
@@ -544,48 +546,54 @@ int apecss_bubble_solve(struct APECSS_Bubble *Bubble)
   // Set start time
   Bubble->t = Bubble->tStart;
 
-  // Emissions
+  // Emissions (if applicable)
   Bubble->emissions_initialize(Bubble);
 
-  // Store the initial results
+  // Store the initial results (if applicable)
   Bubble->results_rayleighplesset_store(Bubble);
-
-  // Old solution required for sub-iterations
-  APECSS_FLOAT *OldSol = malloc(Bubble->nODEs * sizeof(APECSS_FLOAT));
-
-  // Initialize the error variable
-  APECSS_FLOAT err = Bubble->NumericsODE->tol;
 
   // Initialise the last-step solution of the RK54 scheme
   for (register int i = 0; i < Bubble->nODEs; i++) Bubble->kLast[i] = Bubble->ode[i](Bubble->ODEsSol, Bubble->tStart, Bubble);
 
-  // ---------------------------------------
-  // Time loop
+  // Initialize the solution error
+  Bubble->err = Bubble->NumericsODE->tol;
 
+  // Initialize progress bar (if applicable)
   Bubble->progress_initial();
-  int prog = 0;
+  Bubble->progress = 0;
 
-  while (Bubble->t < Bubble->tEnd - APECSS_EPS)
+  return (0);
+}
+
+int apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble)
+{
+  while (Bubble->t < tend - 0.01 * Bubble->NumericsODE->dtMin)
   {
     // Store the previous solution for sub-iterations
-    for (register int i = 0; i < Bubble->nODEs; i++) OldSol[i] = Bubble->ODEsSol[i];
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSolOld[i] = Bubble->ODEsSol[i];
 
     // Check what comes next: the end of the simulation or, if applicable, a time instance to output the emissions
-    APECSS_FLOAT next_event_time = Bubble->results_emissionstime_check(Bubble);
+    APECSS_FLOAT next_event_time = Bubble->results_emissionstime_check(tend, Bubble);
 
     // Set the time-step for the ODEs
-    apecss_odesolver_settimestep(Bubble->NumericsODE, err, next_event_time - Bubble->t, &(*Bubble).dt);
+    apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
 
     // Solve the ODEs
-    err = apecss_odesolver(Bubble);
+    Bubble->err = apecss_odesolver(Bubble);
 
     // Perform sub-iterations on the control of dt when err > tol
     int attempts = 0;
-    while ((err > Bubble->NumericsODE->tol) && (attempts < Bubble->NumericsODE->maxSubIter))
+    while ((Bubble->err > Bubble->NumericsODE->tol) && (attempts < Bubble->NumericsODE->maxSubIter))
     {
-      for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = OldSol[i];
-      apecss_odesolver_settimestep(Bubble->NumericsODE, err, next_event_time - Bubble->t, &(*Bubble).dt);
-      err = apecss_odesolver(Bubble);
+      // Rewind the solution
+      for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = Bubble->ODEsSolOld[i];
+
+      // Set the time-step for the ODEs
+      apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+
+      // Solve the ODEs
+      Bubble->err = apecss_odesolver(Bubble);
+
       ++attempts;
     }
     Bubble->nSubIter += attempts;
@@ -610,16 +618,16 @@ int apecss_bubble_solve(struct APECSS_Bubble *Bubble)
     for (register int i = 0; i < Bubble->nODEs; i++) Bubble->kLast[i] = Bubble->k7[i];
 
     // Update progress screen in the terminal
-    Bubble->progress_update(&prog, Bubble->t, Bubble->tEnd - Bubble->tStart);
+    Bubble->progress_update(&(*Bubble).progress, Bubble->t - Bubble->tStart, Bubble->tEnd - Bubble->tStart);
   }
 
+  return (0);
+}
+
+int apecss_bubble_solver_finalize(struct APECSS_Bubble *Bubble)
+{
   Bubble->progress_final();
-
-  // ---------------------------------------
-  // Clean up
-
   Bubble->emissions_free(Bubble);
-  free(OldSol);
 
   return (0);
 }
@@ -628,19 +636,19 @@ int apecss_bubble_solve(struct APECSS_Bubble *Bubble)
 // PROGRESS SCREEN
 // -------------------------------------------------------------------
 
-int apecss_bubble_solverprogress_initialnone() { return (0); }
+int apecss_bubble_solver_progress_initialnone() { return (0); }
 
-int apecss_bubble_solverprogress_initialscreen()
+int apecss_bubble_solver_progress_initialscreen()
 {
   fprintf(stderr, "| APECSS | Progress %%: ");
   return (0);
 }
 
-int apecss_bubble_solverprogress_updatenone(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime) { return (0); }
+int apecss_bubble_solver_progress_updatenone(int *prog, APECSS_FLOAT elapsedtime, APECSS_FLOAT totaltime) { return (0); }
 
-int apecss_bubble_solverprogress_updatescreen(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime)
+int apecss_bubble_solver_progress_updatescreen(int *prog, APECSS_FLOAT elapsedtime, APECSS_FLOAT totaltime)
 {
-  if (t > (APECSS_FLOAT) *prog * 0.02 * totaltime)
+  if (elapsedtime > (APECSS_FLOAT) *prog * 0.02 * totaltime)
   {
     if (!(*prog % 5))
       fprintf(stderr, "%i", *prog * 2);
@@ -653,9 +661,9 @@ int apecss_bubble_solverprogress_updatescreen(int *prog, APECSS_FLOAT t, APECSS_
   return (0);
 }
 
-int apecss_bubble_solverprogress_finalnone() { return (0); }
+int apecss_bubble_solver_progress_finalnone() { return (0); }
 
-int apecss_bubble_solverprogress_finalscreen()
+int apecss_bubble_solver_progress_finalscreen()
 {
   fprintf(stderr, "100\n");
   return (0);

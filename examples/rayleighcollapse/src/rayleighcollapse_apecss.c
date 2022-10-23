@@ -79,7 +79,9 @@ int main(int argc, char **args)
 
   /* Solve the bubble dynamics */
   clock_t starttimebubble = clock();
-  apecss_bubble_solve(Bubble);
+  apecss_bubble_solver_initialize(Bubble);
+  apecss_bubble_solver_run(Bubble->tEnd, Bubble);
+  apecss_bubble_solver_finalize(Bubble);
 
   sprintf(str, "Solver concluded %i time-steps and %i sub-iterations in %.3f s.", Bubble->dtNumber, Bubble->nSubIter,
           (double) (clock() - starttimebubble) / CLOCKS_PER_SEC);

@@ -355,12 +355,12 @@ int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
-APECSS_FLOAT apecss_results_emissionstime_checknone(struct APECSS_Bubble *Bubble) { return (Bubble->tEnd); }
+APECSS_FLOAT apecss_results_emissionstime_checknone(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble) { return (tend); }
 
-APECSS_FLOAT apecss_results_emissionstime_checktime(struct APECSS_Bubble *Bubble)
+APECSS_FLOAT apecss_results_emissionstime_checktime(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble)
 {
   // The last event is obviously the end of the simulation
-  APECSS_FLOAT nexttime = Bubble->tEnd;
+  APECSS_FLOAT nexttime = tend;
 
   // If there are any more time instances to be written out, they need to be considered
   if (Bubble->Results->Emissions->nextTimeInstance < Bubble->Results->Emissions->nTimeInstances)
