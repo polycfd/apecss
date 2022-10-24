@@ -213,3 +213,56 @@ APECSS uses function pointers extensively. Function pointers are an elegant mean
 \label{sec:clang}
 
 To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the respository. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.
+
+\section{Important functions}
+
+Here we briefly outline how to use some of the key functions of APECSS. 
+
+Whenever using APECSS, at least one {\tt APECSS\_Bubble} structure has to be available and, if multiple bubbles are part of a simulation, each bubble has to be represented by a separate {\tt APECSS\_Bubble} structure. A single {\tt APECSS\_Bubble} structure is allocated and initialized as follows:
+\begin{lstlisting}[style=CStyle]
+  struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
+  apecss_bubble_initializestruct(Bubble);
+\end{lstlisting}\vspace{-0.75em}
+The function {\tt apecss\_bubble\_initializestruct()} ensures that all pointers (to arrays, other structures and functions) that are part of the {\tt APECSS\_Bubble} structure are initialized to {\tt NULL}. This is important because the processing of options and any checks for allocation depend on {\tt NULL} to indicate that a given pointer in not yet allocated or not in use.
+
+Once a {\tt APECSS\_Bubble} structure is allocated and initialize, default values ought to be set, the {\tt *.apecss} options file is to be read and the chosen options have to be processed. In the standalone examples found in {\tt \$APECSS\_DIR/examples} this is done with the falling function calls:
+\begin{lstlisting}[style=CStyle]
+  apecss_options_setdefault(Bubble);
+  char OptionsDir[APECSS_STRINGLENGTH];
+  sprintf(OptionsDir, "./run.apecss"); // Relative path to the options file.
+  apecss_options_readfile(Bubble, OptionsDir);
+  apecss_options_process(Bubble);
+\end{lstlisting}\vspace{-0.75em}
+While setting default values is advised, for instance using the function {\tt apecss\_options\_setdefault()}, it is optional. Processing the given options correctly, however, is critical to the working of APECSS and the using the function {\tt apecss\_options\_process()} is strongly encouraged.
+
+Now that all options have been read and processed, the bubble has to be initialized based on the given options. This includes, for instance, computing the initial gas density and, if applicable hardcore radius or co-volume.
+\begin{lstlisting}[style=CStyle]
+  apecss_bubble_initialize(Bubble);
+\end{lstlisting}%\vspace{-0.75em}
+
+The heart of APECSS is, of course, the solver. The solver is split into three separate functions that (i) initialize the solver, (ii) run the solver and (iii) wrap up (i.e.~finalize) the solver:
+\begin{lstlisting}[style=CStyle]
+  apecss_bubble_solver_initialize(Bubble);
+  apecss_bubble_solver_run(tend, Bubble);
+  apecss_bubble_solver_finalize(Bubble);
+\end{lstlisting}\vspace{-0.75em}
+The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()} makes sure all counters, the solution error variable and, if applicable, result variables are initialized correctly. The function {\tt apecss\_bubble\_solver\_run()} contains the time-stepping procedure that executes the solver until a specified end time {\tt tend}, given as the first argument of the function call. In the examples found in {\tt \$APECSS\_DIR/examples}, the function {\tt apecss\_bubble\_solver\_run()} is only called once with {\tt tend = Bubble->tEnd}, i.e.~the end of the simulation. However, the user is free to call the function {\tt apecss\_bubble\_solver\_run()} an \underline{arbitrary number of times}, with any meaningful end time. This facilitates coupling APECSS to other numerical software frameworks, where {\tt tend} then could for instance be the end of the next time-step of a fluid dynamics solver. As an example simply chopping the simulation up into five equal-sized parts would look like:
+\begin{lstlisting}[style=CStyle]
+  apecss_bubble_solver_initialize(Bubble);
+  apecss_bubble_solver_run(0.2 * tend, Bubble);
+  apecss_bubble_solver_run(0.4 * tend, Bubble);
+  apecss_bubble_solver_run(0.6 * tend, Bubble);
+  apecss_bubble_solver_run(0.8 * tend, Bubble);
+  apecss_bubble_solver_run(tend, Bubble);
+  apecss_bubble_solver_finalize(Bubble);
+\end{lstlisting}\vspace{-0.75em}
+A solver run is ended with the function {\tt apecss\_bubble\_solver\_finalize()} where, for instance, the arrays and linked list of the acoustic emissions are freed.
+
+\begin{lstlisting}[style=CStyle]
+  Bubble->Excitation = (struct APECSS_Excitation *) malloc(sizeof(struct APECSS_Excitation));
+  Bubble->Excitation->type = APECSS_EXCITATION_SIN;
+  Bubble->Excitation->f = (APECSS_FLOAT) fa;
+  Bubble->Excitation->dp = (APECSS_FLOAT) pa;
+\end{lstlisting}
+
+

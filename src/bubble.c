@@ -572,7 +572,7 @@ int apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble)
     // Store the previous solution for sub-iterations
     for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSolOld[i] = Bubble->ODEsSol[i];
 
-    // Check what comes next: the end of the simulation or, if applicable, a time instance to output the emissions
+    // Check what comes next: the end of the solver run or, if applicable, a time instance to output the emissions
     APECSS_FLOAT next_event_time = Bubble->results_emissionstime_check(tend, Bubble);
 
     // Set the time-step for the ODEs
@@ -581,22 +581,19 @@ int apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble)
     // Solve the ODEs
     Bubble->err = apecss_odesolver(Bubble);
 
-    // Perform sub-iterations on the control of dt when err > tol
-    int attempts = 0;
-    while ((Bubble->err > Bubble->NumericsODE->tol) && (attempts < Bubble->NumericsODE->maxSubIter))
+    // Perform sub-iterations on the control of the time-step when err > tol
+    register int subiter = 0;
+    while ((Bubble->err > Bubble->NumericsODE->tol) && (subiter < Bubble->NumericsODE->maxSubIter))
     {
+      ++subiter;
       // Rewind the solution
       for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = Bubble->ODEsSolOld[i];
-
       // Set the time-step for the ODEs
       apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
-
-      // Solve the ODEs
+      // Solve the ODEs again
       Bubble->err = apecss_odesolver(Bubble);
-
-      ++attempts;
     }
-    Bubble->nSubIter += attempts;
+    Bubble->nSubIter += subiter;
 
     // Set new values
     ++(Bubble->dtNumber);
@@ -604,20 +601,24 @@ int apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble)
     Bubble->U = Bubble->ODEsSol[0];
     Bubble->R = Bubble->ODEsSol[1];
 
-    // Emissions
+    // Update allocation of the results (if necessary)
     Bubble->results_emissionsnodeminmax_identify(Bubble);
     Bubble->results_emissionsnode_alloc(Bubble);
+
+    // Acoustic emissions (if applicable)
     Bubble->emissions_update(Bubble);
 
-    // Store results
+    // Store results (if applicable)
     Bubble->results_rayleighplesset_store(Bubble);
     Bubble->results_emissionsspace_store(Bubble);
+
+    // Write one-off results (if applicable)
     Bubble->results_emissionstime_write(Bubble);
 
     // Update the last-step solution of the RK54 scheme
     for (register int i = 0; i < Bubble->nODEs; i++) Bubble->kLast[i] = Bubble->k7[i];
 
-    // Update progress screen in the terminal
+    // Update progress screen in the terminal (if applicable)
     Bubble->progress_update(&(*Bubble).progress, Bubble->t - Bubble->tStart, Bubble->tEnd - Bubble->tStart);
   }
 
