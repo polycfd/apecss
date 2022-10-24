@@ -257,12 +257,3 @@ The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()}
   apecss_bubble_solver_finalize(Bubble);
 \end{lstlisting}\vspace{-0.75em}
 A solver run is ended with the function {\tt apecss\_bubble\_solver\_finalize()} where, for instance, the arrays and linked list of the acoustic emissions are freed.
-
-\begin{lstlisting}[style=CStyle]
-  Bubble->Excitation = (struct APECSS_Excitation *) malloc(sizeof(struct APECSS_Excitation));
-  Bubble->Excitation->type = APECSS_EXCITATION_SIN;
-  Bubble->Excitation->f = (APECSS_FLOAT) fa;
-  Bubble->Excitation->dp = (APECSS_FLOAT) pa;
-\end{lstlisting}
-
-
