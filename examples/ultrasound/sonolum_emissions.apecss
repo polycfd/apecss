@@ -9,13 +9,14 @@ InitialRadius 5.0e-6
 RPModel Gilmore
 Emissions KirkwoodBethe 1.1e-3 
 PressureAmbient 1.0e5
+HardcoreRadius 5.64334e-7
 END
 
 GAS
 EoS HC
-PolytropicExponent 1.666667
+ReferencePressure 1.0e5
 ReferenceDensity 1.664
-HardcoreRadius 5.64334e-7
+PolytropicExponent 1.666667
 END
 
 LIQUID

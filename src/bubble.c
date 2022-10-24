@@ -41,6 +41,8 @@ int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
 
   // Initialize pointers to functions
   Bubble->ode = NULL;
+  Bubble->get_pressure_infinity = NULL;
+  Bubble->get_pressurederivative_infinity = NULL;
   Bubble->emissions_initialize = NULL;
   Bubble->emissions_update = NULL;
   Bubble->emissions_free = NULL;
@@ -73,9 +75,10 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->R = Bubble->R0;
   Bubble->U0 = 0.0;
   Bubble->U = Bubble->U0;
-  Bubble->p0 = 1.0e5;  // Ambient pressure
-  Bubble->pG0 = -APECSS_LARGE;  // Initial gas pressure in the bubble
+  Bubble->p0 = 1.0e5;
+  Bubble->pG0 = -APECSS_LARGE;  // Set by the user or when the bubble is initialized
   Bubble->rhoG0 = 1.0;
+  Bubble->r_hc = 0.0;
 
   // ODEs
   Bubble->nODEs = 2;  // ODEs for the bubble radius and bubble wall velocity
@@ -98,6 +101,8 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->NumericsODE->control_coeff_q = 0.1;
 
   // Set default pointers to functions
+  Bubble->get_pressure_infinity = apecss_bubble_pressure_infinity_noexcitation;
+  Bubble->get_pressurederivative_infinity = apecss_bubble_pressurederivative_infinity_noexcitation;
   Bubble->emissions_initialize = apecss_emissions_initializenone;
   Bubble->emissions_update = apecss_emissions_updatenone;
   Bubble->emissions_free = apecss_emissions_freenone;
@@ -218,6 +223,28 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
   }
 
   // ---------------------------------------
+  // Excitation
+
+  if (Bubble->Excitation != NULL)
+  {
+    if (Bubble->Excitation->type == APECSS_EXCITATION_SIN)
+    {
+      Bubble->get_pressure_infinity = apecss_bubble_pressure_infinity_sinexcitation;
+      Bubble->get_pressurederivative_infinity = apecss_bubble_pressurederivative_infinity_sinexcitation;
+    }
+    else
+    {
+      Bubble->get_pressure_infinity = apecss_bubble_pressure_infinity_noexcitation;
+      Bubble->get_pressurederivative_infinity = apecss_bubble_pressurederivative_infinity_noexcitation;
+    }
+  }
+  else
+  {
+    Bubble->get_pressure_infinity = apecss_bubble_pressure_infinity_noexcitation;
+    Bubble->get_pressurederivative_infinity = apecss_bubble_pressurederivative_infinity_noexcitation;
+  }
+
+  // ---------------------------------------
   // Results
 
   if (Bubble->Results != NULL)
@@ -308,57 +335,13 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = 0.0;
 
   // ---------------------------------------
-  // Gas
+  // Hardcore radius
 
-  if (Bubble->Gas->EoS == APECSS_GAS_NASG)
+  if (Bubble->Gas->EoS == APECSS_GAS_HC && Bubble->Gas->mmol > 0.0 && Bubble->Gas->dmol > 0.0)
   {
-    if (Bubble->Gas->mmol > 0.0 && Bubble->Gas->dmol > 0.0)
-    {
-      // Compute the co-volume based on the molecule properties
-      Bubble->Gas->b = APECSS_AVOGADRO * 16.0 * APECSS_PI * APECSS_POW3(0.5 * Bubble->Gas->dmol) / (3.0 * Bubble->Gas->mmol);
-    }
-    else if (Bubble->Gas->b < 0.0)
-    {
-      char str[APECSS_STRINGLENGTH_SPRINTF];
-      sprintf(str, "Co-volume of the gas cannot be computed and has not been predefined. Insufficient data.");
-      apecss_erroronscreen(-1, str);
-    }
-
-    // Compute the reference coefficient for the gas
-    Bubble->Gas->Kref =
-        Bubble->Gas->rhoref / (APECSS_POW(Bubble->Gas->pref + Bubble->Gas->B, 1.0 / Bubble->Gas->Gamma) * (1.0 - Bubble->Gas->b * Bubble->Gas->rhoref));
-  }
-  else if (Bubble->Gas->EoS == APECSS_GAS_HC)
-  {
-    if (Bubble->Gas->mmol > 0.0 && Bubble->Gas->dmol > 0.0)
-    {
-      // Compute the hardcore radius based on the molecule properties
-      APECSS_FLOAT mgref = Bubble->Gas->rhoref * 4.0 * APECSS_PI * APECSS_POW3(Bubble->R0) / 3.0;
-      Bubble->Gas->h = APECSS_POW(APECSS_AVOGADRO * mgref * 4.0 * APECSS_POW3(0.5 * Bubble->Gas->dmol) / (Bubble->Gas->mmol), APECSS_ONETHIRD);
-    }
-    else if (Bubble->Gas->h < 0.0)
-    {
-      char str[APECSS_STRINGLENGTH_SPRINTF];
-      sprintf(str, "Hardcore radius of the gas cannot be computed and has not been predefined. Insufficient data.");
-      apecss_erroronscreen(-1, str);
-    }
-
-    // Compute the reference coefficient for the gas
-    Bubble->Gas->Kref = Bubble->Gas->rhoref / (APECSS_POW(Bubble->Gas->pref, 1.0 / Bubble->Gas->Gamma));
-  }
-  else
-  {
-    Bubble->Gas->b = 0.0;
-    Bubble->Gas->B = 0.0;
-    Bubble->Gas->h = 0.0;
-    Bubble->Gas->Kref = Bubble->Gas->rhoref / (APECSS_POW(Bubble->Gas->pref, 1.0 / Bubble->Gas->Gamma));
-  }
-
-  if (Bubble->Gas->Kref <= 0.0)
-  {
-    char str[APECSS_STRINGLENGTH_SPRINTF];
-    sprintf(str, "K reference factor of the gas is unphysical (Kref <= 0).");
-    apecss_erroronscreen(-1, str);
+    // Compute the hardcore radius based on the molecule properties
+    APECSS_FLOAT mgref = Bubble->Gas->rhoref * 4.0 * APECSS_PI * APECSS_POW3(Bubble->R0) / 3.0;
+    Bubble->r_hc = APECSS_POW(APECSS_AVOGADRO * mgref * 4.0 * APECSS_POW3(0.5 * Bubble->Gas->dmol) / (Bubble->Gas->mmol), APECSS_ONETHIRD);
   }
 
   // ---------------------------------------
@@ -386,6 +369,7 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
 
   // ---------------------------------------
   // Initial gas pressure assumed to result from polytropic expansion/compression from the reference state
+
   if (Bubble->Gas->EoS == APECSS_GAS_NASG)
   {
     APECSS_FLOAT peff = APECSS_POW((Bubble->pG0 + Bubble->Gas->B), (1.0 / Bubble->Gas->Gamma));
@@ -631,6 +615,24 @@ int apecss_bubble_solver_finalize(struct APECSS_Bubble *Bubble)
   Bubble->emissions_free(Bubble);
 
   return (0);
+}
+
+// -------------------------------------------------------------------
+// PRESSURE AT INFINITY
+// -------------------------------------------------------------------
+
+APECSS_FLOAT apecss_bubble_pressure_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble) { return (Bubble->p0); }
+
+APECSS_FLOAT apecss_bubble_pressure_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
+{
+  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t));
+}
+
+APECSS_FLOAT apecss_bubble_pressurederivative_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble) { return (0.0); }
+
+APECSS_FLOAT apecss_bubble_pressurederivative_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
+{
+  return (-Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * t));
 }
 
 // -------------------------------------------------------------------

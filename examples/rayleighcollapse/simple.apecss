@@ -13,10 +13,13 @@ END
 
 GAS
 EoS IG
+ReferencePressure 1.0e5
+ReferenceDensity 1.2
 PolytropicExponent 1.4
 END
 
 LIQUID
+ReferencePressure 1.0e5
 ReferenceDensity 997.0
 Viscosity 0.0
 END

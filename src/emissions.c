@@ -85,7 +85,7 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
 
   // Values used multiple times
   APECSS_FLOAT pL = Bubble->Liquid->get_pressure_bubblewall(Bubble->ODEsSol, Bubble->t, Bubble);
-  APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT rhoL = Bubble->Liquid->get_density(pL, Bubble->Liquid);
   APECSS_FLOAT rhoinf = Bubble->Liquid->get_density(pinf, Bubble->Liquid);
   APECSS_FLOAT hL = Bubble->Liquid->get_enthalpy(pL, rhoL, Bubble->Liquid);
@@ -160,7 +160,7 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
   struct APECSS_EmissionNode *Current = Bubble->Emissions->FirstNode;
 
   // Values used multiple times
-  APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT rho = Bubble->Liquid->rhoref;
   APECSS_FLOAT c = Bubble->Liquid->cref;
   APECSS_FLOAT dr = c * Bubble->dt;
@@ -191,7 +191,7 @@ int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble)
   struct APECSS_EmissionNode *Current = Bubble->Emissions->FirstNode;
 
   // Values used multiple times
-  APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT rho = Bubble->Liquid->rhoref;
   APECSS_FLOAT c = Bubble->Liquid->cref;
   APECSS_FLOAT dr = c * Bubble->dt;
@@ -219,7 +219,7 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
   // Values and constants used multiple times
   APECSS_FLOAT B = Bubble->Liquid->B;
   APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
-  APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
   APECSS_FLOAT dt = Bubble->dt;
   APECSS_FLOAT h_fac = (Gamma - 1.0) * Bubble->Liquid->rhoref / (Gamma * APECSS_POW(Bubble->Liquid->pref + B, (1.0 / Gamma)));
@@ -319,7 +319,7 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT b = Bubble->Liquid->b;
   APECSS_FLOAT B = Bubble->Liquid->B;
   APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
-  APECSS_FLOAT pinf = Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
   APECSS_FLOAT dt = Bubble->dt;
   APECSS_FLOAT tol = Bubble->Emissions->KB_IterTolerance;

@@ -13,13 +13,15 @@ END
 
 GAS
 EoS HC
+ReferencePressure 1.0e5
+ReferenceDensity 6.17
 PolytropicExponent 1.095
-HardcoreRadius -1.0
 MolecularWeight 146.0e-3
 MolecularDiameter 550.0e-12
 END
 
 LIQUID
+EoS Tait
 ReferencePressure 1.0e5
 ReferenceDensity 997.0
 Viscosity 0.001

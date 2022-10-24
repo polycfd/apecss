@@ -17,56 +17,58 @@
 // SET OPTIONS
 // -------------------------------------------------------------------
 
-int apecss_interface_setdefaultoptions(struct APECSS_Bubble *Bubble)
+int apecss_interface_setdefaultoptions(struct APECSS_Interface *Interface)
 {
-  if (Bubble->Interface == NULL) Bubble->Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
+  Interface->sigma = 0.0;
+  Interface->LipidCoatingModel = APECSS_LIPIDCOATING_NONE;
+  Interface->sigma0 = 0.02;
+  Interface->Elasticity = 0.5;
+  Interface->Viscosity = 7.5e-9;
+  Interface->Rbuck = 1.0e-6;
+  Interface->Rrupt = 1.0e-6;
 
-  Bubble->Interface->sigma = 0.0;
-  Bubble->Interface->LipidCoatingModel = APECSS_LIPIDCOATING_NONE;
-  Bubble->Interface->sigma0 = 0.02;
-  Bubble->Interface->Elasticity = 0.5;
-  Bubble->Interface->Viscosity = 7.5e-9;
-  Bubble->Interface->Rbuck = 1.0e-6;
-  Bubble->Interface->Rrupt = 1.0e-6;
+  Interface->get_surfacetension = apecss_interface_surfacetension_clean;
+  Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_clean;
+  Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_clean;
 
-  Bubble->Interface->get_surfacetension = apecss_interface_surfacetension_clean;
-  Bubble->Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_clean;
-  Bubble->Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_clean;
+  Interface->get_pressure_viscous = apecss_interface_pressure_viscous_clean;
+  Interface->get_pressurederivative_viscous_expl = apecss_interface_pressurederivative_viscous_cleanexpl;
+  Interface->get_pressurederivative_viscous_impl = apecss_interface_pressurederivative_viscous_cleanimpl;
 
   return (0);
 }
 
-int apecss_interface_processoptions(struct APECSS_Bubble *Bubble)
+int apecss_interface_processoptions(struct APECSS_Interface *Interface)
 {
   // Set the appropriate function pointers associated with bubble coating
-  if (Bubble->Interface->LipidCoatingModel & APECSS_LIPIDCOATING_MARMOTTANT)
+  if (Interface->LipidCoatingModel & APECSS_LIPIDCOATING_MARMOTTANT)
   {
-    if (Bubble->Interface->LipidCoatingModel & APECSS_LIPIDCOATING_GOMPERTZFUNCTION)
+    if (Interface->LipidCoatingModel & APECSS_LIPIDCOATING_GOMPERTZFUNCTION)
     {
-      Bubble->Interface->get_surfacetension = apecss_interface_surfacetension_gompertzmarmottant;
-      Bubble->Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_gompertzmarmottant;
-      Bubble->Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_gompertzmarmottant;
+      Interface->get_surfacetension = apecss_interface_surfacetension_gompertzmarmottant;
+      Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_gompertzmarmottant;
+      Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_gompertzmarmottant;
     }
     else
     {
-      Bubble->Interface->get_surfacetension = apecss_interface_surfacetension_marmottant;
-      Bubble->Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_marmottant;
-      Bubble->Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_marmottant;
+      Interface->get_surfacetension = apecss_interface_surfacetension_marmottant;
+      Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_marmottant;
+      Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_marmottant;
     }
 
-    Bubble->Liquid->get_pressure_viscous = apecss_liquid_pressure_viscous_marmottant;
-    Bubble->Liquid->get_pressurederivative_viscous_expl = apecss_liquid_pressurederivative_viscous_marmottantexpl;
-    Bubble->Liquid->get_pressurederivative_viscous_impl = apecss_liquid_pressurederivative_viscous_marmottantimpl;
+    Interface->get_pressure_viscous = apecss_interface_pressure_viscous_marmottant;
+    Interface->get_pressurederivative_viscous_expl = apecss_interface_pressurederivative_viscous_marmottantexpl;
+    Interface->get_pressurederivative_viscous_impl = apecss_interface_pressurederivative_viscous_marmottantimpl;
   }
   else
   {
-    Bubble->Interface->get_surfacetension = apecss_interface_surfacetension_clean;
-    Bubble->Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_clean;
-    Bubble->Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_clean;
+    Interface->get_surfacetension = apecss_interface_surfacetension_clean;
+    Interface->get_pressure_surfacetension = apecss_interface_surfacetensionpressure_clean;
+    Interface->get_pressurederivative_surfacetension = apecss_interface_surfacetensionpressurederivative_clean;
 
-    Bubble->Liquid->get_pressure_viscous = apecss_liquid_pressure_viscous_clean;
-    Bubble->Liquid->get_pressurederivative_viscous_expl = apecss_liquid_pressurederivative_viscous_cleanexpl;
-    Bubble->Liquid->get_pressurederivative_viscous_impl = apecss_liquid_pressurederivative_viscous_cleanimpl;
+    Interface->get_pressure_viscous = apecss_interface_pressure_viscous_clean;
+    Interface->get_pressurederivative_viscous_expl = apecss_interface_pressurederivative_viscous_cleanexpl;
+    Interface->get_pressurederivative_viscous_impl = apecss_interface_pressurederivative_viscous_cleanimpl;
   }
 
   return (0);
@@ -117,7 +119,7 @@ APECSS_FLOAT apecss_interface_surfacetensionderivative_gompertzmarmottant(APECSS
 }
 
 // -------------------------------------------------------------------
-// PRESSURE
+// SURFACE TENSION PRESSURE
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_interface_surfacetensionpressure_clean(APECSS_FLOAT R, struct APECSS_Interface *Interface) { return (2.0 * Interface->sigma / R); }
@@ -147,4 +149,29 @@ APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_gompertzmarmottan
 {
   return (2.0 * (apecss_interface_surfacetension_gompertzmarmottant(R, Interface) * U / APECSS_POW2(R) -
                  apecss_interface_surfacetensionderivative_gompertzmarmottant(R, U, Interface) / R));
+}
+
+// -------------------------------------------------------------------
+// VISCOUS PRESSURE
+// -------------------------------------------------------------------
+
+APECSS_FLOAT apecss_interface_pressure_viscous_clean(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble) { return (0.0); }
+
+APECSS_FLOAT apecss_interface_pressure_viscous_marmottant(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
+{
+  return (4.0 * Bubble->Interface->Viscosity * U / APECSS_POW2(R));
+}
+
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble) { return (0.0); }
+
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
+{
+  return (8.0 * Bubble->Interface->Viscosity * APECSS_POW2(U) / APECSS_POW3(R));
+}
+
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (0.0); }
+
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
+{
+  return (4.0 * Bubble->Interface->Viscosity / APECSS_POW2(R));
 }

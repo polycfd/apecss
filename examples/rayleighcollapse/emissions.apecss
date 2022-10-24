@@ -22,6 +22,7 @@ TaitPressureConst 0.0
 END
 
 LIQUID
+EoS Tait
 ReferencePressure 1.0e5
 ReferenceDensity 997.0
 Viscosity 0.001

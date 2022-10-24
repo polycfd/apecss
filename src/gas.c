@@ -17,51 +17,62 @@
 // SET OPTIONS
 // -------------------------------------------------------------------
 
-int apecss_gas_setdefaultoptions(struct APECSS_Bubble *Bubble)
+int apecss_gas_setdefaultoptions(struct APECSS_Gas *Gas)
 {
-  if (Bubble->Gas == NULL) Bubble->Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
+  Gas->EoS = APECSS_GAS_IG;
+  Gas->Gamma = 1.4;
+  Gas->B = 0.0;
+  Gas->b = 0.0;
+  Gas->dmol = -1.0;
+  Gas->mmol = -1.0;
+  Gas->pref = 1.0e5;
+  Gas->rhoref = 1.2;
 
-  Bubble->Gas->EoS = APECSS_GAS_IG;
-  Bubble->Gas->Gamma = 1.4;
-  Bubble->Gas->B = 0.0;
-  Bubble->Gas->b = 0.0;
-  Bubble->Gas->h = 0.0;
-  Bubble->Gas->dmol = -1.0;
-  Bubble->Gas->mmol = -1.0;
-  Bubble->Gas->pref = -APECSS_LARGE;  // Either set by user input or set to ambient pressure
-  Bubble->Gas->rhoref = 1.2;
-
-  Bubble->Gas->get_pressure = apecss_gas_pressure_ig;
-  Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_ig;
+  Gas->get_pressure = apecss_gas_pressure_ig;
+  Gas->get_pressurederivative = apecss_gas_pressurederivative_ig;
 
   return (0);
 }
 
-int apecss_gas_processoptions(struct APECSS_Bubble *Bubble)
+int apecss_gas_processoptions(struct APECSS_Gas *Gas)
 {
-  // Set the appropriate function pointers associated with the gas equation of state
-  if (Bubble->Gas->EoS == APECSS_GAS_IG)
+  if (Gas->EoS == APECSS_GAS_IG)
   {
-    Bubble->Gas->get_pressure = apecss_gas_pressure_ig;
-    Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_ig;
+    // Set the function pointers for the pressure
+    Gas->get_pressure = apecss_gas_pressure_ig;
+    Gas->get_pressurederivative = apecss_gas_pressurederivative_ig;
+
+    // Compute the reference coefficient for the gas
+    Gas->Kref = Gas->rhoref / (APECSS_POW(Gas->pref, 1.0 / Gas->Gamma));
   }
-  else if (Bubble->Gas->EoS == APECSS_GAS_NASG)
+  else if (Gas->EoS == APECSS_GAS_NASG)
   {
-    Bubble->Gas->get_pressure = apecss_gas_pressure_nasg;
-    Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_nasg;
+    // Set the function pointers for the pressure
+    Gas->get_pressure = apecss_gas_pressure_nasg;
+    Gas->get_pressurederivative = apecss_gas_pressurederivative_nasg;
+
+    if (Gas->mmol > 0.0 && Gas->dmol > 0.0)
+    {
+      // Compute the co-volume based on the molecular properties
+      Gas->b = APECSS_AVOGADRO * 4.0 * APECSS_PI * APECSS_POW3(Gas->dmol) / (6.0 * Gas->mmol);
+    }
+
+    // Compute the reference coefficient for the gas
+    Gas->Kref = Gas->rhoref / (APECSS_POW(Gas->pref + Gas->B, 1.0 / Gas->Gamma) * (1.0 - Gas->b * Gas->rhoref));
   }
-  else if (Bubble->Gas->EoS == APECSS_GAS_HC)
+  else if (Gas->EoS == APECSS_GAS_HC)
   {
-    Bubble->Gas->get_pressure = apecss_gas_pressure_hc;
-    Bubble->Gas->get_pressurederivative = apecss_gas_pressurederivative_hc;
+    // Set the function pointers for the pressure
+    Gas->get_pressure = apecss_gas_pressure_hc;
+    Gas->get_pressurederivative = apecss_gas_pressurederivative_hc;
+
+    // Compute the reference coefficient for the gas
+    Gas->Kref = Gas->rhoref / (APECSS_POW(Gas->pref, 1.0 / Gas->Gamma));
   }
   else
   {
     apecss_erroronscreen(1, "Defined equation of state for the gas is unknown.");
   }
-
-  // Set the reference pressure
-  if (Bubble->Gas->pref < -Bubble->Gas->B) Bubble->Gas->pref = Bubble->p0;
 
   return (0);
 }
@@ -89,7 +100,7 @@ APECSS_FLOAT apecss_gas_pressure_ig(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bub
 APECSS_FLOAT apecss_gas_pressure_hc(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble)
 {
   return (Bubble->pG0 *
-          APECSS_POW((APECSS_POW3(Bubble->R0) - APECSS_POW3(Bubble->Gas->h)) / (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->Gas->h)), Bubble->Gas->Gamma));
+          APECSS_POW((APECSS_POW3(Bubble->R0) - APECSS_POW3(Bubble->r_hc)) / (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->r_hc)), Bubble->Gas->Gamma));
 }
 
 APECSS_FLOAT apecss_gas_pressure_nasg(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble)
@@ -107,7 +118,7 @@ APECSS_FLOAT apecss_gas_pressurederivative_ig(APECSS_FLOAT *Sol, APECSS_FLOAT t,
 
 APECSS_FLOAT apecss_gas_pressurederivative_hc(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (-3.0 * apecss_gas_pressure_hc(Sol, Bubble) * Bubble->Gas->Gamma * APECSS_POW2(Sol[1]) * Sol[0] / (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->Gas->h)));
+  return (-3.0 * apecss_gas_pressure_hc(Sol, Bubble) * Bubble->Gas->Gamma * APECSS_POW2(Sol[1]) * Sol[0] / (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->r_hc)));
 }
 
 APECSS_FLOAT apecss_gas_pressurederivative_nasg(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)

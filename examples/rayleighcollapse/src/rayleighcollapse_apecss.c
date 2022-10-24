@@ -58,8 +58,16 @@ int main(int argc, char **args)
   struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
   apecss_bubble_initializestruct(Bubble);
 
+  /* Allocate and set the default options for the fluids */
+  Bubble->Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
+  apecss_gas_setdefaultoptions(Bubble->Gas);
+  Bubble->Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
+  apecss_liquid_setdefaultoptions(Bubble->Liquid);
+  Bubble->Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
+  apecss_interface_setdefaultoptions(Bubble->Interface);
+
   /* Set default options for the bubble and the fluids */
-  apecss_options_setdefault(Bubble);
+  apecss_bubble_setdefaultoptions(Bubble);
 
   /* Read the options file */
   apecss_options_readfile(Bubble, OptionsDir);
@@ -72,7 +80,10 @@ int main(int argc, char **args)
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Process all options */
-  apecss_options_process(Bubble);
+  apecss_gas_processoptions(Bubble->Gas);
+  apecss_interface_processoptions(Bubble->Interface);
+  apecss_liquid_processoptions(Bubble->Liquid);
+  apecss_bubble_processoptions(Bubble);
 
   /* Initialize the bubble based on the selected options */
   apecss_bubble_initialize(Bubble);

@@ -12,12 +12,14 @@ END
 
 GAS
 EoS IG
-PolytropicExponent 1.4
+ReferencePressure 1.0e5
 ReferenceDensity 1.2
+PolytropicExponent 1.4
 END
 
 LIQUID
 LiquidType KelvinVoigt
+ReferencePressure 1.0e5
 ReferenceDensity 1060.0
 ReferenceSoundSpeed 1540.0
 Viscosity 0.015

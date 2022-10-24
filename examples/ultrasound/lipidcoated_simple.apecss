@@ -12,6 +12,7 @@ END
 
 GAS
 EoS IG
+ReferencePressure 1.0e5
 PolytropicExponent 1.095
 END
 

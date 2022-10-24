@@ -146,7 +146,6 @@ struct APECSS_Gas
   APECSS_FLOAT Gamma;  // Polytropic exponent
   APECSS_FLOAT B;  // Attractive pressure constant [Pa]
   APECSS_FLOAT b;  // Co-volume [m^3/kg]
-  APECSS_FLOAT h;  // van der Waals hardcore radius [m]
   APECSS_FLOAT dmol;  // Molecular kinetic diameter [m]
   APECSS_FLOAT mmol;  // Molecular weight [kg/mol]
   APECSS_FLOAT pref;  // Reference pressure [Pa]
@@ -191,10 +190,6 @@ struct APECSS_Liquid
   APECSS_FLOAT (*get_pressure_viscous)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_viscous_expl)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_viscous_impl)(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
-
-  // Pointers to the functions describing the liquid pressure and its derivative at infinity
-  APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-  APECSS_FLOAT (*get_pressurederivative_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 };
 
 struct APECSS_Interface
@@ -217,6 +212,11 @@ struct APECSS_Interface
   // Pointers to the functions describing the pressure and its derivative due to surface tension
   APECSS_FLOAT (*get_pressure_surfacetension)(APECSS_FLOAT R, struct APECSS_Interface *Interface);
   APECSS_FLOAT (*get_pressurederivative_surfacetension)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
+
+  // Pointers to the functions describing the pressure and its derivative due to surface viscous contributions
+  APECSS_FLOAT (*get_pressure_viscous)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+  APECSS_FLOAT (*get_pressurederivative_viscous_expl)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+  APECSS_FLOAT (*get_pressurederivative_viscous_impl)(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 };
 
 struct APECSS_EmissionNode
@@ -386,6 +386,7 @@ struct APECSS_Bubble
   APECSS_FLOAT p0;  // Ambient pressure [Pa]
   APECSS_FLOAT pG0;  // Initial gas pressure [Pa]
   APECSS_FLOAT rhoG0;  // Initial gas density [kg/m^3]
+  APECSS_FLOAT r_hc;  // van der Waals hardcore radius [m]
 
   // ODEs
   int nODEs;  // Total number of ODEs
@@ -406,6 +407,10 @@ struct APECSS_Bubble
 
   // Excitation of the bubble (if applicable)
   struct APECSS_Excitation *Excitation;
+
+  // Pointers to the functions describing the liquid pressure and its derivative at infinity
+  APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+  APECSS_FLOAT (*get_pressurederivative_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
   // Lagrangian emissions (if applicable)
   struct APECSS_Emissions *Emissions;
@@ -451,6 +456,10 @@ int apecss_bubble_solver_progress_updatenone(int *prog, APECSS_FLOAT elapsedtime
 int apecss_bubble_solver_progress_updatescreen(int *prog, APECSS_FLOAT elapsedtime, APECSS_FLOAT totaltime);
 int apecss_bubble_solver_progress_finalnone();
 int apecss_bubble_solver_progress_finalscreen();
+APECSS_FLOAT apecss_bubble_pressure_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_bubble_pressure_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_bubble_pressurederivative_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_bubble_pressurederivative_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
 // ---------------------
 // emissions.c
@@ -474,8 +483,8 @@ APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u
 // ---------------------
 // gas.c
 
-int apecss_gas_setdefaultoptions(struct APECSS_Bubble *Bubble);
-int apecss_gas_processoptions(struct APECSS_Bubble *Bubble);
+int apecss_gas_setdefaultoptions(struct APECSS_Gas *Gas);
+int apecss_gas_processoptions(struct APECSS_Gas *Gas);
 APECSS_FLOAT apecss_gas_pressure_ig(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_gas_pressure_hc(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_gas_pressure_nasg(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble);
@@ -488,8 +497,8 @@ APECSS_FLOAT apecss_gas_densityderivative_constmass(APECSS_FLOAT R, APECSS_FLOAT
 // ---------------------
 // interface.c
 
-int apecss_interface_setdefaultoptions(struct APECSS_Bubble *Bubble);
-int apecss_interface_processoptions(struct APECSS_Bubble *Bubble);
+int apecss_interface_setdefaultoptions(struct APECSS_Interface *Interface);
+int apecss_interface_processoptions(struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_surfacetension_clean(APECSS_FLOAT R, struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_surfacetension_marmottant(APECSS_FLOAT R, struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_surfacetension_gompertzmarmottant(APECSS_FLOAT R, struct APECSS_Interface *Interface);
@@ -501,12 +510,18 @@ APECSS_FLOAT apecss_interface_surfacetensionpressure_gompertzmarmottant(APECSS_F
 APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_clean(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_marmottant(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_gompertzmarmottant(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
+APECSS_FLOAT apecss_interface_pressure_viscous_clean(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_interface_pressure_viscous_marmottant(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 
 // ---------------------
 // liquid.c
 
-int apecss_liquid_setdefaultoptions(struct APECSS_Bubble *Bubble);
-int apecss_liquid_processoptions(struct APECSS_Bubble *Bubble);
+int apecss_liquid_setdefaultoptions(struct APECSS_Liquid *Liquid);
+int apecss_liquid_processoptions(struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_density_fixed(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_density_tait(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
 APECSS_FLOAT apecss_liquid_density_nasg(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
@@ -524,17 +539,10 @@ APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_expl(APECSS_FLOAT *Sol,
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_explkelvinvoigt(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_zener(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_exploldroydb(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressure_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressure_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressurederivative_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressurederivative_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressure_viscous_clean(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressure_viscous_marmottant(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressurederivative_viscous_cleanexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressurederivative_viscous_marmottantexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_liquid_pressure_viscous(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_expl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_nonimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressurederivative_viscous_cleanimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
-APECSS_FLOAT apecss_liquid_pressurederivative_viscous_marmottantimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 
 // ---------------------
 // odesolver.c
@@ -553,8 +561,6 @@ int apecss_infoscreen();
 // ---------------------
 // options.c
 
-int apecss_options_setdefault(struct APECSS_Bubble *Bubble);
-int apecss_options_process(struct APECSS_Bubble *Bubble);
 int apecss_options_readfile(struct APECSS_Bubble *Bubble, char *OptionsDir);
 int apecss_readoneoption(FILE *OptionsFile, char *stuk);
 int apecss_lineget(char *ssring, FILE *fp);

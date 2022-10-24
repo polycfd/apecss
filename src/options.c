@@ -14,28 +14,6 @@
 #include <sys/stat.h>
 #include "apecss.h"
 
-int apecss_options_setdefault(struct APECSS_Bubble* Bubble)
-{
-  // Call all functions to set default values
-  apecss_gas_setdefaultoptions(Bubble);
-  apecss_interface_setdefaultoptions(Bubble);
-  apecss_liquid_setdefaultoptions(Bubble);
-  apecss_bubble_setdefaultoptions(Bubble);
-
-  return (0);
-}
-
-int apecss_options_process(struct APECSS_Bubble* Bubble)
-{
-  // Call all functions to process the provided options
-  apecss_gas_processoptions(Bubble);
-  apecss_interface_processoptions(Bubble);
-  apecss_liquid_processoptions(Bubble);
-  apecss_bubble_processoptions(Bubble);
-
-  return (0);
-}
-
 int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
 {
   int l = 0;
@@ -153,6 +131,11 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->pG0 = APECSS_STRINGTOFLOAT(option3);
         }
+        else if (strncasecmp(option2, "hardcoreradius", 14) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->r_hc = APECSS_STRINGTOFLOAT(option3);
+        }
         else
         {
           sprintf(str, "An unknown option of BUBBLE is given: %s, line %i", option2, line);
@@ -216,11 +199,6 @@ int apecss_options_readfile(struct APECSS_Bubble* Bubble, char* OptionsDir)
         {
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->Gas->b = APECSS_STRINGTOFLOAT(option3);
-        }
-        else if (strncasecmp(option2, "hardcoreradius", 14) == 0)
-        {
-          l = apecss_readoneoption(OptionsFile, option3);
-          Bubble->Gas->h = APECSS_STRINGTOFLOAT(option3);
         }
         else if (strncasecmp(option2, "taitpressureconst", 17) == 0)
         {
