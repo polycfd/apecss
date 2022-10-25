@@ -44,7 +44,7 @@ APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT 
                          Sol[1] +
                      Bubble->Liquid->get_pressurederivative_bubblewall_expl(Sol, t, Bubble) * inv_c * inv_rho;
   APECSS_FLOAT dot_pvisc_impl =
-      Bubble->Liquid->get_pressurederivative_viscous_impl(Sol[1], Bubble) + Bubble->Interface->get_pressurederivative_viscous_impl(Sol[1], Bubble);
+      Bubble->Liquid->get_pressurederivative_viscous_impl(Sol[1], Bubble) + Bubble->Interface->get_pressurederivative_viscous_impl(Sol[1], Bubble->Interface);
 
   return (rhs / (1.0 - Sol[0] * inv_c + dot_pvisc_impl * inv_c * inv_rho));
 }
@@ -61,7 +61,7 @@ APECSS_FLOAT apecss_rp_gilmorevelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, st
       Bubble->Liquid->get_pressurederivative_bubblewall_expl(Sol, t, Bubble) / rhoL - Bubble->get_pressurederivative_infinity(t, Bubble) / rhoInf;
   APECSS_FLOAT inv_cL = 1.0 / apecss_liquid_soundspeed_nasg(pL, rhoL, Bubble->Liquid);
   APECSS_FLOAT dot_pvisc_impl =
-      Bubble->Liquid->get_pressurederivative_viscous_impl(Sol[1], Bubble) + Bubble->Interface->get_pressurederivative_viscous_impl(Sol[1], Bubble);
+      Bubble->Liquid->get_pressurederivative_viscous_impl(Sol[1], Bubble) + Bubble->Interface->get_pressurederivative_viscous_impl(Sol[1], Bubble->Interface);
   APECSS_FLOAT GilmoreCoeffB = 1.0 + dot_pvisc_impl * inv_cL / rhoL;
 
   return ((((1.0 + Sol[0] * inv_cL) * H - 1.5 * (1.0 - Sol[0] * APECSS_ONETHIRD * inv_cL) * APECSS_POW2(Sol[0])) / ((1.0 - Sol[0] * inv_cL) * Sol[1]) +

@@ -41,6 +41,170 @@ int apecss_liquid_setdefaultoptions(struct APECSS_Liquid *Liquid)
   return (0);
 }
 
+int apecss_liquid_readoptions(struct APECSS_Liquid *Liquid, char *OptionsDir)
+{
+  int l = 0;
+  int line = 0;
+  FILE *OptionsFile;
+  char str[APECSS_STRINGLENGTH_SPRINTF];
+  char option[APECSS_STRINGLENGTH], option2[APECSS_STRINGLENGTH], option3[APECSS_STRINGLENGTH];
+  int StatusFile = 1;
+  int StatusSection = 1;
+
+  if ((OptionsFile = fopen(OptionsDir, "r")) == (FILE *) NULL)
+  {
+    sprintf(str, "File %s cannot be opened for reading.\n", OptionsDir);
+    apecss_erroronscreen(1, str);
+  }
+
+  while ((l = apecss_readoneoption(OptionsFile, option)) != EOF && StatusFile == 1)
+  {
+    line += l;
+
+    if (strncasecmp(option, "liquid", 6) == 0)
+    {
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else if (strncasecmp(option2, "liquidtype", 10) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            if (strncasecmp(option3, "newtonian", 9) == 0)
+            {
+              Liquid->Type = APECSS_LIQUID_NEWTONIAN;
+            }
+            else if (strncasecmp(option3, "kelvinvoigt", 11) == 0)
+            {
+              Liquid->Type = APECSS_LIQUID_KELVINVOIGT;
+            }
+            else if (strncasecmp(option3, "zener", 5) == 0)
+            {
+              Liquid->Type = APECSS_LIQUID_ZENER;
+            }
+            else if (strncasecmp(option3, "oldroydb", 8) == 0)
+            {
+              Liquid->Type = APECSS_LIQUID_OLDROYDB;
+            }
+          }
+        }
+        else if (strncasecmp(option2, "eos", 3) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            if (strncasecmp(option3, "tait", 4) == 0)
+            {
+              Liquid->EoS = APECSS_LIQUID_TAIT;
+            }
+            else if (strncasecmp(option3, "nasg", 4) == 0)
+            {
+              Liquid->EoS = APECSS_LIQUID_NASG;
+            }
+          }
+        }
+        else if (strncasecmp(option2, "polytropicexponent", 18) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->Gamma = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "referencepressure", 17) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->pref = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "referencedensity", 16) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->rhoref = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "referencesoundspeed", 19) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->cref = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "covolume", 8) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->b = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "taitpressureconst", 17) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->B = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "viscosity", 9) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->mu = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "shearmodulus", 12) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->G = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "polymerviscosity", 16) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->eta = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "relaxationtime", 14) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->lambda = APECSS_STRINGTOFLOAT(option3);
+        }
+        else
+        {
+          sprintf(str, "An unknown option of LIQUID is given: %s, line %i", option2, line);
+          apecss_erroronscreen(1, str);
+        }
+      }
+    }
+    else if (strncasecmp(option, "bubble", 6) == 0 || strncasecmp(option, "gas", 3) == 0 || strncasecmp(option, "interface", 9) == 0 ||
+             strncasecmp(option, "results", 7) == 0 || strncasecmp(option, "odesolver", 9) == 0)
+    {
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else
+        {
+          // Nothing to be done here.
+        }
+      }
+    }
+    else
+    {
+      sprintf(str, "An unknown Section is given: %s, line %i", option, line);
+      apecss_erroronscreen(1, str);
+    }
+  }
+
+  fclose(OptionsFile);
+
+  return (0);
+}
+
 int apecss_liquid_processoptions(struct APECSS_Liquid *Liquid)
 {
   // Set the function pointers that define the equation of state of the liquid
@@ -157,55 +321,57 @@ APECSS_FLOAT apecss_liquid_enthalpy_nasg(APECSS_FLOAT p, APECSS_FLOAT rho, struc
 
 APECSS_FLOAT apecss_liquid_pressure_bubblewall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble->Interface) -
-          Bubble->Liquid->get_pressure_viscous(Sol[1], Sol[0], Bubble) - Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble));
+  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble) -
+          Bubble->Liquid->get_pressure_viscous(Sol[1], Sol[0], Bubble) - Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble->Interface));
 }
 
 APECSS_FLOAT apecss_liquid_pressure_bubblewall_kelvinvoigt(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble->Interface) -
-          Bubble->Liquid->get_pressure_viscous(Sol[1], Sol[0], Bubble) - Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble) -
+  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble) -
+          Bubble->Liquid->get_pressure_viscous(Sol[1], Sol[0], Bubble) - Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble->Interface) -
           4.0 * APECSS_ONETHIRD * Bubble->Liquid->G * (1.0 - APECSS_POW3(Bubble->R0) / APECSS_POW3(Sol[1])));
 }
 
 APECSS_FLOAT apecss_liquid_pressure_bubblewall_zener(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble->Interface) + 3.0 * Sol[2] -
-          Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble));
+  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble) + 3.0 * Sol[2] -
+          Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble->Interface));
 }
 
 APECSS_FLOAT apecss_liquid_pressure_bubblewall_oldroydb(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble->Interface) -
-          Bubble->Liquid->get_pressure_viscous(Sol[1], Sol[0], Bubble) - Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble) + Sol[2] + Sol[3]);
+  return (Bubble->Gas->get_pressure(Sol, Bubble) - Bubble->Interface->get_pressure_surfacetension(Sol[1], Bubble) -
+          Bubble->Liquid->get_pressure_viscous(Sol[1], Sol[0], Bubble) - Bubble->Interface->get_pressure_viscous(Sol[1], Sol[0], Bubble->Interface) + Sol[2] +
+          Sol[3]);
 }
 
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_expl(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble->Interface) +
+  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble) +
           Bubble->Liquid->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble) +
-          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble));
+          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble->Interface));
 }
 
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_explkelvinvoigt(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble->Interface) +
+  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble) +
           Bubble->Liquid->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble) +
-          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble) -
+          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble->Interface) -
           4.0 * Bubble->Liquid->G * APECSS_POW3(Bubble->R0) * Sol[0] / APECSS_POW4(Sol[1]));
 }
 
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_zener(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble->Interface) +
-          3.0 * apecss_viscoelastic_zenervarsigma_ode(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble));
+  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble) +
+          3.0 * apecss_viscoelastic_zenervarsigma_ode(Sol, t, Bubble) +
+          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble->Interface));
 }
 
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_exploldroydb(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble->Interface) +
+  return (Bubble->Gas->get_pressurederivative(Sol, t, Bubble) + Bubble->Interface->get_pressurederivative_surfacetension(Sol[1], Sol[0], Bubble) +
           Bubble->Liquid->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble) +
-          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble) + apecss_viscoelastic_oldroydb1_ode(Sol, t, Bubble) +
+          Bubble->Interface->get_pressurederivative_viscous_expl(Sol[1], Sol[0], Bubble->Interface) + apecss_viscoelastic_oldroydb1_ode(Sol, t, Bubble) +
           apecss_viscoelastic_oldroydb2_ode(Sol, t, Bubble));
 }
 

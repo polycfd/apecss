@@ -34,6 +34,131 @@ int apecss_gas_setdefaultoptions(struct APECSS_Gas *Gas)
   return (0);
 }
 
+int apecss_gas_readoptions(struct APECSS_Gas *Gas, char *OptionsDir)
+{
+  int l = 0;
+  int line = 0;
+  FILE *OptionsFile;
+  char str[APECSS_STRINGLENGTH_SPRINTF];
+  char option[APECSS_STRINGLENGTH], option2[APECSS_STRINGLENGTH], option3[APECSS_STRINGLENGTH];
+  int StatusFile = 1;
+  int StatusSection = 1;
+
+  if ((OptionsFile = fopen(OptionsDir, "r")) == (FILE *) NULL)
+  {
+    sprintf(str, "File %s cannot be opened for reading.\n", OptionsDir);
+    apecss_erroronscreen(1, str);
+  }
+
+  while ((l = apecss_readoneoption(OptionsFile, option)) != EOF && StatusFile == 1)
+  {
+    line += l;
+
+    if (strncasecmp(option, "gas", 3) == 0)
+    {
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else if (strncasecmp(option2, "eos", 3) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            if (strncasecmp(option3, "ig", 2) == 0)
+            {
+              Gas->EoS = APECSS_GAS_IG;
+            }
+            else if (strncasecmp(option3, "hc", 2) == 0)
+            {
+              Gas->EoS = APECSS_GAS_HC;
+            }
+            else if (strncasecmp(option3, "nasg", 4) == 0)
+            {
+              Gas->EoS = APECSS_GAS_NASG;
+            }
+          }
+        }
+        else if (strncasecmp(option2, "polytropicexponent", 18) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->Gamma = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "referencepressure", 17) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->pref = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "referencedensity", 16) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->rhoref = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "covolume", 8) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->b = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "taitpressureconst", 17) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->B = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "molecularweight", 15) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->mmol = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "moleculardiameter", 17) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Gas->dmol = APECSS_STRINGTOFLOAT(option3);
+        }
+        else
+        {
+          sprintf(str, "An unknown option of GAS is given: %s, line %i", option2, line);
+          apecss_erroronscreen(1, str);
+        }
+      }
+    }
+    else if (strncasecmp(option, "bubble", 6) == 0 || strncasecmp(option, "liquid", 6) == 0 || strncasecmp(option, "interface", 9) == 0 ||
+             strncasecmp(option, "results", 7) == 0 || strncasecmp(option, "odesolver", 9) == 0)
+    {
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else
+        {
+          // Nothing to be done here.
+        }
+      }
+    }
+    else
+    {
+      sprintf(str, "An unknown Section is given: %s, line %i", option, line);
+      apecss_erroronscreen(1, str);
+    }
+  }
+
+  fclose(OptionsFile);
+
+  return (0);
+}
+
 int apecss_gas_processoptions(struct APECSS_Gas *Gas)
 {
   if (Gas->EoS == APECSS_GAS_IG)

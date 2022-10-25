@@ -58,3 +58,90 @@ int apecss_infoscreen()
 
   return (0);
 }
+
+int apecss_readoneoption(FILE* OptionsFile, char* option)
+{
+  char ch, ch2;
+  int line;
+  char str[APECSS_STRINGLENGTH_SPRINTF];
+
+  line = 1;
+  while ((ch = getc(OptionsFile)) != EOF)
+  {
+    if (ch != '\n' && ch != '#')
+    {
+      while (ch == ' ' || ch == '\t' || ch == '\n')
+      {
+        ch = getc(OptionsFile);
+      }
+
+      memcpy(option, &ch, sizeof(char));
+      ch2 = getc(OptionsFile);
+      ungetc(ch2, OptionsFile);
+
+      if (ch2 != ' ' && ch2 != '\n')
+      {
+        apecss_linegetskip(str, OptionsFile);
+        memcpy(option + 1, str, sizeof(str));
+      }
+      else
+      {
+        str[0] = '\0';
+        option[1] = '\0';
+      }
+
+      return (line);
+    }
+
+    if (ch != '\n')
+    {
+      apecss_lineget(str, OptionsFile);
+    }
+
+    line++;
+  }
+
+  return (EOF);
+}
+
+int apecss_lineget(char* str, FILE* OptionsFile)
+{
+  char ch;
+  int index = 0;
+
+  while ((ch = getc(OptionsFile)) != EOF)
+  {
+    str[index++] = ch;
+    if (index == APECSS_STRINGLENGTH_SPRINTF) apecss_erroronscreen(1, "String in file too long!");
+
+    if (ch == '\n')
+    {
+      str[index] = '\0';
+      return (index - 1);
+    }
+  }
+
+  return (0);
+}
+
+int apecss_linegetskip(char* str, FILE* OptionsFile)
+{
+  char ch;
+  int index = 0;
+
+  while ((ch = getc(OptionsFile)) != EOF)
+  {
+    if (ch != ' ' && ch != '\n')
+    {
+      str[index++] = ch;
+      if (index == APECSS_STRINGLENGTH_SPRINTF) apecss_erroronscreen(1, "String in file too long!");
+    }
+    if ((ch == '\n' || ch == ' ') && index > 0)
+    {
+      str[index] = '\0';
+      return (index);
+    }
+  }
+
+  return (0);
+}

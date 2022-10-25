@@ -192,38 +192,70 @@ The (optional) structure {\tt APECSS\_Results} holds all the results the user ma
 
 \subsection{Important functions}
 
-Here we briefly outline how to use some of the key functions of APECSS. 
-
 Whenever using APECSS, at least one {\tt APECSS\_Bubble} structure has to be available and, if multiple bubbles are part of a simulation, each bubble has to be represented by a separate {\tt APECSS\_Bubble} structure. A single {\tt APECSS\_Bubble} structure is allocated and initialized as follows:
-\begin{lstlisting}[style=CStyle]
+\begin{lstlisting}[style=CStyle,numbers=none]
   struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
   apecss_bubble_initializestruct(Bubble);
 \end{lstlisting}\vspace{-0.75em}
 The function {\tt apecss\_bubble\_initializestruct()} ensures that all pointers (to arrays, other structures and functions) that are part of the {\tt APECSS\_Bubble} structure are initialized to {\tt NULL}. This is important because the processing of options and any checks for allocation depend on {\tt NULL} to indicate that a given pointer in not yet allocated or not in use.
-
-Once a {\tt APECSS\_Bubble} structure is allocated and initialize, default values ought to be set, the {\tt *.apecss} options file is to be read and the chosen options have to be processed. In the standalone examples found in {\tt \$APECSS\_DIR/examples} this is done with the falling function calls:
-\begin{lstlisting}[style=CStyle]
-  apecss_options_setdefault(Bubble);
-  char OptionsDir[APECSS_STRINGLENGTH];
-  sprintf(OptionsDir, "./run.apecss"); // Relative path to the options file.
-  apecss_options_readfile(Bubble, OptionsDir);
-  apecss_options_process(Bubble);
+Then, we wish to set default values for the bubble parameters and read the relevant options from the options file:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  apecss_bubble_setdefaultoptions(Bubble);
+  apecss_bubble_readoptions(Bubble, OptionsDir);
 \end{lstlisting}\vspace{-0.75em}
-While setting default values is advised, for instance using the function {\tt apecss\_options\_setdefault()}, it is optional. Processing the given options correctly, however, is critical to the working of APECSS and the using the function {\tt apecss\_options\_process()} is strongly encouraged.
+While setting default values is strongly advised, it is optional. The relative path to the options file may be set as
+\begin{lstlisting}[style=CStyle,numbers=none]
+char OptionsDir[APECSS_STRINGLENGTH];
+sprintf(OptionsDir, "./run.apecss"); // Relative path to the options file.
+\end{lstlisting}
 
-Now that all options have been read and processed, the bubble has to be initialized based on the given options. This includes, for instance, computing the initial gas density and, if applicable hardcore radius or co-volume.
-\begin{lstlisting}[style=CStyle]
+In general, the properties of a gas ({\tt struct APECSS\_Gas}), a liquid ({\tt struct APECSS\_Liquid}) and a gas-liquid interface ({\tt struct APECSS\_Interface}), as well as the parameters for the ODE solver ({\tt struct APECSS\_NumericsODE}), have to be associated with a bubble, through the structure pointers {\tt *Gas}, {\tt *Liquid}, {\tt *Interface} and {\tt *NumericsODE} readily available in the {\tt APECSS\_Bubble} structure. In a single-bubble simulation this is obviously straightforward, we have one gas, one liquid and one interface that are associated with the bubble. In addition we have one set of solver parameters. In a multi-bubble simulation, however, we likely also have, for instance, only a single liquid (i.e.~all bubbles are situated in the same body of liquid), to which, in this case, all bubbles are associated to. Generally, the user is free in defining as many gases, liquids, interfaces and sets of solver parameters as deemed necessary, the only rule is that each bubble has to be associated with a gas, a liquid, an interface and a single set of solver parameters. Once these structures holding the fluid properties and the solver parameters are allocated, default values ought to be set, the user-defined options are read from file and the bubble(s) is/are successfully associated with its/their desired fluid properties and solver parameters. For a single-bubble simulation, this may look in a general form like:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  struct APECSS_Gas *Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
+  struct APECSS_Liquid *Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
+  struct APECSS_Interface *Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
+  struct APECSS_NumericsODE *NumericsODE = (struct APECSS_NumericsODE *) malloc(sizeof(struct APECSS_NumericsODE));
+
+  apecss_gas_setdefaultoptions(Gas);
+  apecss_liquid_setdefaultoptions(Liquid);
+  apecss_interface_setdefaultoptions(Interface);
+  apecss_odesolver_setdefaultoptions(NumericsODE);
+
+  apecss_gas_readoptions(Gas, OptionsDir);
+  apecss_liquid_readoptions(Liquid, OptionsDir);
+  apecss_interface_readoptions(Interface, OptionsDir);
+  apecss_odesolver_readoptions(NumericsODE, OptionsDir);
+
+  Bubble->Gas = Gas;
+  Bubble->Liquid = Liquid;
+  Bubble->Interface = Interface;
+  Bubble->NumericsODE = NumericsODE;
+\end{lstlisting}\vspace{-0.75em}
+Note that opening and reading the options file from disk is a relatively expensive (we are talking about a few microseconds). For some of the single-bubble examples in {\tt \$APECSS\_DIR/examples} reading the options file is the most expensive operation by some margin. Therefore, if performance is of the essence, it might be worth hard coding the options instead of reading the options file.
+
+After reading the options file, the {\tt apecss\_*\_processoptions()} functions are called to process options and make the relevant modeling choices:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  apecss_gas_processoptions(Gas);
+  apecss_liquid_processoptions(Liquid);
+  apecss_interface_processoptions(Interface);
+  apecss_odesolver_processoptions(NumericsODE);
+  apecss_bubble_processoptions(Bubble);
+\end{lstlisting}\vspace{-0.75em}
+Processing the given options correctly is critical to the working of APECSS.
+
+Now that all options have been read and processed, the bubble has to be initialized based on the given options. This includes, for instance, computing the initial gas pressure inside the bubble (if it is not specified by the user) or, if applicable, the hardcore radius of the bubble.
+\begin{lstlisting}[style=CStyle,numbers=none]
   apecss_bubble_initialize(Bubble);
-\end{lstlisting}%\vspace{-0.75em}
+\end{lstlisting}
 
 The heart of APECSS is, of course, the solver. The solver is split into three separate functions that (i) initialize the solver, (ii) run the solver and (iii) wrap up (i.e.~finalize) the solver:
-\begin{lstlisting}[style=CStyle]
+\begin{lstlisting}[style=CStyle,numbers=none]
   apecss_bubble_solver_initialize(Bubble);
   apecss_bubble_solver_run(tend, Bubble);
   apecss_bubble_solver_finalize(Bubble);
 \end{lstlisting}\vspace{-0.75em}
 The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()} makes sure all counters, the solution error variable and, if applicable, result variables are initialized correctly. The function {\tt apecss\_bubble\_solver\_run()} contains the time-stepping procedure that executes the solver until a specified end time {\tt tend}, given as the first argument of the function call. In the examples found in {\tt \$APECSS\_DIR/examples}, the function {\tt apecss\_bubble\_solver\_run()} is only called once with {\tt tend = Bubble->tEnd}, i.e.~the end of the simulation. However, the user is free to call the function {\tt apecss\_bubble\_solver\_run()} an \underline{arbitrary number of times}, with any meaningful end time. This facilitates coupling APECSS to other numerical software frameworks, where {\tt tend} then could for instance be the end of the next time-step of a fluid dynamics solver. As an example simply chopping the simulation up into five equal-sized parts would look like:
-\begin{lstlisting}[style=CStyle]
+\begin{lstlisting}[style=CStyle,numbers=none]
   apecss_bubble_solver_initialize(Bubble);
   apecss_bubble_solver_run(0.2 * tend, Bubble);
   apecss_bubble_solver_run(0.4 * tend, Bubble);

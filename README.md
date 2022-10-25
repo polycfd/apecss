@@ -34,7 +34,7 @@ Getting started with APECSS is easy. After downloading APECSS in the directory `
 - ````APECSS_DIR```` to the directory in which APECSS is located. Using bash, for instance, simply execute the command ````export APECSS_DIR=<path to APECSS>```` or, even better, add this command to your bash profile.
 - ````USRLIB_DIR```` to the directory in which libm.a or libm.dylib (the standard _math_ library) is located. This may, for instance, be ````/usr/lib64/```` on Linux systems or ````/usr/lib/```` on MacOS systems.
 
-Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've succesfully compiled APECSS!
+Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've successfully compiled APECSS!
 
 There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. Some representative examples are given in the ````$APECSS_DIR/examples```` directory. Each directory contains the following:
 - A ````README.md```` file explaining the purpose and specificities of this/these example(s).

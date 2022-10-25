@@ -86,19 +86,10 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->dtNumber = 0;  // Time-step count
   Bubble->nSubIter = 25;  // Number of maximum sub-iterations in a given time-step
 
-  // Allocate the structure for the ODE solver parameters
-  Bubble->NumericsODE = (struct APECSS_NumericsODE *) malloc(sizeof(struct APECSS_NumericsODE));
-
-  // Default parameters for the ODE solver
-  Bubble->NumericsODE->RKtype = APECSS_RK54_7M;
-  Bubble->NumericsODE->tol = 1.0e-10;
-  Bubble->NumericsODE->maxSubIter = 20;
-  Bubble->NumericsODE->dtMin = 1.0e-13;
-  Bubble->NumericsODE->dtMax = 1.0e-6;
-  Bubble->NumericsODE->minScale = 0.5;
-  Bubble->NumericsODE->maxScale = 2.0;
-  Bubble->NumericsODE->control_coeff_alpha = 0.9;
-  Bubble->NumericsODE->control_coeff_q = 0.1;
+  // Interface
+  Bubble->Rbuck = 1.0e-6;
+  Bubble->Rrupt = 1.0e-6;
+  Bubble->GompertzB = 0.0;
 
   // Set default pointers to functions
   Bubble->get_pressure_infinity = apecss_bubble_pressure_infinity_noexcitation;
@@ -116,6 +107,330 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   Bubble->results_emissionsnode_alloc = apecss_results_emissionsnode_allocnone;
   Bubble->results_emissionsnode_store = apecss_results_emissionsnode_storenone;
   Bubble->results_emissionsnodeminmax_identify = apecss_results_emissionsnodeminmax_identifynone;
+
+  return (0);
+}
+
+int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
+{
+  int l = 0;
+  int line = 0;
+  FILE *OptionsFile;
+  char str[APECSS_STRINGLENGTH_SPRINTF];
+  char option[APECSS_STRINGLENGTH], option2[APECSS_STRINGLENGTH], option3[APECSS_STRINGLENGTH];
+  int StatusFile = 1;
+  int StatusSection = 1;
+
+  if ((OptionsFile = fopen(OptionsDir, "r")) == (FILE *) NULL)
+  {
+    sprintf(str, "File %s cannot be opened for reading.\n", OptionsDir);
+    apecss_erroronscreen(1, str);
+  }
+
+  while ((l = apecss_readoneoption(OptionsFile, option)) != EOF && StatusFile == 1)
+  {
+    line += l;
+
+    if (strncasecmp(option, "bubble", 6) == 0)
+    {
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else if (strncasecmp(option2, "rpmodel", 7) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            if (strncasecmp(option3, "gilmore", 7) == 0)
+            {
+              Bubble->RPModel = APECSS_BUBBLEMODEL_GILMORE;
+            }
+            else if (strncasecmp(option3, "km", 2) == 0)
+            {
+              Bubble->RPModel = APECSS_BUBBLEMODEL_KELLERMIKSIS;
+            }
+            else if (strncasecmp(option3, "rpar", 4) == 0)
+            {
+              Bubble->RPModel = APECSS_BUBBLEMODEL_RP_ACOUSTICRADIATION;
+            }
+            else if (strncasecmp(option3, "rp", 2) == 0)
+            {
+              Bubble->RPModel = APECSS_BUBBLEMODEL_RP;
+            }
+          }
+        }
+        else if (strncasecmp(option2, "emissions", 9) == 0)
+        {
+          if (Bubble->Emissions == NULL) apecss_emissions_initializestruct(Bubble);
+
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+
+            if (strncasecmp(option3, "incompressible", 14) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_INCOMPRESSIBLE;
+            }
+            else if (strncasecmp(option3, "fti", 3) == 0 || strncasecmp(option3, "finitetimeincompressible", 24) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE;
+            }
+            else if (strncasecmp(option3, "qa", 2) == 0 || strncasecmp(option3, "quasiacoustic", 13) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_QUASIACOUSTIC;
+            }
+            else if (strncasecmp(option3, "kb", 2) == 0 || strncasecmp(option3, "kirkwoodbethe", 13) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_KIRKWOODBETHE;
+            }
+
+            l = apecss_readoneoption(OptionsFile, option3);
+            Bubble->Emissions->CutOffDistance = APECSS_STRINGTOFLOAT(option3);
+          }
+        }
+        else if (strncasecmp(option2, "kbitertolerance", 15) == 0)
+        {
+          if (Bubble->Emissions == NULL) apecss_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Emissions->KB_IterTolerance = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "initialradius", 13) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->R0 = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "pressureambient", 15) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->p0 = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "initialgaspressure", 18) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->pG0 = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "hardcoreradius", 14) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->r_hc = APECSS_STRINGTOFLOAT(option3);
+        }
+        else
+        {
+          sprintf(str, "An unknown option of BUBBLE is given: %s, line %i", option2, line);
+          apecss_erroronscreen(1, str);
+        }
+      }
+    }
+    else if (strncasecmp(option, "results", 7) == 0)
+    {
+      if (Bubble->Results == NULL) apecss_results_initializestruct(Bubble);
+
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else if (strncasecmp(option2, "bubble", 6) == 0)
+        {
+          if (Bubble->Results->RayleighPlesset == NULL) apecss_results_rayleighplesset_initializestruct(Bubble);
+        }
+        else if (strncasecmp(option2, "outputfreqrp", 12) == 0)
+        {
+          if (Bubble->Results->RayleighPlesset == NULL) apecss_results_rayleighplesset_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Results->RayleighPlesset->freq = atoi(option3);
+        }
+        else if (strncasecmp(option2, "outputdigits", 12) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Results->digits = atoi(option3);
+        }
+        else if (strncasecmp(option2, "outputpath", 10) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            sprintf(Bubble->Results->dir, "%s", option3);
+
+            struct stat st = {0};
+            if (stat(Bubble->Results->dir, &st) == -1) mkdir(Bubble->Results->dir, 0700);
+          }
+        }
+        else if (strncasecmp(option2, "outputfreqEmissionsSpace", 24) == 0)
+        {
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Results->Emissions->freqSpaceLocations = atoi(option3);
+        }
+        else if (strncasecmp(option2, "emissionstime", 13) == 0)
+        {
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          APECSS_FLOAT t = APECSS_STRINGTOFLOAT(option3);
+
+          if (Bubble->Results->Emissions->nTimeInstances)
+          {
+            APECSS_FLOAT *temp = malloc(Bubble->Results->Emissions->nTimeInstances * sizeof(APECSS_FLOAT));
+            for (register int l = 0; l < Bubble->Results->Emissions->nTimeInstances; l++) temp[l] = Bubble->Results->Emissions->TimeInstances[l];
+            free(Bubble->Results->Emissions->TimeInstances);
+
+            Bubble->Results->Emissions->nTimeInstances++;
+            Bubble->Results->Emissions->TimeInstances = malloc(Bubble->Results->Emissions->nTimeInstances * sizeof(APECSS_FLOAT));
+            for (register int l = 0; l < Bubble->Results->Emissions->nTimeInstances - 1; l++) Bubble->Results->Emissions->TimeInstances[l] = temp[l];
+            free(temp);
+          }
+          else
+          {
+            Bubble->Results->Emissions->nTimeInstances++;
+            Bubble->Results->Emissions->TimeInstances = malloc(Bubble->Results->Emissions->nTimeInstances * sizeof(APECSS_FLOAT));
+          }
+
+          Bubble->Results->Emissions->TimeInstances[Bubble->Results->Emissions->nTimeInstances - 1] = t;
+        }
+        else if (strncasecmp(option2, "emissionsspace", 14) == 0)
+        {
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          APECSS_FLOAT r = APECSS_STRINGTOFLOAT(option3);
+
+          if (Bubble->Results->Emissions->nSpaceLocations)
+          {
+            struct APECSS_ResultsEmissionsSpace *temp;
+            temp = (struct APECSS_ResultsEmissionsSpace *) malloc(Bubble->Results->Emissions->nSpaceLocations * sizeof(struct APECSS_ResultsEmissionsSpace));
+            for (register int l = 0; l < Bubble->Results->Emissions->nSpaceLocations; l++) temp[l] = Bubble->Results->Emissions->SpaceLocation[l];
+            free(Bubble->Results->Emissions->SpaceLocation);
+
+            Bubble->Results->Emissions->nSpaceLocations++;
+            Bubble->Results->Emissions->SpaceLocation =
+                (struct APECSS_ResultsEmissionsSpace *) malloc(Bubble->Results->Emissions->nSpaceLocations * sizeof(struct APECSS_ResultsEmissionsSpace));
+            for (register int l = 0; l < Bubble->Results->Emissions->nSpaceLocations - 1; l++) Bubble->Results->Emissions->SpaceLocation[l] = temp[l];
+            free(temp);
+          }
+          else
+          {
+            Bubble->Results->Emissions->nSpaceLocations++;
+            Bubble->Results->Emissions->SpaceLocation =
+                (struct APECSS_ResultsEmissionsSpace *) malloc(Bubble->Results->Emissions->nSpaceLocations * sizeof(struct APECSS_ResultsEmissionsSpace));
+          }
+
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].RadialLocation = r;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].n = 0;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].nAllocated = 0;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].t = NULL;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].p = NULL;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].u = NULL;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].c = NULL;
+          Bubble->Results->Emissions->SpaceLocation[Bubble->Results->Emissions->nSpaceLocations - 1].pInf = NULL;
+        }
+        else if (strncasecmp(option2, "emissionsnode", 13) == 0)
+        {
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          int id = atoi(option3);
+
+          if (Bubble->Results->Emissions->nNodes)
+          {
+            struct APECSS_ResultsEmissionsNode *temp;
+            temp = (struct APECSS_ResultsEmissionsNode *) malloc(Bubble->Results->Emissions->nNodes * sizeof(struct APECSS_ResultsEmissionsNode));
+            for (register int l = 0; l < Bubble->Results->Emissions->nNodes; l++) temp[l] = Bubble->Results->Emissions->Node[l];
+            free(Bubble->Results->Emissions->Node);
+
+            Bubble->Results->Emissions->nNodes++;
+            Bubble->Results->Emissions->Node =
+                (struct APECSS_ResultsEmissionsNode *) malloc(Bubble->Results->Emissions->nNodes * sizeof(struct APECSS_ResultsEmissionsNode));
+            for (register int l = 0; l < Bubble->Results->Emissions->nNodes - 1; l++) Bubble->Results->Emissions->Node[l] = temp[l];
+            free(temp);
+          }
+          else
+          {
+            Bubble->Results->Emissions->nNodes++;
+            Bubble->Results->Emissions->Node =
+                (struct APECSS_ResultsEmissionsNode *) malloc(Bubble->Results->Emissions->nNodes * sizeof(struct APECSS_ResultsEmissionsNode));
+          }
+
+          Bubble->Results->Emissions->Node[Bubble->Results->Emissions->nNodes - 1].id = id;
+          apecss_results_emissionsnode_initializenode(&(*Bubble).Results->Emissions->Node[Bubble->Results->Emissions->nNodes - 1]);
+        }
+        else if (strncasecmp(option2, "emissionsminmax", 15) == 0)
+        {
+          if (Bubble->Results->Emissions == NULL) apecss_results_emissions_initializestruct(Bubble);
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Results->Emissions->MinMaxPeriod = atoi(option3);
+
+          Bubble->Results->Emissions->Rmin = APECSS_LARGE;
+          Bubble->Results->Emissions->Node_Rmin = (struct APECSS_ResultsEmissionsNode *) malloc(sizeof(struct APECSS_ResultsEmissionsNode));
+          apecss_results_emissionsnode_initializenode(Bubble->Results->Emissions->Node_Rmin);
+
+          Bubble->Results->Emissions->Umin = APECSS_LARGE;
+          Bubble->Results->Emissions->Node_Umin = (struct APECSS_ResultsEmissionsNode *) malloc(sizeof(struct APECSS_ResultsEmissionsNode));
+          apecss_results_emissionsnode_initializenode(Bubble->Results->Emissions->Node_Umin);
+
+          Bubble->Results->Emissions->pLmax = -APECSS_LARGE;
+          Bubble->Results->Emissions->Node_pLmax = (struct APECSS_ResultsEmissionsNode *) malloc(sizeof(struct APECSS_ResultsEmissionsNode));
+          apecss_results_emissionsnode_initializenode(Bubble->Results->Emissions->Node_pLmax);
+        }
+        else
+        {
+          sprintf(str, "An unknown option of RESULTS is given: %s, line %i", option2, line);
+          apecss_erroronscreen(1, str);
+        }
+      }
+    }
+    else if (strncasecmp(option, "gas", 3) == 0 || strncasecmp(option, "liquid", 6) == 0 || strncasecmp(option, "interface", 9) == 0 ||
+             strncasecmp(option, "odesolver", 9) == 0)
+    {
+      StatusSection = 1;
+      while (StatusSection == 1 && (l = apecss_readoneoption(OptionsFile, option2)) != EOF)
+      {
+        line += l;
+        if (strncasecmp(option2, "END", 3) == 0)
+        {
+          StatusSection = 0;
+        }
+        else
+        {
+          // Nothing to be done here.
+        }
+      }
+    }
+    else
+    {
+      sprintf(str, "An unknown Section is given: %s, line %i", option, line);
+      apecss_erroronscreen(1, str);
+    }
+  }
+
+  fclose(OptionsFile);
 
   return (0);
 }
@@ -175,11 +490,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
     Bubble->ode[3] = apecss_viscoelastic_oldroydb2_ode;
     Bubble->nODEs = 4;
   }
-
-  // ---------------------------------------
-  // ODE solver
-
-  apecss_odesolver_rungekuttacoeffs(Bubble->NumericsODE);
 
   // ---------------------------------------
   // Emissions linked list
@@ -350,15 +660,14 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   if (Bubble->Interface->LipidCoatingModel & APECSS_LIPIDCOATING_MARMOTTANT)
   {
     if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + 2.0 * Bubble->Interface->sigma0 / Bubble->R0;
-    Bubble->Interface->Rbuck = Bubble->R0 / APECSS_SQRT(1.0 + Bubble->Interface->sigma0 / Bubble->Interface->Elasticity);
-    Bubble->Interface->Rrupt = Bubble->Interface->Rbuck * APECSS_SQRT(1.0 + Bubble->Interface->sigma / Bubble->Interface->Elasticity);
+
+    Bubble->Rbuck = Bubble->R0 / APECSS_SQRT(1.0 + Bubble->Interface->sigma0 / Bubble->Interface->Elasticity);
+    Bubble->Rrupt = Bubble->Rbuck * APECSS_SQRT(1.0 + Bubble->Interface->sigma / Bubble->Interface->Elasticity);
 
     if (Bubble->Interface->LipidCoatingModel & APECSS_LIPIDCOATING_GOMPERTZFUNCTION)
     {
-      Bubble->Interface->GompertzC = 2.0 * Bubble->Interface->Elasticity * APECSS_E *
-                                     APECSS_SQRT(1.0 + Bubble->Interface->sigma * 0.5 / Bubble->Interface->Elasticity) / Bubble->Interface->sigma;
-      Bubble->Interface->GompertzB = -APECSS_LOG(Bubble->Interface->sigma0 / Bubble->Interface->sigma) /
-                                     APECSS_EXP(Bubble->Interface->GompertzC * (1.0 - Bubble->R0 / Bubble->Interface->Rbuck));
+      Bubble->GompertzB =
+          -APECSS_LOG(Bubble->Interface->sigma0 / Bubble->Interface->sigma) / APECSS_EXP(Bubble->Interface->GompertzC * (1.0 - Bubble->R0 / Bubble->Rbuck));
     }
   }
   else
@@ -441,16 +750,6 @@ int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
   Bubble->k7 = NULL;
   free(Bubble->kLast);
   Bubble->kLast = NULL;
-
-  free(Bubble->Gas);
-  Bubble->Gas = NULL;
-  free(Bubble->Liquid);
-  Bubble->Liquid = NULL;
-  free(Bubble->Interface);
-  Bubble->Interface = NULL;
-
-  free(Bubble->NumericsODE);
-  Bubble->NumericsODE = NULL;
 
   if (Bubble->Emissions != NULL)
   {

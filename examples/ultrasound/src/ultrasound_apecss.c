@@ -66,39 +66,57 @@ int main(int argc, char **args)
     }
   }
 
-  /* Allocate and initialize the Bubble structure */
+  /* Allocate and initialize Bubble structure */
   struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
   apecss_bubble_initializestruct(Bubble);
 
-  /* Allocate and set the default options for the fluids */
-  Bubble->Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
-  apecss_gas_setdefaultoptions(Bubble->Gas);
-  Bubble->Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
-  apecss_liquid_setdefaultoptions(Bubble->Liquid);
-  Bubble->Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
-  apecss_interface_setdefaultoptions(Bubble->Interface);
-
-  /* Set default options for the bubble and the fluids */
+  /* Set default options and read the options for the bubble */
   apecss_bubble_setdefaultoptions(Bubble);
+  apecss_bubble_readoptions(Bubble, OptionsDir);
 
-  /* Read the options file */
-  apecss_options_readfile(Bubble, OptionsDir);
+  /* Allocate the structures for the fluid properties and ODE solver parameters */
+  struct APECSS_Gas *Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
+  struct APECSS_Liquid *Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
+  struct APECSS_Interface *Interface = (struct APECSS_Interface *) malloc(sizeof(struct APECSS_Interface));
+  struct APECSS_NumericsODE *NumericsODE = (struct APECSS_NumericsODE *) malloc(sizeof(struct APECSS_NumericsODE));
+
+  /* Set the default options for the fluid properties and solver parameters  */
+  apecss_gas_setdefaultoptions(Gas);
+  apecss_liquid_setdefaultoptions(Liquid);
+  apecss_interface_setdefaultoptions(Interface);
+  apecss_odesolver_setdefaultoptions(NumericsODE);
+
+  /* Read the options file for the fluid properties and solver parameters  */
+  apecss_gas_readoptions(Gas, OptionsDir);
+  apecss_liquid_readoptions(Liquid, OptionsDir);
+  apecss_interface_readoptions(Interface, OptionsDir);
+  apecss_odesolver_readoptions(NumericsODE, OptionsDir);
+
+  /* Associate the bubble with the relevant fluid properties and solver parameters */
+  Bubble->Gas = Gas;
+  Bubble->Liquid = Liquid;
+  Bubble->Interface = Interface;
+  Bubble->NumericsODE = NumericsODE;
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Set the case-dependent simulation parameters
   Bubble->tStart = 0.0;
   Bubble->tEnd = (APECSS_FLOAT) tEnd;
   Bubble->dt = APECSS_MIN(1.0e-7, Bubble->tEnd - Bubble->tStart);  // Initial time-step
-  Bubble->Excitation = (struct APECSS_Excitation *) malloc(sizeof(struct APECSS_Excitation));
-  Bubble->Excitation->type = APECSS_EXCITATION_SIN;
-  Bubble->Excitation->f = (APECSS_FLOAT) fa;
-  Bubble->Excitation->dp = (APECSS_FLOAT) pa;
+
+  struct APECSS_Excitation *Excitation = (struct APECSS_Excitation *) malloc(sizeof(struct APECSS_Excitation));
+  Excitation->type = APECSS_EXCITATION_SIN;
+  Excitation->f = (APECSS_FLOAT) fa;
+  Excitation->dp = (APECSS_FLOAT) pa;
+
+  Bubble->Excitation = Excitation;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Process all options */
-  apecss_gas_processoptions(Bubble->Gas);
-  apecss_interface_processoptions(Bubble->Interface);
-  apecss_liquid_processoptions(Bubble->Liquid);
+  apecss_gas_processoptions(Gas);
+  apecss_liquid_processoptions(Liquid);
+  apecss_interface_processoptions(Interface);
+  apecss_odesolver_processoptions(NumericsODE);
   apecss_bubble_processoptions(Bubble);
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -140,6 +158,13 @@ int main(int argc, char **args)
 
   /* Make sure all allocated memory is freed */
   apecss_bubble_freestruct(Bubble);
+
+  free(Bubble);
+  free(Gas);
+  free(Liquid);
+  free(Interface);
+  free(NumericsODE);
+  free(Excitation);
 
   return (0);
 }
