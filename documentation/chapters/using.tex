@@ -9,7 +9,7 @@ Installing APECSS is easy. After downloading APECSS in the folder {\tt <path to 
 \item {\tt USRLIB\_DIR} to the folder in which {\tt libm.a} or {\tt libm.dylib} (the standard \textit{math} library) is located. This may, for instance, be {\tt /usr/lib64/} on Linux systems or {\tt /usr/lib/} on MacOS systems.
 \end{itemize}
 
-Now, navigate into the folder {\tt \$APECSS\_DIR/lib} and execute {\tt ./compile\_lib.sh}. This shell script will compile the APECSS library using {\tt cmake} with the {\tt CMakeLists.txt} file provided in this folder. By default, APECSS is compiled with double precision and in \textit{Release} mode, meaning all optimization flags are enabled. That's it, you've succesfully installed APECSS!
+Now, navigate into the folder {\tt \$APECSS\_DIR/lib} and execute {\tt ./compile\_lib.sh}. This shell script will compile the APECSS library using {\tt cmake} with the {\tt CMakeLists.txt} file provided in this folder. By default, APECSS is compiled with double precision and in \textit{Release} mode, meaning all optimization flags are enabled. That's it, you've successfully installed APECSS!
 
 \section{Running APECSS}
 
@@ -236,12 +236,12 @@ A solver run is ended with the function {\tt apecss\_bubble\_solver\_finalize()}
 
 \subsection{A word on function pointers}
 
-APECSS uses function pointers extensively. Function pointers are an elegant means in {\tt C} to add complexity and functionality yet still retain a slim code, avoid redudant code and, if nothing else, avoid a large number of costly conditional statements. However, function pointers can quickly make a code unreadable and obscure what is actually happening, if they are used without care. In order to keep the use of function pointers in APECSS transparent, the adopted convention is that \underline{all} function pointers are set in {\tt apecss\_*\_processoptions()} functions, e.g.~{\tt apecss\_gas\_processoptions()}.
+APECSS uses function pointers extensively. Function pointers are an elegant means in {\tt C} to add complexity and functionality yet still retain a slim code, avoid redundant code and, if nothing else, avoid a large number of costly conditional statements. However, function pointers can quickly make a code unreadable and obscure what is actually happening, if they are used without care. In order to keep the use of function pointers in APECSS transparent, the adopted convention is that \underline{all} function pointers are set in {\tt apecss\_*\_processoptions()} functions, e.g.~{\tt apecss\_gas\_processoptions()}.
 
 \subsection{Code formatting}
 \label{sec:clang}
 
-To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the respository. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.
+To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the repository. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.
 
 \section{Units}
 

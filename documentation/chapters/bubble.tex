@@ -362,7 +362,7 @@ The Marmottant-Gompertz model reproduces the main features of the original Marmo
 
 The pressure at infinity, $p_\infty$, is used to apply a driving pressure difference for the bubble dynamics. Presently, APECSS readily supports a constant ambient pressure $p_\infty = p_0$, which may also be replaced by a pressure defined on-the-fly, or a sinusoidal excitation. 
 
-A sinusoidal exictation is defined as $p_\infty = p_0 - \Delta p_\mathrm{a} \, \sin(2 \pi f_\mathrm{a} t)$, where $f_\mathrm{a}$ and $\Delta p_\mathrm{a}$ are the frequency and pressure amplitude of the excitation. In order to use the sinusoidal excitation, the user has to allocate the pointer {\tt *Excitation}, in the structure {\tt APECSS\_Bubble} structure, with {\tt struct APECSS\_Excitation} and define the desired values for  $f_\mathrm{a}$ and $\Delta p_\mathrm{a}$. The example found in the folder {\tt example/ultrasound/} provides a template of how to do this.
+A sinusoidal excitation is defined as $p_\infty = p_0 - \Delta p_\mathrm{a} \, \sin(2 \pi f_\mathrm{a} t)$, where $f_\mathrm{a}$ and $\Delta p_\mathrm{a}$ are the frequency and pressure amplitude of the excitation. In order to use the sinusoidal excitation, the user has to allocate the pointer {\tt *Excitation}, in the structure {\tt APECSS\_Bubble} structure, with {\tt struct APECSS\_Excitation} and define the desired values for  $f_\mathrm{a}$ and $\Delta p_\mathrm{a}$. The example found in the folder {\tt example/ultrasound/} provides a template of how to do this.
 
 \section{Results}
 \label{sec:bubbleresults}
