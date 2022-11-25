@@ -245,6 +245,9 @@ struct APECSS_Emissions
 
   // Pointer to the function with the appropriate advecting velocity of the emission nodes
   APECSS_FLOAT (*get_advectingvelocity)(APECSS_FLOAT u);
+
+  // Pointer to the function integrating radial position and velocity along the outgoing characteristic
+  int (*integrate_along_characteristic)(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
 };
 
 struct APECSS_NumericsODE
@@ -481,6 +484,9 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble);
+int apecss_emissions_integrate_skb(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
+int apecss_emissions_integrate_hpe(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
+int apecss_emissions_integrate_gfc(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnzero(APECSS_FLOAT u);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u);
 

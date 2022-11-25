@@ -212,105 +212,6 @@ int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
-int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
-{
-  struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
-
-  // Values and constants used multiple times
-  APECSS_FLOAT B = Bubble->Liquid->B;
-  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
-  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
-  APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
-  APECSS_FLOAT dt = Bubble->dt;
-  APECSS_FLOAT h_fac = (Gamma - 1.0) * Bubble->Liquid->rhoref / (Gamma * APECSS_POW(Bubble->Liquid->pref + B, (1.0 / Gamma)));
-  APECSS_FLOAT h_exp = 1.0 / (1.0 - (1.0 / Gamma));
-
-  while (Current != NULL)
-  {
-    // Values used multiple times
-    APECSS_FLOAT c = APECSS_SQRT((Gamma - 1.0) * Current->h);
-    APECSS_FLOAT Speed = c + Current->u;
-
-    Current->r += Speed * dt;
-    Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * Speed);
-    Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
-    Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
-
-    if (Current->h < 0.0)  // Check for unphysical enthalpy (resp. pressure) values
-    {
-      if (Current->forward != NULL)
-        Current->forward->backward = Current->backward;
-      else
-        Bubble->Emissions->LastNode = Current->backward;
-
-      if (Current->backward != NULL)
-        Current->backward->forward = Current->forward;
-      else
-        Bubble->Emissions->FirstNode = Current->forward;
-
-      struct APECSS_EmissionNode *Obsolete = Current;
-      Current = Current->backward;
-      free(Obsolete);
-      Bubble->Emissions->nNodes -= 1;
-    }
-    else
-    {
-      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
-      {
-        Current->forward->backward = Current->backward;
-
-        if (Current->backward != NULL)
-          Current->backward->forward = Current->forward;
-        else
-          Bubble->Emissions->FirstNode = Current->forward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation
-      {
-        Current->backward->forward = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation
-      {
-        Bubble->Emissions->FirstNode = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = NULL;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else
-      {
-        // Store data (if applicable)
-        Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
-
-        // Move to the next node
-        Current = Current->backward;
-      }
-    }
-  }
-
-  return (0);
-}
-
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
 {
   struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
@@ -328,17 +229,12 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
   {
     int NodeDiscarded = 0;
 
-    // Values  used multiple times
     APECSS_FLOAT c = Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid);
-    APECSS_FLOAT Speed = c + Current->u;
-
-    Current->r += Speed * dt;
-    Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * Speed);
+    Bubble->Emissions->integrate_along_characteristic(Current, c, dt);
     Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
 
-    APECSS_FLOAT p_prev;  // Pressure of the previous iteration
-
     // Compute pressure iteratively
+    APECSS_FLOAT p_prev;  // Pressure of the previous iteration
     do
     {
       p_prev = Current->p;
@@ -421,6 +317,189 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
       }
     }
   }
+
+  return (0);
+}
+
+int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
+{
+  struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
+
+  // Values and constants used multiple times
+  APECSS_FLOAT B = Bubble->Liquid->B;
+  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
+  APECSS_FLOAT dt = Bubble->dt;
+  APECSS_FLOAT h_fac = (Gamma - 1.0) * Bubble->Liquid->rhoref / (Gamma * APECSS_POW(Bubble->Liquid->pref + B, (1.0 / Gamma)));
+  APECSS_FLOAT h_exp = 1.0 / (1.0 - (1.0 / Gamma));
+
+  while (Current != NULL)
+  {
+    APECSS_FLOAT c = APECSS_SQRT((Gamma - 1.0) * Current->h);
+    Bubble->Emissions->integrate_along_characteristic(Current, c, dt);
+    Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+    Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
+
+    if (Current->h < 0.0)  // Check for unphysical enthalpy (resp. pressure) values
+    {
+      if (Current->forward != NULL)
+        Current->forward->backward = Current->backward;
+      else
+        Bubble->Emissions->LastNode = Current->backward;
+
+      if (Current->backward != NULL)
+        Current->backward->forward = Current->forward;
+      else
+        Bubble->Emissions->FirstNode = Current->forward;
+
+      struct APECSS_EmissionNode *Obsolete = Current;
+      Current = Current->backward;
+      free(Obsolete);
+      Bubble->Emissions->nNodes -= 1;
+    }
+    else
+    {
+      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
+      {
+        Current->forward->backward = Current->backward;
+
+        if (Current->backward != NULL)
+          Current->backward->forward = Current->forward;
+        else
+          Bubble->Emissions->FirstNode = Current->forward;
+
+        struct APECSS_EmissionNode *Obsolete = Current;
+        Current = Current->backward;
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation
+      {
+        Current->backward->forward = Current->forward;
+
+        if (Current->forward != NULL)
+          Current->forward->backward = Current->backward;
+        else
+          Bubble->Emissions->LastNode = Current->backward;
+
+        struct APECSS_EmissionNode *Obsolete = Current;
+        Current = Current->backward;
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation
+      {
+        Bubble->Emissions->FirstNode = Current->forward;
+
+        if (Current->forward != NULL)
+          Current->forward->backward = Current->backward;
+        else
+          Bubble->Emissions->LastNode = Current->backward;
+
+        struct APECSS_EmissionNode *Obsolete = Current;
+        Current = NULL;
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else
+      {
+        // Store data (if applicable)
+        Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
+
+        // Move to the next node
+        Current = Current->backward;
+      }
+    }
+  }
+
+  return (0);
+}
+
+// -------------------------------------------------------------------
+// INTEGRATION OF POSITION AND VELOCITY ALONG CHARACTERISTIC
+// -------------------------------------------------------------------
+
+int apecss_emissions_integrate_skb(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt)
+{
+  // Simplified method based on the Kirkwood-Bethe hypothesis of Denner & Schenke, with u treated explicitly.
+  APECSS_FLOAT r = Current->r;
+  APECSS_FLOAT u = Current->u;
+  APECSS_FLOAT kr1 = c + u;
+
+  r = Current->r + 0.5 * dt * kr1;
+  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  APECSS_FLOAT kr2 = c + u;
+
+  r = Current->r + 0.5 * dt * kr2;
+  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  APECSS_FLOAT kr3 = c + u;
+
+  r = Current->r + dt * kr3;
+  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  APECSS_FLOAT kr4 = c + u;
+
+  Current->r += dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
+  Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * (c + Current->u));
+
+  return (0);
+}
+
+int apecss_emissions_integrate_gfc(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt)
+{
+  // Fully-compressible method of Gilmore (1952), see Section IV.C, with integration of u over r.
+  APECSS_FLOAT r = Current->r;
+  APECSS_FLOAT u = Current->u;
+  APECSS_FLOAT kr1 = c + u;
+  APECSS_FLOAT ku1 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
+
+  r = Current->r + 0.5 * dt * kr1;
+  u = Current->u + 0.5 * dt * kr1 * ku1;
+  APECSS_FLOAT kr2 = c + u;
+  APECSS_FLOAT ku2 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
+
+  r = Current->r + 0.5 * dt * kr2;
+  u = Current->u + 0.5 * dt * kr2 * ku2;
+  APECSS_FLOAT kr3 = c + u;
+  APECSS_FLOAT ku3 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
+
+  r = Current->r + dt * kr3;
+  u = Current->u + dt * kr3 * ku3;
+  APECSS_FLOAT kr4 = c + u;
+  APECSS_FLOAT ku4 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
+
+  APECSS_FLOAT dr = dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
+  Current->r += dr;
+  Current->u += dr * (ku1 + 2.0 * (ku2 + ku3) + ku4) * APECSS_ONESIXTH;
+
+  return (0);
+}
+
+int apecss_emissions_integrate_hpe(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt)
+{
+  //Method of Hickling & Plesset (1963), see Appendix I, and Ebeling (1978), with integration of u over t.
+  APECSS_FLOAT r = Current->r;
+  APECSS_FLOAT u = Current->u;
+  APECSS_FLOAT kr1 = c + u;
+  APECSS_FLOAT ku1 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+
+  r = Current->r + 0.5 * dt * kr1;
+  u = Current->u + 0.5 * dt * ku1;
+  APECSS_FLOAT kr2 = c + u;
+  APECSS_FLOAT ku2 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+
+  r = Current->r + 0.5 * dt * kr2;
+  u = Current->u + 0.5 * dt * ku2;
+  APECSS_FLOAT kr3 = c + u;
+  APECSS_FLOAT ku3 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+
+  r = Current->r + dt * kr3;
+  u = Current->u + dt * ku3;
+  APECSS_FLOAT kr4 = c + u;
+  APECSS_FLOAT ku4 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+
+  Current->r += dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
+  Current->u += dt * (ku1 + 2.0 * (ku2 + ku3) + ku4) * APECSS_ONESIXTH;
 
   return (0);
 }
