@@ -194,13 +194,42 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_QUASIACOUSTIC;
             }
-            else if (strncasecmp(option3, "kb", 2) == 0 || strncasecmp(option3, "kirkwoodbethe", 13) == 0)
+            else if (strncasecmp(option3, "ekb", 3) == 0)
             {
-              Bubble->Emissions->Type = APECSS_EMISSION_KIRKWOODBETHE;
+              Bubble->Emissions->Type = APECSS_EMISSION_EKB;
+            }
+            else if (strncasecmp(option3, "gfc", 3) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_GFC;
+            }
+            else if (strncasecmp(option3, "hpe", 3) == 0)
+            {
+              Bubble->Emissions->Type = APECSS_EMISSION_HPE;
             }
 
             l = apecss_readoneoption(OptionsFile, option3);
             Bubble->Emissions->CutOffDistance = APECSS_STRINGTOFLOAT(option3);
+          }
+        }
+        else if (strncasecmp(option2, "emissionintegration", 19) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+
+            if (strncasecmp(option3, "euler", 5) == 0)
+            {
+              Bubble->Emissions->Scheme = APECSS_EMISSION_INTEGRATE_EULER;
+            }
+            else if (strncasecmp(option3, "rk4", 3) == 0)
+            {
+              Bubble->Emissions->Scheme = APECSS_EMISSION_INTEGRATE_RK4;
+            }
           }
         }
         else if (strncasecmp(option2, "kbitertolerance", 15) == 0)
@@ -496,6 +525,7 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
 
   if (Bubble->Emissions != NULL)
   {
+    printf("___%i %i\n", Bubble->Emissions->Type, Bubble->Emissions->Scheme);
     if (Bubble->Emissions->Type != APECSS_EMISSION_INCOMPRESSIBLE)
     {
       Bubble->emissions_initialize = apecss_emissions_initializelinkedlist;
@@ -512,12 +542,60 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
         Bubble->Emissions->advance = apecss_emissions_advance_quasiacoustic;
         Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
       }
-      else if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+      else if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
       {
         if (Bubble->Liquid->EoS == APECSS_LIQUID_TAIT)
+        {
           Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_tait;
+
+          if (Bubble->Emissions->Type == APECSS_EMISSION_EKB)
+          {
+            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_tait_rk4;
+            else
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_tait_euler;
+          }
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_GFC)
+          {
+            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_tait_rk4;
+            else
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_tait_euler;
+          }
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_HPE)
+          {
+            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_tait_rk4;
+            else
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_tait_euler;
+          }
+        }
         else if (Bubble->Liquid->EoS == APECSS_LIQUID_NASG)
+        {
           Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_general;
+
+          if (Bubble->Emissions->Type == APECSS_EMISSION_EKB)
+          {
+            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_general_rk4;
+            else
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_general_euler;
+          }
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_GFC)
+          {
+            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_general_rk4;
+            else
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_general_euler;
+          }
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_HPE)
+          {
+            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_general_rk4;
+            else
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_general_euler;
+          }
+        }
         else
           apecss_erroronscreen(-1, "Unknown equation of state defined for the liquid for the emissions.");
 
