@@ -1,8 +1,8 @@
 \chapter{Bubble dynamics}
-
+\label{chap:bubble}
 The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type (RP) model, assuming spherical symmetry. This requires to choose a suitable RP-type model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). The results that APECSS can write out based on the RP model are explained in Section \ref{sec:bubbleresults}.
 
-APECSS solves all ordinary differential equations (ODEs) using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. 
+APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics sing the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. 
 
 \vspace{0.8em}
 
@@ -45,7 +45,7 @@ APECSS offers four RP-type models to simulate pressure-driven bubble dynamics: t
 R \ddot{R} + \frac{3}{2} \dot{R}^2 = \frac{p_\text{L} - p_\infty}{\rho_{\ell,\mathrm{ref}}},
 \label{eq:standardRP}
 \end{equation}
-where $R$ is the bubble radius, $p_\text{L}$ is the pressure of the liquid at the bubble wall, $p_\infty$ is the pressure of the liquid at infinite distance from the bubble, $p_\text{G}$ is the pressure of the gas inside the bubble and $\rho_{\ell,\mathrm{ref}}$ is the {\em constant} density of the liquid.
+where $R$ is the bubble radius, $p_\text{L}$ is the pressure of the liquid at the bubble wall, $p_\infty$ is the pressure of the liquid at infinite distance from the bubble, $p_\text{G}$ is the pressure of the gas inside the bubble and $\rho_{\ell,\mathrm{ref}}$ is the {\it constant} density of the liquid.
 
 To incorporate acoustic radiation in the liquid and the associated damping, the modified Rayleigh-Plesset model is given as \citep{Brenner2002}
 \begin{equation}
@@ -118,7 +118,7 @@ Assuming mass conservation, the gas density and its derivative are given by
   \dot{\rho}_\text{G} &= -3 \, \rho_\text{G}\, \frac{\dot{R}}{R}. \label{eq:dot_rhoG}
 \end{align}
 
-The hardcore radius $r_\mathrm{hc}$ and the co-volume $b_\mathrm{g}$ are set by default to $-1$. If the {\tt HC} or {\tt NASG} model is chosen, the user has to pass values for the hardcore radius $r_\mathrm{hc}$ or the co-volume $b_\mathrm{g}$, respectively. Alternatively, the molecular weight $\mathcal{M}_{\text{g}}$ and the molecular kinematic diameter $\mathcal{D}_{\text{g}}$ of the gas may be defined instead of $r_\mathrm{hc}$ or $b_\mathrm{g}$; APECSS then computes, based on the bubble size, the correct hardcore radius $r_\mathrm{hc}$ or  co-volume $b_\mathrm{g}$. Based on the molecular weight $\mathcal{M}_{\text{g}}$, the bubble contains 
+The hardcore radius $r_\mathrm{hc}$ and the co-volume $b_\mathrm{g}$ are set by default to $-1$. If the {\tt HC} or {\tt NASG} model is chosen, the user has to pass values for the hardcore radius $r_\mathrm{hc}$ or the co-volume $b_\mathrm{g}$, respectively. Alternatively, the molecular weight $\mathcal{M}_{\text{g}}$ and the molecular kinematic diameter $\mathcal{D}_{\text{g}}$ of the gas may be defined instead of $r_\mathrm{hc}$ or $b_\mathrm{g}$; APECSS then computes the correct co-volume $b_\mathrm{g}$ or, based on the bubble size, hardcore radius $r_\mathrm{hc}$. Assuming the molecular weight $\mathcal{M}_{\text{g}}$, the bubble contains 
 \begin{equation}
     N_\mathrm{G} = N_\mathrm{A} \, \frac{\rho_{\mathrm{G},0} V_0}{\mathcal{M}_{\text{g}}} 
 \end{equation}
@@ -187,7 +187,7 @@ Since the seminal work of \citet{Gilmore1952}, the Tait EoS is traditionally use
     h &= \frac{\Gamma_\ell}{\Gamma_\ell-1} \frac{p+B_\ell}{\rho} \label{eq:h_Tait} \\
     c &= \sqrt{(\Gamma_\ell -1) \, h}, \label{eq:c_Tait}
 \end{align}
-respectively, where $B_\ell$ is a pressure constant, $\Gamma_\ell$ is the polytropic exponent, $p_{\ell,\text{ref}}$ is the reference pressure and $\rho_{\ell,\text{ref}}$ is the reference density. For water, typical values are $\Gamma_\ell=7.15$, $B_\ell=3.046 \times 10^8 \, \text{Pa}$, $\rho_{\ell,\text{ref}} = 997 \, \mathrm{kg/m}^3$ and $p_{\ell,\text{ref}} = 10^5 \, \mathrm{Pa}$. However, the Tait EoS cannot provide physically-meaningful temperature values \citep{Radulescu2020}. 
+respectively, where $B_\ell$ is a pressure constant, $\Gamma_\ell$ is the polytropic exponent, $p_{\ell,\text{ref}}$ is the reference pressure and $\rho_{\ell,\text{ref}}$ is the reference density. For water, typical values are $\Gamma_\ell=7.15$, $B_\ell=3.046 \times 10^8 \, \text{Pa}$, $\rho_{\ell,\text{ref}} = 997 \, \mathrm{kg/m}^3$ and $p_{\ell,\text{ref}} = 10^5 \, \mathrm{Pa}$. 
 
 Using the Noble-Abel stiffened-gas (NASG) EoS \citep{LeMetayer2016} instead of the Tait EoS, the fluid properties are defined as \citep{Denner2021}
  \begin{eqnarray}
@@ -199,11 +199,11 @@ with $K_\ell = \rho_{\ell,\text{ref}}/[(p_{\ell,\text{ref}}+B_\ell)^{{1/\Gamma_\
 
 \subsection{Viscoelasticity}
 
-Currently, APECSS supports three widely-used models for viscoelastic media: the Kelvin-Voigt model, the Zener model and the Oldroyd-B model. While the Kelvin-Voigt model merely yields an additional term in the expression for the liquid pressure at the bubble wall, Eq.~\eqref{eq:pL}, the Zener and Oldroyd-B models each require to solve two additional ODEs.
+Currently, APECSS supports three widely-used models for viscoelastic media: the Kelvin-Voigt model, the Zener model and the Oldroyd-B model. While the Kelvin-Voigt model merely yields an additional term in the expression for the liquid pressure at the bubble wall, the Zener and Oldroyd-B models each require to solve two additional ODEs.
 
 \subsubsection{Kelvin-Voigt model}
 
-To model a Kelvin-Voigt medium, the elasticity of the medium is modelled by the term 
+To model a Kelvin-Voigt medium, the elasticity of the medium is described by the additional term 
 \begin{equation}
     \frac{4}{3} \, G_\ell \, \frac{R^3-R_0^3}{R^3}, \label{eq:KVterm}
 \end{equation}
@@ -360,14 +360,14 @@ The Marmottant-Gompertz model reproduces the main features of the original Marmo
 \section{Infinity}
 \label{sec:infinity}
 
-The pressure at infinity, $p_\infty$, is used to apply a driving pressure difference for the bubble dynamics. Presently, APECSS readily supports a constant ambient pressure $p_\infty = p_0$, which may also be replaced by a pressure defined on-the-fly, or a sinusoidal excitation. 
+The pressure at infinity, $p_\infty$, is used to apply a driving pressure difference for the bubble dynamics. Presently, APECSS readily supports a constant ambient pressure $p_\infty = p_0$, which may also be replaced by a pressure defined on-the-fly (e.g.~provided by a fluid dynamics solver running concurrently with APECSS), or a sinusoidal excitation. 
 
 A sinusoidal excitation is defined as $p_\infty = p_0 - \Delta p_\mathrm{a} \, \sin(2 \pi f_\mathrm{a} t)$, where $f_\mathrm{a}$ and $\Delta p_\mathrm{a}$ are the frequency and pressure amplitude of the excitation. In order to use the sinusoidal excitation, the user has to allocate the pointer {\tt *Excitation}, in the structure {\tt APECSS\_Bubble} structure, with {\tt struct APECSS\_Excitation} and define the desired values for  $f_\mathrm{a}$ and $\Delta p_\mathrm{a}$. The example found in the folder {\tt example/ultrasound/} provides a template of how to do this.
 
 \section{Results}
 \label{sec:bubbleresults}
 
-The results of the bubble dynamics can be written to disk, if the user wants that. Note that APECSS does \underline{not} write any results to disk unless it is specifically ask to do so.
+The results of the bubble dynamics can be written to disk, if so derired by the user. Note that APECSS does \uline{not} write any results to disk unless it is specifically asked to do so.
 
 \vspace{0.8em}
 
@@ -393,6 +393,6 @@ For the bubble dynamics, the following quantities as a function of time are writ
   \item Pressure of the liquid at the bubble wall, $p_\mathrm{L}$.
   \item Speed of sound of the liquid at the bubble wall, $c_\mathrm{L}$, if the Gilmore model is applied.
   \item The result of any additional user-defined ODE solved, if applicable.
-\end{itemize} \vspace{1em}
+\end{itemize}
 
 The first line of the results file(s) lists the variables that were written out and their order.
