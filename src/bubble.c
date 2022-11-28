@@ -525,7 +525,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
 
   if (Bubble->Emissions != NULL)
   {
-    printf("___%i %i\n", Bubble->Emissions->Type, Bubble->Emissions->Scheme);
     if (Bubble->Emissions->Type != APECSS_EMISSION_INCOMPRESSIBLE)
     {
       Bubble->emissions_initialize = apecss_emissions_initializelinkedlist;

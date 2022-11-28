@@ -117,7 +117,7 @@ typedef double APECSS_FLOAT;
 #define APECSS_EMISSION_INCOMPRESSIBLE (1)  // Incompressible emissions, see Neppiras (1980) | 0000 0001
 #define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound | 0000 0010
 #define APECSS_EMISSION_QUASIACOUSTIC (4)  // Quasi-acoustic model of Trilling/Gilmore (1952) | 0000 0100
-#define APECSS_EMISSION_KIRKWOODBETHE (16)  // A model based on the Kirkwood-Bethe hypothesis is used | 0001 0000
+#define APECSS_EMISSION_KIRKWOODBETHE (16)  // A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used | 0001 0000
 #define APECSS_EMISSION_EKB (17)  // Explicit Kirkwood-Bethe method of Denner & Schenke | 0001 0001
 #define APECSS_EMISSION_GFC (18)  // Fully-compressible model of Gilmore (1952)| 0001 0010
 #define APECSS_EMISSION_HPE (20)  // Model of Hickling & Plesset (1963) and Ebeling (1978)| 0001 0100
@@ -254,7 +254,7 @@ struct APECSS_Emissions
   // Pointer to the function with the appropriate advecting velocity of the emission nodes
   APECSS_FLOAT (*get_advectingvelocity)(APECSS_FLOAT u);
 
-  // Pointer to the function integrating radial position and velocity along the outgoing characteristic
+  // Pointer to the function integrating the radial position and velocity along the outgoing characteristic
   int (*integrate_along_characteristic)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 };
 
