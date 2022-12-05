@@ -68,9 +68,9 @@ Assuming the liquid is compressible but accurately described by a constant densi
 where $f(\tau)$ and $g(\tau)$ are invariants defined based on the result of the employed RP model as
 \begin{align}
     f(\tau) &= R(\tau)^2 \dot{R}(\tau) - \frac{R(\tau) g(\tau)}{c_{\ell,\mathrm{ref}}}\\
-    g(\tau) &= R(\tau) \left[\frac{p_\mathrm{L}(\tau)-p_\infty}{\rho_{\ell,\mathrm{ref}}} + \frac{\dot{R}(\tau)^2}{2} \right],
+    g(\tau) &= R(\tau) \left[\frac{p_\mathrm{L}(\tau)-p_\infty(t)}{\rho_{\ell,\mathrm{ref}}} + \frac{\dot{R}(\tau)^2}{2} \right],
 \end{align}
-and $\tau$ is the time at which the acoustic information is emitted at the bubble wall. For $t=\tau$ with $r=R(\tau)$, Eq.~(\ref{eq:u_rt_qa}) reduces to $u(R,\tau)=\dot{R}(\tau)$ and Eq.~(\ref{eq:p_rt_qa}) reduces to $p(R,\tau)=p_\mathrm{L}(\tau)$, thus satisfying the boundary conditions at the bubble wall. 
+and $\tau$ is the time at which the acoustic information is emitted at the bubble wall. For $t=\tau$ with $r(t)=R(\tau)$, Eq.~(\ref{eq:u_rt_qa}) reduces to $u(R,\tau)=\dot{R}(\tau)$ and Eq.~(\ref{eq:p_rt_qa}) reduces to $p(R,\tau)=p_\mathrm{L}(\tau)$, thus satisfying the boundary conditions at the bubble wall. 
 
 The quasi-acoustic model is consistent in its modelling assumptions with the Keller-Miksis model, Eq.~\eqref{eq:keller}. The applicability of the quasi-acoustic model is limited to small Mach numbers, $(\dot{R}/c_0)^2 \ll 1$, as it incorporates a finite propagation speed of the acoustic emissions and the nonlinear pressure contributions resulting from the flow, but since all parts of the wave propagate with speed $c_0$, the quasi-acoustic model can neither describe the nonlinear distortion of acoustic waves nor the formation of shock fronts. 
 
@@ -89,9 +89,9 @@ The assumptions used to derive these models for the acoustic emissions are consi
 
 Following a similar derivation as for the quasi-acoustic model discussed in Section \ref{sec:emissionsqa}, but assuming a fully-compressible liquid described by a suitable equation of state, the velocity is given by the {\it explicit Kirkwood-Bethe (EKB)} model as
 \begin{equation}
-    u(r,t) = \frac{f(\tau)}{r(t)^2} + \frac{g(\tau)}{r(t) \, \mathcal{C}(r,t)} . \label{eq:u_rt},
+    u(r,t) = \frac{f(\tau)}{r(t)^2} + \frac{g(\tau)}{r(t) \, [c(r,t) + u(r,t)]} . \label{eq:u_rt}
 \end{equation}
-For $t=\tau$ with $r=R(\tau)$, this expression reduces to $u(R,\tau)=\dot{R}(\tau)$, thus satisfying the boundary conditions at the bubble wall.
+For $t=\tau$ with $r(t)=R(\tau)$, this expression reduces to $u(R,\tau)=\dot{R}(\tau)$, thus satisfying the boundary conditions at the bubble wall.
 \citet{Gilmore1952} proposed instead to solve for the spatial derivative of the velocity along the outgoing characteristic, in APECSS referred to as {\it Gilmore's fully compressible (GFC)} model, with the velocity defined by 
 \begin{equation}
     \frac{\mathrm{d}u(r,t)}{\mathrm{d}r} = - \frac{2 u(r,t)}{r(t)} \left[1+\frac{u(r,t)^2}{c(r,t)^2-u(r,t)^2} \right] + \frac{g(\tau)}{r(t)^2 [c(r,t)-u(r,t)]} \label{eq:dudr_rt}.
@@ -113,7 +113,7 @@ For a given radial position $r(t)$ and flow velocity $u(r,t)$, irrespective of w
     h(r,t) = h_\infty(t) + \frac{g(\tau)}{r(t)} - \frac{u(r,t)^2}{2}, \label{eq:h_rt}
 \end{equation}
 where $h_\infty$ is spatially invariant and only depends on time.
-For $t=\tau$ with $r=R(\tau)$, this expression for enthalpy reduces to $h(R,\tau)=h_\mathrm{L}(\tau)$, satisfying the boundary conditions at the bubble wall. 
+For $t=\tau$ with $r(t)=R(\tau)$, this expression for enthalpy reduces to $h(R,\tau)=h_\mathrm{L}(\tau)$, satisfying the boundary conditions at the bubble wall. 
 
 Using the Tait EoS, the pressure can be readily computed from the enthalpy defined in Eq.~(\ref{eq:h_rt}) by inserting Eq.~(\ref{eq:rho_Tait}) into Eq.~(\ref{eq:h_Tait}) and rearranging to yield
 \begin{equation}

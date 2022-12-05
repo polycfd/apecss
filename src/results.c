@@ -317,7 +317,8 @@ int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble) { retur
 
 int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
 {
-  if (APECSS_ABS(Bubble->t - Bubble->Results->Emissions->TimeInstances[Bubble->Results->Emissions->nextTimeInstance]) < APECSS_SMALL)
+  if (Bubble->Results->Emissions->nextTimeInstance < Bubble->Results->Emissions->nTimeInstances &&
+      APECSS_ABS(Bubble->t - Bubble->Results->Emissions->TimeInstances[Bubble->Results->Emissions->nextTimeInstance]) < APECSS_SMALL)
   {
     char path[APECSS_STRINGLENGTH_SPRINTF_LONG];
     sprintf(path, "%s/EmissionsTime_%.*e.txt", Bubble->Results->dir, Bubble->Results->digits, (double) Bubble->t);
