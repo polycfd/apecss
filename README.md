@@ -2,7 +2,7 @@
 APECSS is a software toolbox to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written in C and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
 Key features of APECSS are:
-- Bubble dynamics using widely-used models for the bubble dynamics (Rayleigh-Plesset, Keller-Miksis, Gilmore).
+- Bubble dynamics using widely-used models (Rayleigh-Plesset, Keller-Miksis, Gilmore).
 - Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).

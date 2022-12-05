@@ -31,7 +31,7 @@ int main(int argc, char **args)
   apecss_infoscreen();
 
   /* Read commandline options */
-  sprintf(OptionsDir, "./run.apecss");
+  sprintf(OptionsDir, "./run.apecss");  // This is the default
   int i = 1;  // First argument is the call to the executable
   while (i < argc)
   {

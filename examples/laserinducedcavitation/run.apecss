@@ -1,0 +1,55 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 1.33e-6
+RPModel Gilmore
+PressureAmbient 1.0e5
+HardcoreRadius 4.016667e-7
+Emissions HPE 1.1e-4
+EmissionIntegration RK4
+KBIterTolerance 1.0e5
+END
+
+GAS
+EoS HC
+ReferencePressure 1.0e5
+PolytropicExponent 1.333333
+END
+
+LIQUID
+EoS NASG
+ReferencePressure 1.0e5
+ReferenceDensity 998.0
+ReferenceSoundSpeed 1483.0
+PolytropicExponent 7.0
+TaitPressureConst 3.14e8
+Viscosity 0.001
+CoVolume 0.0
+END
+
+INTERFACE
+SurfaceTensionCoeff 0.073
+END
+
+RESULTS
+Bubble
+OutputFreqRP 1
+OutputDigits 10
+EmissionsTime 6.4953804088e-06
+EmissionsTime 6.4955804088e-06
+EmissionsTime 6.4956504088e-06
+EmissionsTime 6.4957404088e-06
+EmissionsTime 6.4959504088e-06
+EmissionsTime 6.4964104088e-06
+EmissionsTime 6.4988504088e-06
+END
+
+ODESOLVER
+tolerance 1.0e-12
+mintimestep 1.0e-15
+maxtimestep 1.0e-9
+END

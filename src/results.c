@@ -317,7 +317,8 @@ int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble) { retur
 
 int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
 {
-  if (APECSS_ABS(Bubble->t - Bubble->Results->Emissions->TimeInstances[Bubble->Results->Emissions->nextTimeInstance]) < APECSS_SMALL)
+  if (Bubble->Results->Emissions->nextTimeInstance < Bubble->Results->Emissions->nTimeInstances &&
+      APECSS_ABS(Bubble->t - Bubble->Results->Emissions->TimeInstances[Bubble->Results->Emissions->nextTimeInstance]) < APECSS_SMALL)
   {
     char path[APECSS_STRINGLENGTH_SPRINTF_LONG];
     sprintf(path, "%s/EmissionsTime_%.*e.txt", Bubble->Results->dir, Bubble->Results->digits, (double) Bubble->t);
@@ -407,7 +408,7 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
         Bubble->Results->Emissions->SpaceLocation[l].u = malloc(Bubble->Results->Emissions->SpaceLocation[l].nAllocated * sizeof(APECSS_FLOAT));
         for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++) Bubble->Results->Emissions->SpaceLocation[l].u[i] = temp[i];
 
-        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+        if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
         {
           for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++) temp[i] = Bubble->Results->Emissions->SpaceLocation[l].c[i];
           free(Bubble->Results->Emissions->SpaceLocation[l].c);
@@ -438,7 +439,7 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
       {
         struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
 
-        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+        if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
         {
           if (r < Current->r)
           {
@@ -500,7 +501,7 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
         Bubble->Results->Emissions->SpaceLocation[l].p[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
         Bubble->Results->Emissions->SpaceLocation[l].u[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
 
-        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+        if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
           Bubble->Results->Emissions->SpaceLocation[l].c[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
       }
 
@@ -534,7 +535,7 @@ int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
         file_ptr = fopen(path, "w");
 
         fprintf(file_ptr, "# time p u");
-        if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE) fprintf(file_ptr, " c");
+        if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE) fprintf(file_ptr, " c");
         fprintf(file_ptr, " pInf \n");
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
@@ -543,7 +544,7 @@ int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
           fprintf(file_ptr, "%.*Le %.*Le %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
                   Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
 
-          if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+          if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
             fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
 
           fprintf(file_ptr, " %.*Le \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
@@ -554,7 +555,7 @@ int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
           fprintf(file_ptr, "%.*e %.*e %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
                   Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
 
-          if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+          if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
             fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
 
           fprintf(file_ptr, " %.*e \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
@@ -584,7 +585,7 @@ int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
       free(Bubble->Results->Emissions->SpaceLocation[l].u);
       Bubble->Results->Emissions->SpaceLocation[l].u = NULL;
 
-      if (Bubble->Emissions->Type == APECSS_EMISSION_KIRKWOODBETHE)
+      if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
       {
         free(Bubble->Results->Emissions->SpaceLocation[l].c);
         Bubble->Results->Emissions->SpaceLocation[l].c = NULL;

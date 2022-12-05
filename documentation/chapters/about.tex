@@ -1,19 +1,19 @@
 \chapter{About APECSS}
 
-APECSS is a software tool to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written exclusively in {\tt C} and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
+APECSS is a software toolbox to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written exclusively in {\tt C} and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
 The main features of APECSS are:\vspace{-1em}
 \begin{itemize}[noitemsep]
-\item Bubble dynamics using widely-used models for the bubble dynamics (Rayleigh-Plesset, Keller-Miksis, Gilmore).
+\item Bubble dynamics using widely-used models (Rayleigh-Plesset, Keller-Miksis, Gilmore).
 \item Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
 \item Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 \item Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
 \item Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
-\item All ODEs are solved with an in-built fifth-order Runge-Kutta scheme with fourth-order error estimate, based on \citet{Dormand1980}.
+\item All ODEs are solved with in-built fourth- and fifth-order Runge-Kutta scheme with adaptive time-stepping.
 \item APECSS has no external dependencies, aside from the standard {\it math} library and some common {\tt C} headers (math.h, stdio.h, stdlib.h, string.h).
 \end{itemize}
 
-The APECSS repository is located at \href{https://github.com/polycfd/apecss}{\texttt{https://github.com/polycfd/apecss}} and structured as follows:\vspace{-1em}
+The APECSS repository is located at \href{https://github.com/polycfd/apecss}{\texttt{https://github.com/polycfd/apecss}} and structured as:\vspace{-1em}
 \begin{itemize}[noitemsep]
     \item The {\tt documentation/} folder contains this short documentation of APECSS.
     \item The {\tt examples/} folder contains representative examples of how to use APECSS and to demonstrate the most important features of APECSS. 

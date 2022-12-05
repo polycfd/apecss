@@ -20,8 +20,8 @@
 #ifndef APECSS_H_
 #define APECSS_H_
 
-#define APECSS_VERSION_NUM (1.0)
-static const char APECSS_RELEASE_DATE[] = "25-Oct-2022";
+#define APECSS_VERSION_NUM (1.1)
+static const char APECSS_RELEASE_DATE[] = "05-Dec-2022";
 
 // -------------------------------------------------------------------
 // CONSTANTS & MACROS
@@ -112,12 +112,19 @@ typedef double APECSS_FLOAT;
 #define APECSS_EXCITATION_NONE (0)  // No excitation
 #define APECSS_EXCITATION_SIN (1)  // Sinusoidal excitation
 
-// Emission type
-#define APECSS_EMISSION_NONE (0)  // No emissions are computed
-#define APECSS_EMISSION_INCOMPRESSIBLE (1)  // Incompressible emissions, see Neppiras (1980)
-#define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound
-#define APECSS_EMISSION_QUASIACOUSTIC (3)  // Quasi-acoustic model of Gilmore (1952)
-#define APECSS_EMISSION_KIRKWOODBETHE (4)  // Fully-compressible model based on the Kirkwood-Bethe hypothesis
+// Emission type (bit-wise)
+#define APECSS_EMISSION_NONE (0)  // No emissions are computed | 0000 0000
+#define APECSS_EMISSION_INCOMPRESSIBLE (1)  // Incompressible emissions, see Neppiras (1980) | 0000 0001
+#define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound | 0000 0010
+#define APECSS_EMISSION_QUASIACOUSTIC (4)  // Quasi-acoustic model of Trilling/Gilmore (1952) | 0000 0100
+#define APECSS_EMISSION_KIRKWOODBETHE (16)  // A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used | 0001 0000
+#define APECSS_EMISSION_EKB (17)  // Explicit Kirkwood-Bethe method of Denner & Schenke | 0001 0001
+#define APECSS_EMISSION_GFC (18)  // Fully-compressible model of Gilmore (1952)| 0001 0010
+#define APECSS_EMISSION_HPE (20)  // Model of Hickling & Plesset (1963) and Ebeling (1978)| 0001 0100
+
+// Scheme to integrate emissions along outgoing characteristic
+#define APECSS_EMISSION_INTEGRATE_EULER (0)  // Euler scheme
+#define APECSS_EMISSION_INTEGRATE_RK4 (1)  // Conventional fourth-order Runge-Kutta scheme
 
 // Misc
 #define APECSS_DATA_ALLOC_INCREMENT (10000)  // Allocation increment for the arrays in which the results are stored
@@ -233,6 +240,7 @@ struct APECSS_EmissionNode
 struct APECSS_Emissions
 {
   int Type;  // Model for the acoustic emissions
+  int Scheme;  // Scheme used to integrate along the outgoing characteristic
   APECSS_FLOAT CutOffDistance;  // Distance above which the nodes are deleted
   APECSS_FLOAT KB_IterTolerance;  // Iteration tolerance to obtain pressure in the general Kirkwood-Bethe model
 
@@ -246,8 +254,8 @@ struct APECSS_Emissions
   // Pointer to the function with the appropriate advecting velocity of the emission nodes
   APECSS_FLOAT (*get_advectingvelocity)(APECSS_FLOAT u);
 
-  // Pointer to the function integrating radial position and velocity along the outgoing characteristic
-  int (*integrate_along_characteristic)(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
+  // Pointer to the function integrating the radial position and velocity along the outgoing characteristic
+  int (*integrate_along_characteristic)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 };
 
 struct APECSS_NumericsODE
@@ -484,9 +492,18 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble);
-int apecss_emissions_integrate_skb(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
-int apecss_emissions_integrate_hpe(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
-int apecss_emissions_integrate_gfc(struct APECSS_EmissionNode *Current, APECSS_FLOAT c, APECSS_FLOAT dt);
+int apecss_emissions_integrate_ekb_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ekb_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_gfc_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_gfc_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_hpe_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_hpe_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ekb_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ekb_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_gfc_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_gfc_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_hpe_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_hpe_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnzero(APECSS_FLOAT u);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u);
 
