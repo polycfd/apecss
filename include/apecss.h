@@ -447,6 +447,9 @@ struct APECSS_Bubble
   int (*progress_initial)();
   int (*progress_update)(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
   int (*progress_final)();
+
+  // Void pointer from user-defined data
+  void *user_data;
 };
 
 // -------------------------------------------------------------------
