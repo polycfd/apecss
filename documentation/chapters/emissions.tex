@@ -8,17 +8,19 @@ Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS
 \begin{tabular}{p{0.1\textwidth} p{0.32\textwidth} p{0.5\textwidth}}
     \textbf{Section} &\textbf{Command} & \textbf{Description} 
 \vspace{1mm} \\ \hline
-{\tt BUBBLE} & {\tt Emissions Incompressible} & Computes the acoustic emissions under the common incompressible assumption.\\ 
-& {\tt Emissions FTI} & Computes the acoustic emissions under the assumption of an incompressible fluid but propagating the emissions with the speed of sound.\\ 
-& {\tt Emissions QA} & Computes the acoustic emissions using the quasi-acoustic model of \citet{Gilmore1952}.\\ 
-& {\tt Emissions EKB} & Computes the acoustic emissions using the explicit Kirkwood-Bethe model.\\ 
-& {\tt Emissions GFC} & Computes the acoustic emissions using the fully-compressible model of \citet{Gilmore1952}.\\ 
-& {\tt Emissions HPE} & Computes the acoustic emissions using the model of \citet{Hickling1963} and \citet{Ebeling1978}.\\ 
+{\tt BUBBLE} & {\tt Emissions IC <float>} & Computes the acoustic emissions under the common incompressible assumption.\\ 
+& {\tt Emissions FTIC <float>} & Computes the acoustic emissions under the assumption of an incompressible fluid but propagating the emissions with the speed of sound.\\ 
+& {\tt Emissions QA <float>} & Computes the acoustic emissions using the quasi-acoustic model of \citet{Gilmore1952}.\\ 
+& {\tt Emissions EV <float>} & Computes the acoustic emissions based on the Kirkwood-Bethe hypothesis, with the explicit expression for velocity.\\ 
+& {\tt Emissions SIV <float>} & Computes the acoustic emissions using the model of \citet{Gilmore1952} based on the Kirkwood-Bethe hypothesis, with the spatially-integrated velocity.\\ 
+& {\tt Emissions TIV <float>} & Computes the acoustic emissions using the model of \citet{Hickling1963} based on the Kirkwood-Bethe hypothesis, with the temporally-integrated velocity.\\ 
 & {\tt EmissionIntegration Euler} & Integrates the radial position and, if applicable, the velocity using an Euler scheme.\\
 & {\tt EmissionIntegration RK4} & Integrates the radial position and, if applicable, the velocity using a conventional fourth-order Runge-Kutta scheme. This is the default.\\
 & {\tt KBIterTolerance <float>} & Tolerance $\eta$ for the evaluation of the pressure using a model based on the Kirkwood-Bethe hypothesis in conjunction with the NASG EoS.\\
  \hline
-\end{tabular} \vspace{1em}
+\end{tabular} \vspace{0.2em}
+
+The floating-point value associated with the emissions defines the cut-off distance beyond which the emissions are not computed. For the incompressible assumption this value has no meaning, but a value is required as a dummy to facilitate the correct reading of the options.
 
 \section{Lagrangian wave tracking}
 
