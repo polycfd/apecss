@@ -23,8 +23,13 @@
 APECSS_FLOAT gas_energy_strickersingleode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
 // Globally-defined variables (indicated for clarity with leading and trailing underscores)
-int _pos_energy_ode_;
-APECSS_FLOAT _cv_, _k_, _T0_;
+// int _pos_energy_ode_;
+// APECSS_FLOAT _cv_, _k_, _T0_;
+
+struct AdditionalGasProperties
+{
+  APECSS_FLOAT cv, k, T0;
+};
 
 int main(int argc, char **args)
 {
@@ -119,10 +124,12 @@ int main(int argc, char **args)
 
   Bubble->Excitation = Excitation;
 
-  // Set the parameters and functions for the gas energy model
-  _cv_ = 720.0;  // Isochoric heat capacity of the gas
-  _k_ = 0.025;  // Thermal conductivity
-  _T0_ = 293.15;  // Ambient temperature
+  // Allocate and set the structure holding the additional properties of the gas
+  struct AdditionalGasProperties *gas_data = (struct AdditionalGasProperties *) malloc(sizeof(struct AdditionalGasProperties));
+  gas_data->cv = 720.0;  // Isochoric heat capacity of the gas
+  gas_data->k = 0.025;  // Thermal conductivity
+  gas_data->T0 = 293.15;  // Ambient temperature
+  Gas->user_data = gas_data;  // Hook case-dependent data structure to the void data pointer
 
   // (Optional) The solutions of the additional ODEs may be stored with the RP solution
   if (Bubble->Results != NULL && Bubble->Results->RayleighPlesset != NULL)
@@ -160,9 +167,10 @@ int main(int argc, char **args)
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Add the temperature ODE to the set of solved ODEs
-  _pos_energy_ode_ = Bubble->nODEs;  // Simplfies finding the corresponding solution
-  Bubble->ode[_pos_energy_ode_] = gas_energy_strickersingleode;
-  Bubble->ODEsSol[_pos_energy_ode_] = _T0_;
+  int pos_energy_ode = Bubble->nODEs;  // Simplfies finding the corresponding solution
+  Bubble->ode[pos_energy_ode] = gas_energy_strickersingleode;
+  Bubble->ODEsSol[pos_energy_ode] = gas_data->T0;
+  Bubble->user_data = &pos_energy_ode;  // Hook the position of the additional ODE to the void data pointer
   Bubble->nODEs++;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -185,6 +193,11 @@ int main(int argc, char **args)
   /* Make sure all allocated memory is freed */
   apecss_bubble_freestruct(Bubble);
 
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // Freeing the structure holding the additional properties of the gas
+  free(gas_data);
+  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   free(Bubble);
   free(Gas);
   free(Liquid);
@@ -197,15 +210,19 @@ int main(int argc, char **args)
 
 APECSS_FLOAT gas_energy_strickersingleode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
+  int *pos_energy_ode = Bubble->user_data;
+  struct AdditionalGasProperties *gas_data = Bubble->Gas->user_data;
+
   APECSS_FLOAT U = Sol[0];
   APECSS_FLOAT R = Sol[1];
-  APECSS_FLOAT TG = Sol[_pos_energy_ode_];
+  APECSS_FLOAT TG = Sol[*pos_energy_ode];
 
   // see Stricker, Prosperetti & Lohse, J. Acoust. Soc. Am. 130 (2011), 3243
-  APECSS_FLOAT lth = APECSS_MIN(APECSS_SQRT(R * _k_ / (APECSS_ABS(U) * apecss_gas_density_constmass(R, Bubble) * Bubble->Gas->Gamma * _cv_ + APECSS_SMALL)),
-                                R / APECSS_PI);  // Thermal lengthscale
-  APECSS_FLOAT Qcond = 4.0 * APECSS_PI * APECSS_POW2(R) * _k_ * (_T0_ - TG) / lth;  // Heat due to conduction between liquid and gas
+  APECSS_FLOAT lth =
+      APECSS_MIN(APECSS_SQRT(R * gas_data->k / (APECSS_ABS(U) * apecss_gas_density_constmass(R, Bubble) * Bubble->Gas->Gamma * gas_data->cv + APECSS_SMALL)),
+                 R / APECSS_PI);  // Thermal lengthscale
+  APECSS_FLOAT Qcond = 4.0 * APECSS_PI * APECSS_POW2(R) * gas_data->k * (gas_data->T0 - TG) / lth;  // Heat due to conduction between liquid and gas
   APECSS_FLOAT Wvol = Bubble->Gas->get_pressure(Sol, Bubble) * 4.0 * APECSS_PI * APECSS_POW2(R) * U;  // Volume work
 
-  return ((Qcond - Wvol) / (_cv_ * Bubble->rhoG0 * 4.0 * APECSS_ONETHIRD * APECSS_PI * APECSS_POW3(Bubble->R0)));
+  return ((Qcond - Wvol) / (gas_data->cv * Bubble->rhoG0 * 4.0 * APECSS_ONETHIRD * APECSS_PI * APECSS_POW3(Bubble->R0)));
 }
