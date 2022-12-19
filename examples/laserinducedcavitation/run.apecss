@@ -9,7 +9,7 @@ InitialRadius 1.33e-6
 RPModel Gilmore
 PressureAmbient 1.0e5
 HardcoreRadius 4.016667e-7
-Emissions HPE 1.1e-4
+Emissions TIV 1.1e-4
 EmissionIntegration RK4
 KBIterTolerance 1.0e5
 END
