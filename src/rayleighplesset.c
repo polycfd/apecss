@@ -39,10 +39,11 @@ APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT 
   /** Keller-Miksis model, formulation of Prosperetti & Lezzi (1986) **/
   APECSS_FLOAT inv_c = 1.0 / Bubble->Liquid->cref;
   APECSS_FLOAT inv_rho = 1.0 / Bubble->Liquid->rhoref;
-  APECSS_FLOAT rhs = ((1.0 + Sol[0] * inv_c) * (Bubble->Liquid->get_pressure_bubblewall(Sol, t, Bubble) - Bubble->get_pressure_infinity(t, Bubble)) * inv_rho -
-                      1.5 * (1.0 - (Sol[0] * APECSS_ONETHIRD * inv_c)) * APECSS_POW2(Sol[0])) /
-                         Sol[1] +
-                     Bubble->Liquid->get_pressurederivative_bubblewall_expl(Sol, t, Bubble) * inv_c * inv_rho;
+  APECSS_FLOAT rhs =
+      ((1.0 + Sol[0] * inv_c) * (Bubble->Liquid->get_pressure_bubblewall(Sol, t, Bubble) - Bubble->get_pressure_infinity(t, Bubble)) * inv_rho -
+       1.5 * (1.0 - (Sol[0] * APECSS_ONETHIRD * inv_c)) * APECSS_POW2(Sol[0])) /
+          Sol[1] +
+      (Bubble->Liquid->get_pressurederivative_bubblewall_expl(Sol, t, Bubble) - Bubble->get_pressurederivative_infinity(t, Bubble)) * inv_c * inv_rho;
   APECSS_FLOAT dot_pvisc_impl =
       Bubble->Liquid->get_pressurederivative_viscous_impl(Sol[1], Bubble) + Bubble->Interface->get_pressurederivative_viscous_impl(Sol[1], Bubble->Interface);
 
