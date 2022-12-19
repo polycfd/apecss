@@ -118,9 +118,9 @@ typedef double APECSS_FLOAT;
 #define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound | 0000 0010
 #define APECSS_EMISSION_QUASIACOUSTIC (4)  // Quasi-acoustic model of Trilling/Gilmore (1952) | 0000 0100
 #define APECSS_EMISSION_KIRKWOODBETHE (16)  // A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used | 0001 0000
-#define APECSS_EMISSION_EKB (17)  // Explicit Kirkwood-Bethe method of Denner & Schenke | 0001 0001
-#define APECSS_EMISSION_GFC (18)  // Fully-compressible model of Gilmore (1952)| 0001 0010
-#define APECSS_EMISSION_HPE (20)  // Model of Hickling & Plesset (1963) and Ebeling (1978)| 0001 0100
+#define APECSS_EMISSION_EV (17)  // Explicit expression for velocity of Denner & Schenke | 0001 0001
+#define APECSS_EMISSION_SIV (18)  // Spatially-integrated velocity of Gilmore (1952)| 0001 0010
+#define APECSS_EMISSION_TIV (20)  // Temporally-intergrated velocity of Hickling & Plesset (1963) | 0001 0100
 
 // Scheme to integrate emissions along outgoing characteristic
 #define APECSS_EMISSION_INTEGRATE_EULER (0)  // Euler scheme
@@ -163,6 +163,9 @@ struct APECSS_Gas
   // Pointers to the functions describing the gas pressure and its derivative
   APECSS_FLOAT (*get_pressure)(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative)(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+
+  // Void pointer for additional user-defined data
+  void *user_data;
 };
 
 struct APECSS_Liquid
@@ -198,6 +201,9 @@ struct APECSS_Liquid
   APECSS_FLOAT (*get_pressure_viscous)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_viscous_expl)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_viscous_impl)(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
+
+  // Void pointer for additional user-defined data
+  void *user_data;
 };
 
 struct APECSS_Interface
@@ -222,6 +228,9 @@ struct APECSS_Interface
   APECSS_FLOAT (*get_pressure_viscous)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
   APECSS_FLOAT (*get_pressurederivative_viscous_expl)(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
   APECSS_FLOAT (*get_pressurederivative_viscous_impl)(APECSS_FLOAT R, struct APECSS_Interface *Interface);
+
+  // Void pointer for additional user-defined data
+  void *user_data;
 };
 
 struct APECSS_EmissionNode
@@ -235,6 +244,9 @@ struct APECSS_EmissionNode
   APECSS_FLOAT g;  // = const.
   struct APECSS_EmissionNode *forward;  // Forward (i.e. outward) neighbor
   struct APECSS_EmissionNode *backward;  // Backward (i.e. inward) neighbor
+
+  // Void pointer for additional user-defined data
+  void *user_data;
 };
 
 struct APECSS_Emissions
@@ -448,7 +460,7 @@ struct APECSS_Bubble
   int (*progress_update)(int *prog, APECSS_FLOAT t, APECSS_FLOAT totaltime);
   int (*progress_final)();
 
-  // Void pointer from user-defined data
+  // Void pointer for additional user-defined data
   void *user_data;
 };
 
@@ -495,18 +507,18 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble);
-int apecss_emissions_integrate_ekb_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_ekb_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_gfc_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_gfc_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_hpe_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_hpe_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_ekb_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_ekb_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_gfc_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_gfc_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_hpe_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_hpe_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ev_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_siv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_siv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_tiv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_tiv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ev_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_siv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_siv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
+int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnzero(APECSS_FLOAT u);
 APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u);
 
