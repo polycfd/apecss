@@ -19,13 +19,10 @@
 #include <time.h>
 #include "apecss.h"
 
-// Declaration of the function containing the temperature ODE
+// Declaration of the function defining the temperature ODE
 APECSS_FLOAT gas_energy_strickersingleode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
-// Globally-defined variables (indicated for clarity with leading and trailing underscores)
-// int _pos_energy_ode_;
-// APECSS_FLOAT _cv_, _k_, _T0_;
-
+// Declaration of the structure holding the additional properties of the gas
 struct AdditionalGasProperties
 {
   APECSS_FLOAT cv, k, T0;
