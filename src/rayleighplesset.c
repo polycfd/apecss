@@ -36,7 +36,7 @@ APECSS_FLOAT apecss_rp_rayleighplessetacousticrationvelocity_ode(APECSS_FLOAT *S
 
 APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  /** Keller-Miksis model, formulation of Prosperetti & Lezzi (1986) **/
+  /** Keller-Miksis model **/
   APECSS_FLOAT inv_c = 1.0 / Bubble->Liquid->cref;
   APECSS_FLOAT inv_rho = 1.0 / Bubble->Liquid->rhoref;
   APECSS_FLOAT rhs =
