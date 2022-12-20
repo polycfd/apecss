@@ -2,7 +2,7 @@
 \label{chap:bubble}
 The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type (RP) model, assuming spherical symmetry. This requires to choose a suitable RP-type model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). The results that APECSS can write out based on the RP model are explained in Section \ref{sec:bubbleresults}.
 
-APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics sing the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. 
+APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics sing the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time-step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Delta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
 
 \vspace{0.8em}
 
@@ -58,7 +58,7 @@ It follows directly from the Keller-Miksis model, Eq.~(\ref{eq:keller}), which i
 
 The Keller-Miksis model \citep{Keller1980, Prosperetti1986}, which incorporates the compressibility of the liquid to first order, is given as
 \begin{equation}
-\left(1 - \frac{\dot{R}}{c_{\ell,\mathrm{ref}}}\right) R \ddot{R} + \frac{3}{2} \left(1 - \frac{\dot{R}}{3\, c_{\ell,\mathrm{ref}}}\right) \dot{R}^2 =  \left(1 + \frac{\dot{R}}{c_{\ell,\mathrm{ref}}}\right) \frac{p_\text{L} - p_\infty}{\rho_{\ell,\mathrm{ref}}} + \frac{R \, \dot{p}_\text{L}}{\rho_{\ell,\mathrm{ref}} \, c_{\ell,\mathrm{ref}}} ,
+\left(1 - \frac{\dot{R}}{c_{\ell,\mathrm{ref}}}\right) R \ddot{R} + \frac{3}{2} \left(1 - \frac{\dot{R}}{3\, c_{\ell,\mathrm{ref}}}\right) \dot{R}^2 =  \left(1 + \frac{\dot{R}}{c_{\ell,\mathrm{ref}}}\right) \frac{p_\text{L} - p_\infty}{\rho_{\ell,\mathrm{ref}}} + R \, \frac{\dot{p}_\text{L} - \dot{p}_\infty}{\rho_{\ell,\mathrm{ref}} \, c_{\ell,\mathrm{ref}}} ,
 \label{eq:keller}
 \end{equation}
 where $c_{\ell,\mathrm{ref}}$ is the speed of sound of the liquid. Both $\rho_{\ell,\mathrm{ref}}$ and $c_{\ell,\mathrm{ref}}$ are assumed to be constant, limiting the Keller-Miksis model to moderate liquid pressures ($p_\mathrm{L} \lesssim 10^8 \, \mathrm{Pa}$).

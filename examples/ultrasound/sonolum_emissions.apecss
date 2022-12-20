@@ -7,7 +7,7 @@
 BUBBLE
 InitialRadius 5.0e-6
 RPModel Gilmore
-Emissions HPE 1.1e-3 
+Emissions TIV 1.1e-3 
 EmissionIntegration RK4
 PressureAmbient 1.0e5
 HardcoreRadius 5.64334e-7

@@ -401,7 +401,7 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
 // INTEGRATION OF POSITION AND VELOCITY ALONG CHARACTERISTIC
 // -------------------------------------------------------------------
 
-int apecss_emissions_integrate_ekb_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_ev_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Simplified method based on the Kirkwood-Bethe hypothesis, with u treated explicitly.
 
@@ -418,7 +418,7 @@ int apecss_emissions_integrate_ekb_tait_euler(struct APECSS_Bubble *Bubble, stru
     return (1);
 }
 
-int apecss_emissions_integrate_ekb_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Simplified method based on the Kirkwood-Bethe hypothesis, with u treated explicitly.
 
@@ -478,7 +478,7 @@ int apecss_emissions_integrate_ekb_tait_rk4(struct APECSS_Bubble *Bubble, struct
     return (1);
 }
 
-int apecss_emissions_integrate_gfc_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_siv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
 
@@ -494,7 +494,7 @@ int apecss_emissions_integrate_gfc_tait_euler(struct APECSS_Bubble *Bubble, stru
   return (1);
 }
 
-int apecss_emissions_integrate_gfc_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_siv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
 
@@ -547,7 +547,7 @@ int apecss_emissions_integrate_gfc_tait_rk4(struct APECSS_Bubble *Bubble, struct
   return (1);
 }
 
-int apecss_emissions_integrate_hpe_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_tiv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Method of Hickling & Plesset (1963), see Appendix I, and Ebeling (1978), with integration of u over t.
 
@@ -562,7 +562,7 @@ int apecss_emissions_integrate_hpe_tait_euler(struct APECSS_Bubble *Bubble, stru
   return (1);
 }
 
-int apecss_emissions_integrate_hpe_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_tiv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Method of Hickling & Plesset (1963), see Appendix I, and Ebeling (1978), with integration of u over t.
 
@@ -614,7 +614,7 @@ int apecss_emissions_integrate_hpe_tait_rk4(struct APECSS_Bubble *Bubble, struct
   return (1);
 }
 
-int apecss_emissions_integrate_ekb_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_ev_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Simplified method based on the Kirkwood-Bethe hypothesis, with u treated explicitly.
 
@@ -643,7 +643,7 @@ int apecss_emissions_integrate_ekb_general_euler(struct APECSS_Bubble *Bubble, s
   return (1);
 }
 
-int apecss_emissions_integrate_ekb_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Simplified method based on the Kirkwood-Bethe hypothesis, with u treated explicitly.
 
@@ -734,7 +734,7 @@ int apecss_emissions_integrate_ekb_general_rk4(struct APECSS_Bubble *Bubble, str
   return (1);
 }
 
-int apecss_emissions_integrate_gfc_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_siv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
 
@@ -763,7 +763,7 @@ int apecss_emissions_integrate_gfc_general_euler(struct APECSS_Bubble *Bubble, s
   return (1);
 }
 
-int apecss_emissions_integrate_gfc_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_siv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
 
@@ -848,7 +848,7 @@ int apecss_emissions_integrate_gfc_general_rk4(struct APECSS_Bubble *Bubble, str
   return (1);
 }
 
-int apecss_emissions_integrate_hpe_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Method of Hickling & Plesset (1963), see Appendix I, and Ebeling (1978), with integration of u over t.
 
@@ -876,7 +876,7 @@ int apecss_emissions_integrate_hpe_general_euler(struct APECSS_Bubble *Bubble, s
   return (1);
 }
 
-int apecss_emissions_integrate_hpe_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
+int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
 {
   // Method of Hickling & Plesset (1963), see Appendix I, and Ebeling (1978), with integration of u over t.
 

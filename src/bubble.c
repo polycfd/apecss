@@ -182,11 +182,11 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
           {
             line += l - 1;
 
-            if (strncasecmp(option3, "incompressible", 14) == 0)
+            if (strncasecmp(option3, "ic", 2) == 0 || strncasecmp(option3, "incompressible", 14) == 0)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_INCOMPRESSIBLE;
             }
-            else if (strncasecmp(option3, "fti", 3) == 0 || strncasecmp(option3, "finitetimeincompressible", 24) == 0)
+            else if (strncasecmp(option3, "ftic", 3) == 0 || strncasecmp(option3, "finitetimeincompressible", 24) == 0)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE;
             }
@@ -194,17 +194,17 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_QUASIACOUSTIC;
             }
-            else if (strncasecmp(option3, "ekb", 3) == 0)
+            else if (strncasecmp(option3, "ev", 2) == 0)
             {
-              Bubble->Emissions->Type = APECSS_EMISSION_EKB;
+              Bubble->Emissions->Type = APECSS_EMISSION_EV;
             }
-            else if (strncasecmp(option3, "gfc", 3) == 0)
+            else if (strncasecmp(option3, "siv", 3) == 0)
             {
-              Bubble->Emissions->Type = APECSS_EMISSION_GFC;
+              Bubble->Emissions->Type = APECSS_EMISSION_SIV;
             }
-            else if (strncasecmp(option3, "hpe", 3) == 0)
+            else if (strncasecmp(option3, "tiv", 3) == 0)
             {
-              Bubble->Emissions->Type = APECSS_EMISSION_HPE;
+              Bubble->Emissions->Type = APECSS_EMISSION_TIV;
             }
 
             l = apecss_readoneoption(OptionsFile, option3);
@@ -547,52 +547,52 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
         {
           Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_tait;
 
-          if (Bubble->Emissions->Type == APECSS_EMISSION_EKB)
+          if (Bubble->Emissions->Type == APECSS_EMISSION_EV)
           {
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_tait_rk4;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_tait_rk4;
             else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_tait_euler;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_tait_euler;
           }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_GFC)
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
           {
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_tait_rk4;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_rk4;
             else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_tait_euler;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_euler;
           }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_HPE)
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_tait_rk4;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_tiv_tait_rk4;
             else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_tait_euler;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_tiv_tait_euler;
           }
         }
         else if (Bubble->Liquid->EoS == APECSS_LIQUID_NASG)
         {
           Bubble->Emissions->advance = apecss_emissions_advance_kirkwoodbethe_general;
 
-          if (Bubble->Emissions->Type == APECSS_EMISSION_EKB)
+          if (Bubble->Emissions->Type == APECSS_EMISSION_EV)
           {
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_general_rk4;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_rk4;
             else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ekb_general_euler;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_euler;
           }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_GFC)
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
           {
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_general_rk4;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_rk4;
             else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_gfc_general_euler;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_euler;
           }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_HPE)
+          else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_general_rk4;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_tiv_general_rk4;
             else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_hpe_general_euler;
+              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_tiv_general_euler;
           }
         }
         else

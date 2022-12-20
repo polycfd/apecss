@@ -11,6 +11,16 @@ Installing APECSS is easy. After downloading APECSS in the folder {\tt <path to 
 
 Now, navigate into the folder {\tt \$APECSS\_DIR/lib} and execute {\tt ./compile\_lib.sh}. This shell script will compile the APECSS library using {\tt cmake} with the {\tt CMakeLists.txt} file provided in this folder. By default, APECSS is compiled with double precision and in \textit{Release} mode, meaning all optimization flags are enabled. That's it, you've successfully installed APECSS!
 
+If you wish to install APECSS with \textit{Debug} flags, simply change the line
+\begin{lstlisting}[style=CStyle,numbers=none]
+  cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release
+\end{lstlisting}\vspace{-0.75em}
+to
+\begin{lstlisting}[style=CStyle,numbers=none]
+  cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Debug
+\end{lstlisting}\vspace{-0.75em}
+in the {\tt ./compile\_lib.sh} shell script and, if applicable, in the shell script that compiles the desired example.
+
 \section{Running APECSS}
 
 There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software code or you can program an interface to use APECSS as a standalone software tool. 
@@ -163,9 +173,9 @@ Model to compute the acoustic emissions of the bubble (bit-wise):\vspace{-1em}
   \item {\tt APECSS\_EMISSION\_FINITE\_TIME\_INCOMPRESSIBLE}: Emissions are assumed to occur in an incompressible fluid, but the finite propagation speed given by the speed of sound is taken into account.
   \item {\tt APECSS\_EMISSION\_QUASIACOUSTIC}: Emissions are modelled under the quasi-acoustic assumption of \citet{Trilling1952} and \citet{Gilmore1952}.
   \item {\tt APECSS\_EMISSION\_KIRKWOODBETHE}: A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used.
-  \item {\tt APECSS\_EMISSION\_EKB}: Emissions are modelled using the explicit Kirkwood-Bethe (EKB) model.
-  \item {\tt APECSS\_EMISSION\_GFC}: Emissions are modelled using the fully-compressible model of \citet{Gilmore1952} (GFC).
-  \item {\tt APECSS\_EMISSION\_HPE}: Emissions are modelled using the model of \citet{Hickling1963} and \citet{Ebeling1978} (HPE).
+  \item {\tt APECSS\_EMISSION\_EV}: Emissions are modelled using the explicit expression based on the Kirkwood-Bethe hypothesis.
+  \item {\tt APECSS\_EMISSION\_SIV}: Emissions are modelled using the spatially-integrated velocity, based on the Kirkwood-Bethe hypothesis, of \citet{Gilmore1952}.
+  \item {\tt APECSS\_EMISSION\_TIV}: Emissions are modelled using the temporally-integrated velocity, based on the Kirkwood-Bethe hypothesis, of \citet{Hickling1963}.
 \end{itemize}
 
 
@@ -268,6 +278,40 @@ The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()}
   apecss_bubble_solver_finalize(Bubble);
 \end{lstlisting}\vspace{-0.75em}
 A solver run is ended with the function {\tt apecss\_bubble\_solver\_finalize()} where, for instance, the arrays and linked list of the acoustic emissions are freed.
+
+\subsection{The void data pointer}
+
+Additional data associated with a bubble, an emission node, a gas, a liquid or an interface might be needed for more complex simulations, for instance neighbor information when multiple bubbles interact with each other or the thermal conductivity and heat capacity of the gas inside the bubble when heat transfer is considered. In APECSS, to retain flexibility and avoid unnecessary overhead, the structures {\tt struct APECSS\_Bubble}, {\tt struct APECSS\_EmissionNode}, {\tt struct APECSS\_Gas}, {\tt struct APECSS\_Liquid} and {\tt struct APECSS\_Interface} contain a \texttt{void} pointer called \texttt{user\_data} specifically for the purpose of associating additional data with those structures. This void pointer is not associated with a specific data type, but rather points to some memory location, i.e.~a memory address. 
+
+A typical use of this void pointer would be to generate a structure that contains all additional data and point the void pointer to the address of this structure. For instance, the void pointer of the bubble structure is used in such a way in the example {\tt \$APECSS\_DIR/examples/laserinducedcavitation}. The structure
+\begin{lstlisting}[style=CStyle,numbers=none]
+  struct LIC
+  {
+    APECSS_FLOAT tauL, Rnbd, Rnc1, Rnc2, tmax1, tmax2;
+  };
+\end{lstlisting}\vspace{-0.75em}
+is allocated
+\begin{lstlisting}[style=CStyle,numbers=none]
+  struct LIC *lic_data = (struct LIC *) malloc(sizeof(struct LIC));
+\end{lstlisting}\vspace{-0.75em}
+and associated with the void pointer
+\begin{lstlisting}[style=CStyle,numbers=none]
+  Bubble->user_data = lic_data;
+\end{lstlisting}\vspace{-0.75em}
+The data stored in this structure can then be used or read by again assigning the correct data type
+\begin{lstlisting}[style=CStyle,numbers=none]
+  struct LIC *lic_data = Bubble->user_data;
+\end{lstlisting}\vspace{-0.75em}
+and used as
+\begin{lstlisting}[style=CStyle,numbers=none]
+  tmax = lic_data->tmax1;
+\end{lstlisting}\vspace{-0.75em}
+At the end of the simulation, when the data is no longer needed, the memory occupied by the structure is freed
+\begin{lstlisting}[style=CStyle,numbers=none]
+  free(lic_data);
+\end{lstlisting}%\vspace{-0.75em}
+
+The example {\tt \$APECSS\_DIR/examples/gastemperature} uses both the void pointers associated with the bubble and the gas.
 
 \subsection{A word on function pointers}
 
