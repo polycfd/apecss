@@ -200,8 +200,8 @@ int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble)
   while (Current != NULL)
   {
     Current->r += dr;
-    Current->p = pinf + rho * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u));
     Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * c);
+    Current->p = pinf + rho * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u));
 
     // Store data (if applicable)
     Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
