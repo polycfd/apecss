@@ -315,6 +315,7 @@ struct APECSS_ResultsBubble
   APECSS_FLOAT *dt;  // Time-step size [s]
   APECSS_FLOAT *pG;  // Pressure of the gas inside the bubble [Pa]
   APECSS_FLOAT *pL;  // Pressure in the liquid at the bubble wall [Pa]
+  APECSS_FLOAT *pinf;  // Pressure in the liquid at the bubble wall [Pa]
   APECSS_FLOAT *cL;  // Speed of sound in the liquid at the bubble wall [m/s]
 
   int nUserODEs;  // The solutions of the first nUserODEs additional user-defined ODEs are written to file

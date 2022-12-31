@@ -77,6 +77,7 @@ int apecss_results_rayleighplesset_initialize(struct APECSS_Bubble *Bubble)
   Bubble->Results->RayleighPlesset->U = NULL;
   Bubble->Results->RayleighPlesset->pG = NULL;
   Bubble->Results->RayleighPlesset->pL = NULL;
+  Bubble->Results->RayleighPlesset->pinf = NULL;
   Bubble->Results->RayleighPlesset->cL = NULL;
 
   for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
@@ -135,6 +136,11 @@ int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
       Bubble->Results->RayleighPlesset->pL = malloc(Bubble->Results->RayleighPlesset->nAllocated * sizeof(APECSS_FLOAT));
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++) Bubble->Results->RayleighPlesset->pL[i] = temp[i];
 
+      for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++) temp[i] = Bubble->Results->RayleighPlesset->pinf[i];
+      free(Bubble->Results->RayleighPlesset->pinf);
+      Bubble->Results->RayleighPlesset->pinf = malloc(Bubble->Results->RayleighPlesset->nAllocated * sizeof(APECSS_FLOAT));
+      for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++) Bubble->Results->RayleighPlesset->pinf[i] = temp[i];
+
       if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
       {
         for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++) temp[i] = Bubble->Results->RayleighPlesset->cL[i];
@@ -169,6 +175,8 @@ int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
 
     APECSS_FLOAT pL = Bubble->Liquid->get_pressure_bubblewall(Bubble->ODEsSol, Bubble->t, Bubble);
     Bubble->Results->RayleighPlesset->pL[Bubble->Results->RayleighPlesset->n] = pL;
+
+    Bubble->Results->RayleighPlesset->pinf[Bubble->Results->RayleighPlesset->n] = Bubble->get_pressure_infinity(Bubble->t, Bubble);
 
     if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
       Bubble->Results->RayleighPlesset->cL[Bubble->Results->RayleighPlesset->n] =
@@ -223,7 +231,7 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
       FILE *file_ptr;
       file_ptr = fopen(path, "w");
 
-      fprintf(file_ptr, "# timeStep time dt R U pG pL");
+      fprintf(file_ptr, "# timeStep time dt R U pG pL pinf");
 
       if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " cL");
 
@@ -235,10 +243,11 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
 #if defined(APECSS_PRECISION_LONGDOUBLE)
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++)
       {
-        fprintf(file_ptr, "%d %.*Le %.*Le %.*Le %.*Le %.*Le %.*Le", i * Bubble->Results->RayleighPlesset->freq, Bubble->Results->digits,
+        fprintf(file_ptr, "%d %.*Le %.*Le %.*Le %.*Le %.*Le %.*Le %.*Le", i * Bubble->Results->RayleighPlesset->freq, Bubble->Results->digits,
                 Bubble->Results->RayleighPlesset->t[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->dt[i], Bubble->Results->digits,
                 Bubble->Results->RayleighPlesset->R[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i], Bubble->Results->digits,
-                Bubble->Results->RayleighPlesset->pG[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i]);
+                Bubble->Results->RayleighPlesset->pG[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i], Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->pinf[i]);
 
         if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->RayleighPlesset->cL[i]);
 
@@ -250,10 +259,11 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
 #else
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++)
       {
-        fprintf(file_ptr, "%d %.*e %.*e %.*e %.*e %.*e %.*e", i * Bubble->Results->RayleighPlesset->freq, Bubble->Results->digits,
+        fprintf(file_ptr, "%d %.*e %.*e %.*e %.*e %.*e %.*e %.*e", i * Bubble->Results->RayleighPlesset->freq, Bubble->Results->digits,
                 Bubble->Results->RayleighPlesset->t[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->dt[i], Bubble->Results->digits,
                 Bubble->Results->RayleighPlesset->R[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->U[i], Bubble->Results->digits,
-                Bubble->Results->RayleighPlesset->pG[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i]);
+                Bubble->Results->RayleighPlesset->pG[i], Bubble->Results->digits, Bubble->Results->RayleighPlesset->pL[i], Bubble->Results->digits,
+                Bubble->Results->RayleighPlesset->pinf[i]);
 
         if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->RayleighPlesset->cL[i]);
 
@@ -289,6 +299,8 @@ int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble)
     Bubble->Results->RayleighPlesset->pG = NULL;
     free(Bubble->Results->RayleighPlesset->pL);
     Bubble->Results->RayleighPlesset->pL = NULL;
+    free(Bubble->Results->RayleighPlesset->pinf);
+    Bubble->Results->RayleighPlesset->pinf = NULL;
 
     if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
     {
