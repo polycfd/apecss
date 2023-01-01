@@ -45,7 +45,7 @@ APECSS offers four RP-type models to simulate pressure-driven bubble dynamics: t
 R \ddot{R} + \frac{3}{2} \dot{R}^2 = \frac{p_\text{L} - p_\infty}{\rho_{\ell,\mathrm{ref}}},
 \label{eq:standardRP}
 \end{equation}
-where $R$ is the bubble radius, $p_\text{L}$ is the pressure of the liquid at the bubble wall, $p_\infty$ is the pressure of the liquid at infinite distance from the bubble, $p_\text{G}$ is the pressure of the gas inside the bubble and $\rho_{\ell,\mathrm{ref}}$ is the {\it constant} density of the liquid.
+where $R$ is the bubble radius, $p_\text{L}$ is the pressure of the liquid at the bubble wall, $p_\infty$ is the pressure of the liquid in the far field, $p_\text{G}$ is the pressure of the gas inside the bubble and $\rho_{\ell,\mathrm{ref}}$ is the {\it constant} density of the liquid.
 
 To incorporate acoustic radiation in the liquid and the associated damping, the modified Rayleigh-Plesset model is given as \citep{Brenner2002}
 \begin{equation}
@@ -367,7 +367,7 @@ A sinusoidal excitation is defined as $p_\infty = p_0 - \Delta p_\mathrm{a} \, \
 \section{Results}
 \label{sec:bubbleresults}
 
-The results of the bubble dynamics can be written to disk, if so derired by the user. Note that APECSS does \uline{not} write any results to disk unless it is specifically asked to do so.
+The results of the bubble dynamics can be written to disk, if so desired by the user. Note that APECSS does \uline{not} write any results to disk unless it is specifically asked to do so.
 
 \vspace{0.8em}
 
@@ -391,6 +391,7 @@ For the bubble dynamics, the following quantities as a function of time are writ
   \item Velocity of the bubble wall, $\dot{R}$.
   \item Pressure of the gas, $p_\mathrm{G}$.
   \item Pressure of the liquid at the bubble wall, $p_\mathrm{L}$.
+  \item Pressure of the liquid in the far field, $p_\infty$.
   \item Speed of sound of the liquid at the bubble wall, $c_\mathrm{L}$, if the Gilmore model is applied.
   \item The result of any additional user-defined ODE solved, if applicable.
 \end{itemize}
