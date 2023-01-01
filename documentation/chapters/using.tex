@@ -178,8 +178,15 @@ Model to compute the acoustic emissions of the bubble (bit-wise):\vspace{-1em}
   \item {\tt APECSS\_EMISSION\_TIV}: Emissions are modelled using the temporally-integrated velocity, based on the Kirkwood-Bethe hypothesis, of \citet{Hickling1963}.
 \end{itemize}
 
-
 \subsubsection{Others}
+\label{sec:using_macros_others}
+
+Macros for the output of certain results produced by APECSS:\vspace{-1em}
+\begin{itemize}[noitemsep]
+  \item {\tt APECSS\_RESULTS\_DISCARD}: Discard the results and do not write results to file.
+  \item {\tt APECSS\_RESULTS\_WRITE}:  Write all data to file in one go.
+  \item {\tt APECSS\_RESULTS\_APPEND}: Append the results file with a new batch of results.
+\end{itemize}
 
 Other predefined macros are used to define the length of strings and arrays, as well as to help with debugging:\vspace{-1em}
 \begin{itemize}[noitemsep]
@@ -322,9 +329,16 @@ APECSS uses function pointers extensively. Function pointers are an elegant mean
 
 To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the repository. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.
 
+\section{Output}
+By default, APECSS does \uline{not} write out any output, neither to the terminal nor to a file. 
+
+Basic information about the version and compile options of APECSS can be written out in the terminal using the function {\tt apecss\_infoscreen()} and any user-defined message by passing the desired string to the function {\tt apecss\_writeonscreen()}, as demonstrated in many of the available examples.
+
+Various simulation results associated with the bubble dynamics and the acoustic emissions can be written to file by passing the appropriate options to APECSS (see Sections \ref{sec:bubble_results} and \ref{sec:emissions_results} for more details). In the interest of performance (writing data to file is very expensive), the results are stored in arrays and only written to file when the appropriate {\tt apecss\_results\_*\_write()} function is called, at the end of the simulation or at any appropriate point during the simulation, as shown in the examples. Exporting the results associated with the radial bubble dynamics using the function {\tt apecss\_results\_rayleighplesset\_write()} and the recording of the acoustic emissions at predefined spatial locations using the function {\tt apecss\_results\_emissionsspace\_write()} additionally requires the user to tell APECSS how the data should be handled, using the macros described in Section \ref{sec:using_macros_others}. Either the appropriate file is appended ({\tt APECSS\_RESULTS\_APPEND}), which makes sense if the results should be written out multiple times during a simulation, or the data is written to file in one go ({\tt APECSS\_RESULTS\_WRITE}), which should be used if the results are written out once at the end of the simulation. In both cases, the file is created automatically if it does not exist yet. Alternatively, the option {\tt APECSS\_RESULTS\_DISCARD} deletes the results without writing them to file, which can be useful if the results are used to collect, for instance, some statistics during the simulations but should not be stored in a file.
+
 \section{Units}
 
-APECSS assumes SI units or any appropriate combination of SI units at all times, e.g.~when reading user-defined options and in all internal computations. To avoid any misunderstanding, the SI base units are the following:\vspace{-1em}
+APECSS assumes SI units or any appropriate combination of SI units at all times, e.g.~when reading user-defined options, in all internal computations and when outputting data. To avoid any misunderstanding, the SI base units are the following:\vspace{-1em}
 \begin{itemize}[noitemsep]
   \item Time in seconds [s]
   \item Length in meter [m]

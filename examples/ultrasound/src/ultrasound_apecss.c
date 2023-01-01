@@ -151,8 +151,8 @@ int main(int argc, char **args)
   apecss_writeonscreen(str);
 
   /* Write out all desired results */
-  apecss_results_rayleighplesset_write(Bubble);
-  apecss_results_emissionsspace_write(Bubble);
+  apecss_results_rayleighplesset_write(Bubble, APECSS_RESULTS_WRITE);
+  apecss_results_emissionsspace_write(Bubble, APECSS_RESULTS_WRITE);
   apecss_results_emissionsnodespecific_write(Bubble);
   apecss_results_emissionsnodeminmax_write(Bubble);
 
