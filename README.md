@@ -1,5 +1,6 @@
 # APECSS
-[![Build](https://github.com/polycfd/apecss/actions/workflows/build_lib.yml/badge.svg)](https://github.com/polycfd/apecss/actions/workflows/build_lib.yml)
+[![Build test](https://github.com/polycfd/apecss/actions/workflows/test_build.yml/badge.svg)](https://github.com/polycfd/apecss/actions/workflows/test_build.yml)
+[![Run test](https://github.com/polycfd/apecss/actions/workflows/test_run.yml/badge.svg)](https://github.com/polycfd/apecss/actions/workflows/test_run.yml)
 
 APECSS is a software toolbox to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written in C and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
