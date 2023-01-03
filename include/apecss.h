@@ -126,6 +126,11 @@ typedef double APECSS_FLOAT;
 #define APECSS_EMISSION_INTEGRATE_EULER (0)  // Euler scheme
 #define APECSS_EMISSION_INTEGRATE_RK4 (1)  // Conventional fourth-order Runge-Kutta scheme
 
+// Results
+#define APECSS_RESULTS_DISCARD (0)  // Discard the results and do not write results to file.
+#define APECSS_RESULTS_WRITE (1)  // Write all data to file in one go.
+#define APECSS_RESULTS_APPEND (2)  // Append the results file with a new batch of results.
+
 // Misc
 #define APECSS_DATA_ALLOC_INCREMENT (10000)  // Allocation increment for the arrays in which the results are stored
 #define APECSS_STRINGLENGTH (512)  // Standard string length
@@ -628,14 +633,14 @@ int apecss_results_rayleighplesset_storenone(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_initialize(struct APECSS_Bubble *Bubble);
 int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble);
-int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble);
+int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble, int write);
 int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_results_emissionstime_checknone(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_results_emissionstime_checktime(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsspace_storenone(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble);
-int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble);
+int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble, int write);
 int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsnodespecific_storenone(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble);
 int apecss_results_emissionsnodespecific_storeall(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble);

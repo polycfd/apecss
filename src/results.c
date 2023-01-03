@@ -194,11 +194,11 @@ int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
-int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
+int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble, int write)
 {
   if (Bubble->Results->RayleighPlesset != NULL)
   {
-    if (Bubble->Results->RayleighPlesset->n)
+    if (Bubble->Results->RayleighPlesset->n && write)
     {
       char path[APECSS_STRINGLENGTH_SPRINTF_LONG], rptype[APECSS_STRINGLENGTH];
 
@@ -229,16 +229,34 @@ int apecss_results_rayleighplesset_write(struct APECSS_Bubble *Bubble)
       }
 
       FILE *file_ptr;
-      file_ptr = fopen(path, "w");
+      if (write == APECSS_RESULTS_WRITE)  // Create new file and write all data in one go.
+      {
+        file_ptr = fopen(path, "w");
 
-      fprintf(file_ptr, "# timeStep time dt R U pG pL pinf");
+        fprintf(file_ptr, "# timeStep time dt R U pG pL pinf");
+        if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " cL");
+        for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
+          fprintf(file_ptr, " %s", Bubble->Results->RayleighPlesset->UserODEsName[userode]);
+        fprintf(file_ptr, " \n");
+      }
+      else  // Append file.
+      {
+        if (!(file_ptr = fopen(path, "r")))  // File does not exist yet -> write header.
+        {
+          file_ptr = fopen(path, "a");
 
-      if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " cL");
-
-      for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
-        fprintf(file_ptr, " %s", Bubble->Results->RayleighPlesset->UserODEsName[userode]);
-
-      fprintf(file_ptr, " \n");
+          fprintf(file_ptr, "# timeStep time dt R U pG pL pinf");
+          if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE) fprintf(file_ptr, " cL");
+          for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
+            fprintf(file_ptr, " %s", Bubble->Results->RayleighPlesset->UserODEsName[userode]);
+          fprintf(file_ptr, " \n");
+        }
+        else  // File exists already, append.
+        {
+          fclose(file_ptr);
+          file_ptr = fopen(path, "a");
+        }
+      }
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
       for (register int i = 0; i < Bubble->Results->RayleighPlesset->n; i++)
@@ -527,54 +545,74 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
-int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble)
+int apecss_results_emissionsspace_write(struct APECSS_Bubble *Bubble, int write)
 {
   if (Bubble->Results->Emissions != NULL)
   {
-    for (register int l = 0; l < Bubble->Results->Emissions->nSpaceLocations; l++)
+    if (write)
     {
-      if (Bubble->Results->Emissions->SpaceLocation[l].n)
+      for (register int l = 0; l < Bubble->Results->Emissions->nSpaceLocations; l++)
       {
-        char path[APECSS_STRINGLENGTH_SPRINTF_LONG];
+        if (Bubble->Results->Emissions->SpaceLocation[l].n)
+        {
+          char path[APECSS_STRINGLENGTH_SPRINTF_LONG];
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
-        sprintf(path, "%s/EmissionsSpace_%.3Le.txt", Bubble->Results->dir, Bubble->Results->Emissions->SpaceLocation[l].RadialLocation);
+          sprintf(path, "%s/EmissionsSpace_%.3Le.txt", Bubble->Results->dir, Bubble->Results->Emissions->SpaceLocation[l].RadialLocation);
 #else
-        sprintf(path, "%s/EmissionsSpace_%.3e.txt", Bubble->Results->dir, Bubble->Results->Emissions->SpaceLocation[l].RadialLocation);
+          sprintf(path, "%s/EmissionsSpace_%.3e.txt", Bubble->Results->dir, Bubble->Results->Emissions->SpaceLocation[l].RadialLocation);
 #endif
 
-        FILE *file_ptr;
-        file_ptr = fopen(path, "w");
-
-        fprintf(file_ptr, "# time p u");
-        if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE) fprintf(file_ptr, " c");
-        fprintf(file_ptr, " pInf \n");
+          FILE *file_ptr;
+          if (write == APECSS_RESULTS_WRITE)  // Create new file and write all data in one go.
+          {
+            file_ptr = fopen(path, "w");
+            fprintf(file_ptr, "# time p u");
+            if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE) fprintf(file_ptr, " c");
+            fprintf(file_ptr, " pInf \n");
+          }
+          else  // Append file.
+          {
+            if (!(file_ptr = fopen(path, "r")))  // File does not exist yet -> write header.
+            {
+              file_ptr = fopen(path, "a");
+              fprintf(file_ptr, "# time p u");
+              if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE) fprintf(file_ptr, " c");
+              fprintf(file_ptr, " pInf \n");
+            }
+            else  // File exists already, append.
+            {
+              fclose(file_ptr);
+              file_ptr = fopen(path, "a");
+            }
+          }
 
 #if defined(APECSS_PRECISION_LONGDOUBLE)
-        for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++)
-        {
-          fprintf(file_ptr, "%.*Le %.*Le %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
-                  Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
+          for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++)
+          {
+            fprintf(file_ptr, "%.*Le %.*Le %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
+                    Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
 
-          if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
-            fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
+            if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
+              fprintf(file_ptr, " %.*Le", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
 
-          fprintf(file_ptr, " %.*Le \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
-        }
+            fprintf(file_ptr, " %.*Le \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
+          }
 #else
-        for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++)
-        {
-          fprintf(file_ptr, "%.*e %.*e %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
-                  Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
+          for (register int i = 0; i < Bubble->Results->Emissions->SpaceLocation[l].n; i++)
+          {
+            fprintf(file_ptr, "%.*e %.*e %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].t[i], Bubble->Results->digits,
+                    Bubble->Results->Emissions->SpaceLocation[l].p[i], Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].u[i]);
 
-          if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
-            fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
+            if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
+              fprintf(file_ptr, " %.*e", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].c[i]);
 
-          fprintf(file_ptr, " %.*e \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
-        }
+            fprintf(file_ptr, " %.*e \n", Bubble->Results->digits, Bubble->Results->Emissions->SpaceLocation[l].pInf[i]);
+          }
 #endif
 
-        fclose(file_ptr);
+          fclose(file_ptr);
+        }
       }
     }
 
