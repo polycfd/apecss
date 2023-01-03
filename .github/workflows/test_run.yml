@@ -22,6 +22,6 @@ jobs:
     - name: Configure CMake
       run: cmake -S ${{github.workspace}}/examples/laserinducedcavitation/build -B ${{github.workspace}}/examples/laserinducedcavitation/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build laser-induced cavitation
-      run: cmake ${{github.workspace}}/examples/laserinducedcavitation/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/examples/laserinducedcavitation/build --config ${{env.BUILD_TYPE}}
     - name: Run laser-induced cavitation
       run: ${{github.workspace}}/examples/laserinducedcavitation/build/lic_apecss -options run.apecss -tend 12e-6
