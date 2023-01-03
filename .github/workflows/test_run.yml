@@ -1,0 +1,23 @@
+name: Test run
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+  APECSS_DIR: ${{github.workspace}}
+
+jobs:
+  lic_linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure CMake
+      run: cmake -S ${{github.workspace}}/examples/laserinducedcavitation/src -B ${{github.workspace}}/examples/laserinducedcavitation/src -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build
+      run: cmake ${{github.workspace}}/examples/laserinducedcavitation/src --config ${{env.BUILD_TYPE}}
+    - name: Run
+      run: ${{github.workspace}}/examples/laserinducedcavitation/build/lic_apecss -options run.apecss -tend 12e-6
