@@ -8,6 +8,7 @@ on:
 
 env:
   BUILD_TYPE: Release
+  APECSS_DIR: ${{github.workspace}}
 
 jobs:
   macos:
