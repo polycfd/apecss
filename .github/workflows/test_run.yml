@@ -11,6 +11,31 @@ env:
   APECSS_DIR: ${{github.workspace}}
 
 jobs:
+  macos:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Configure lib
+      run: cmake -S ${{github.workspace}}/lib -B ${{github.workspace}}/lib -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build lib
+      run: cmake --build ${{github.workspace}}/lib --config ${{env.BUILD_TYPE}}
+    - name: Configure laser-induced cavitation 
+      run: cmake -S ${{github.workspace}}/examples/laserinducedcavitation/build -B ${{github.workspace}}/examples/laserinducedcavitation/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build laser-induced cavitation
+      run: cmake --build ${{github.workspace}}/examples/laserinducedcavitation/build --config ${{env.BUILD_TYPE}}
+    - name: Run laser-induced cavitation
+      run: ${{github.workspace}}/examples/laserinducedcavitation/build/lic_apecss -options ${{github.workspace}}/examples/laserinducedcavitation/run.apecss -tend 12e-6
+    - name: Configure ultrasound
+      run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build ultrasound
+      run: cmake --build ${{github.workspace}}/examples/ultrasound/build --config ${{env.BUILD_TYPE}}
+    - name: Run ultrasound (simple)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/lipidcoated_simple.apecss -freq 2.9e6 -amp 130e3 -tend 2e-6
+    - name: Run ultrasound (lipid-coated)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/lipidcoated_emissions.apecss -tend 11e-6 -freq 1e6 -amp 600e3
+    - name: Run ultrasound (Zener)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6
+
   linux:
     runs-on: ubuntu-latest
     steps:
