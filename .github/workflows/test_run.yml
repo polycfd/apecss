@@ -11,13 +11,17 @@ env:
   APECSS_DIR: ${{github.workspace}}
 
 jobs:
-  lic_linux:
+  linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Configure CMake
+      run: cmake -S ${{github.workspace}}/lib -B ${{github.workspace}}/lib -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build lib
+      run: cmake --build ${{github.workspace}}/lib --config ${{env.BUILD_TYPE}}
+    - name: Configure CMake
       run: cmake -S ${{github.workspace}}/examples/laserinducedcavitation/src -B ${{github.workspace}}/examples/laserinducedcavitation/src -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-    - name: Build
+    - name: Build laser-induced cavitation
       run: cmake ${{github.workspace}}/examples/laserinducedcavitation/src --config ${{env.BUILD_TYPE}}
-    - name: Run
+    - name: Run laser-induced cavitation
       run: ${{github.workspace}}/examples/laserinducedcavitation/build/lic_apecss -options run.apecss -tend 12e-6
