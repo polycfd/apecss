@@ -28,6 +28,8 @@ The APECSS repository is structured as follows:
 - The [src](/src/) folder contains all source files (*.c) of APECSS.
 - The [.clang-format](.clang-format) file, which defines the formatting rules for the source code.
 - The [.gitignore](.gitignore) file telling _git_ which folders and files to ignore.
+- The [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) file containing outlining the code of conduct for this repository.
+- The [CONTRIBUTING.md](CONTRIBUTING.md) file containing brief guidelines on how to contribute to APECSS.
 - The [LICENSE.txt](LICENSE.txt) file containing the Mozilla Public License Version 2.0.
 - The [README.md](README.md) file is the file you are currently reading.
 

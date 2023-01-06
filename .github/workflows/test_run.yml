@@ -15,16 +15,35 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Configure lib
       run: cmake -S ${{github.workspace}}/lib -B ${{github.workspace}}/lib -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build lib
       run: cmake --build ${{github.workspace}}/lib --config ${{env.BUILD_TYPE}}
+
+    - name: Configure bubble with gas-temperature model 
+      run: cmake -S ${{github.workspace}}/examples/gastemperature/build -B ${{github.workspace}}/examples/gastemperature/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build bubble with gas-temperature model 
+      run: cmake --build ${{github.workspace}}/examples/gastemperature/build --config ${{env.BUILD_TYPE}}
+    - name: Run bubble with gas-temperature model 
+      run: ${{github.workspace}}/examples/gastemperature/build/gastemperature_apecss -options ${{github.workspace}}/examples/gastemperature/run.apecss -freq 20e3 -amp 70e3 -tend 0.001
+
     - name: Configure laser-induced cavitation 
       run: cmake -S ${{github.workspace}}/examples/laserinducedcavitation/build -B ${{github.workspace}}/examples/laserinducedcavitation/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build laser-induced cavitation
       run: cmake --build ${{github.workspace}}/examples/laserinducedcavitation/build --config ${{env.BUILD_TYPE}}
     - name: Run laser-induced cavitation
       run: ${{github.workspace}}/examples/laserinducedcavitation/build/lic_apecss -options ${{github.workspace}}/examples/laserinducedcavitation/run.apecss -tend 12e-6
+
+    - name: Configure Rayleigh collapse 
+      run: cmake -S ${{github.workspace}}/examples/rayleighcollapse/build -B ${{github.workspace}}/examples/rayleighcollapse/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build Rayleigh collapse
+      run: cmake --build ${{github.workspace}}/examples/rayleighcollapse/build --config ${{env.BUILD_TYPE}}
+    - name: Run Rayleigh collapse (simple)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/simple.apecss -tend 1
+    - name: Run Rayleigh collapse (with emissions)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/emissions.apecss -tend 0.2
+
     - name: Configure ultrasound
       run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build ultrasound
@@ -33,23 +52,48 @@ jobs:
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/lipidcoated_simple.apecss -freq 2.9e6 -amp 130e3 -tend 2e-6
     - name: Run ultrasound (lipid-coated)
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/lipidcoated_emissions.apecss -tend 11e-6 -freq 1e6 -amp 600e3
+    - name: Run ultrasound (sonoluminescence)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/sonolum_emissions.apecss -tend 40e-6 -freq 23.5e3 -amp 145e3
+    - name: Run ultrasound (Kelvin-Voigt)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/kelvinvoigt.apecss -tend 6e-6 -freq 1e6 -amp 3e6
     - name: Run ultrasound (Zener)
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6
+    - name: Run ultrasound (Oldroyd-B)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/oldroydb.apecss -tend 3e-6 -freq 3e6 -amp 400e3
 
   linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+
     - name: Configure lib
       run: cmake -S ${{github.workspace}}/lib -B ${{github.workspace}}/lib -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build lib
       run: cmake --build ${{github.workspace}}/lib --config ${{env.BUILD_TYPE}}
+
+    - name: Configure bubble with gas-temperature model 
+      run: cmake -S ${{github.workspace}}/examples/gastemperature/build -B ${{github.workspace}}/examples/gastemperature/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build bubble with gas-temperature model 
+      run: cmake --build ${{github.workspace}}/examples/gastemperature/build --config ${{env.BUILD_TYPE}}
+    - name: Run bubble with gas-temperature model 
+      run: ${{github.workspace}}/examples/gastemperature/build/gastemperature_apecss -options ${{github.workspace}}/examples/gastemperature/run.apecss -freq 20e3 -amp 70e3 -tend 0.001
+
     - name: Configure laser-induced cavitation 
       run: cmake -S ${{github.workspace}}/examples/laserinducedcavitation/build -B ${{github.workspace}}/examples/laserinducedcavitation/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build laser-induced cavitation
       run: cmake --build ${{github.workspace}}/examples/laserinducedcavitation/build --config ${{env.BUILD_TYPE}}
     - name: Run laser-induced cavitation
       run: ${{github.workspace}}/examples/laserinducedcavitation/build/lic_apecss -options ${{github.workspace}}/examples/laserinducedcavitation/run.apecss -tend 12e-6
+
+    - name: Configure Rayleigh collapse 
+      run: cmake -S ${{github.workspace}}/examples/rayleighcollapse/build -B ${{github.workspace}}/examples/rayleighcollapse/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build Rayleigh collapse
+      run: cmake --build ${{github.workspace}}/examples/rayleighcollapse/build --config ${{env.BUILD_TYPE}}
+    - name: Run Rayleigh collapse (simple)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/simple.apecss -tend 1
+    - name: Run Rayleigh collapse (with emissions)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/emissions.apecss -tend 0.2
+
     - name: Configure ultrasound
       run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build ultrasound
@@ -58,5 +102,11 @@ jobs:
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/lipidcoated_simple.apecss -freq 2.9e6 -amp 130e3 -tend 2e-6
     - name: Run ultrasound (lipid-coated)
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/lipidcoated_emissions.apecss -tend 11e-6 -freq 1e6 -amp 600e3
+    - name: Run ultrasound (sonoluminescence)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/sonolum_emissions.apecss -tend 40e-6 -freq 23.5e3 -amp 145e3
+    - name: Run ultrasound (Kelvin-Voigt)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/kelvinvoigt.apecss -tend 6e-6 -freq 1e6 -amp 3e6
     - name: Run ultrasound (Zener)
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6
+    - name: Run ultrasound (Oldroyd-B)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/oldroydb.apecss -tend 3e-6 -freq 3e6 -amp 400e3
