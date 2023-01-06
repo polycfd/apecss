@@ -349,3 +349,9 @@ APECSS assumes SI units or any appropriate combination of SI units at all times,
   \item Luminosity in candela [cd]
 \end{itemize}
 
+\section{Automated testing}
+
+Github {\it workflows} are run automatically to test the functionality of APECSS everytime a change is {\it pushed} to the {\tt main} branch of APECSS or if a {\it pull request} is opened.
+This includes a {\tt Build test} and a {\tt Run test}, the results of which are displayed in the rendered {\tt README.md} file of the Github repository.
+
+The {\tt Build test} checks whether the APECSS library compiles correctly on Linux and MacOS operating systems. The {\tt Run test}, also conducted on both Linux and MacOS operating systems, is more comprehensive, in that it first compiles the APECSS library, then compiles and runs each example. Note that a successful {\tt Run test} does not imply correct results - the {\tt Run test} only tests the basic functionality of the code (e.g.~no segmentation faults), not the correctness of the results APECSS produces. 
