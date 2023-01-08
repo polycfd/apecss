@@ -26,7 +26,7 @@ int apecss_erroronscreen(int num, char* message)
   if (num != 0)  // Terminal error. Stop program and exit
   {
     printf("------------------------------------------------------------------------------------ \n");
-    sprintf(str, "| APECSS | ERROR: %s", message);
+    sprintf(str, "ERROR: %s", message);
     apecss_writeonscreen(str);
     printf("------------------------------------------------------------------------------------ \n");
     exit(1);
@@ -34,7 +34,7 @@ int apecss_erroronscreen(int num, char* message)
   else
   {
     printf("------------------------------------------------------------------------------------ \n");
-    sprintf(str, "| APECSS | WARNING: %s", message);
+    sprintf(str, "WARNING: %s", message);
     apecss_writeonscreen(str);
     printf("------------------------------------------------------------------------------------ \n");
   }
