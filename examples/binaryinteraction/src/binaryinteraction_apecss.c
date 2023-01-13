@@ -22,6 +22,12 @@
 // Declaration of additional case-dependent functions
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
+// Declaration of the structure holding the interaction variables of each bubble
+struct Interaction
+{
+  APECSS_FLOAT dp_neighbor;
+};
+
 int main(int argc, char **args)
 {
   char OptionsDir[APECSS_STRINGLENGTH];
@@ -89,11 +95,11 @@ int main(int argc, char **args)
   // Allocate and set bubble-associated variables for the interaction
   for (register int i = 0; i < nBubbles; i++)
   {
-    // Variable for the pressure contribution of the neighbor
-    APECSS_FLOAT *dp_neighbor = (APECSS_FLOAT *) malloc(sizeof(APECSS_FLOAT));
+    struct Interaction *interaction_data = (struct Interaction *) malloc(sizeof(struct Interaction));
+    interaction_data->dp_neighbor = 0.0;  // Pressure excerted by the neighbor bubbles
 
-    // Hook the pressure contribution of the neighbor to the void data pointer
-    Bubbles[i]->user_data = dp_neighbor;
+    // Hook interaction-structure to the void data pointer
+    Bubbles[i]->user_data = interaction_data;
   }
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -162,6 +168,8 @@ int main(int argc, char **args)
       Bubbles[i]->R0 = 5.0e-6;
     else if (1 == i)
       Bubbles[i]->R0 = 10.0e-6;
+
+    Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
   }
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -178,11 +186,6 @@ int main(int argc, char **args)
   /* Initialize the bubble based on the selected options */
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_initialize(Bubbles[i]);
 
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  // Set the bubble-specific hardcore radius
-  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
-  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
   /* Initialize */
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_initialize(Bubbles[i]);
 
@@ -196,16 +199,14 @@ int main(int argc, char **args)
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
-    APECSS_FLOAT *dp_neighbor;
-
-    dp_neighbor = Bubbles[0]->user_data;
-    *dp_neighbor =
+    struct Interaction *data_0 = Bubbles[0]->user_data;
+    data_0->dp_neighbor =
         Liquid->rhoref *
         (APECSS_POW2(Bubbles[1]->R) * Bubbles[1]->ode[0](Bubbles[1]->ODEsSol, Bubbles[1]->t, Bubbles[1]) + 2.0 * Bubbles[1]->R * APECSS_POW2(Bubbles[1]->U)) /
         bubble_bubble_dist;
 
-    dp_neighbor = Bubbles[1]->user_data;
-    *dp_neighbor =
+    struct Interaction *data_1 = Bubbles[1]->user_data;
+    data_1->dp_neighbor =
         Liquid->rhoref *
         (APECSS_POW2(Bubbles[0]->R) * Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]) + 2.0 * Bubbles[0]->R * APECSS_POW2(Bubbles[0]->U)) /
         bubble_bubble_dist;
@@ -241,6 +242,6 @@ int main(int argc, char **args)
 
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT *dp_neighbor = Bubble->user_data;
-  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + *dp_neighbor);
+  struct Interaction *temp_struct = Bubble->user_data;
+  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + temp_struct->dp_neighbor);
 }

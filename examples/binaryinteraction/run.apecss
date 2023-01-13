@@ -8,7 +8,6 @@ BUBBLE
 RPModel KM
 Emissions IC 250.0e-6
 PressureAmbient 1.0e5
-HardcoreRadius 1.0e-7
 END
 
 GAS
