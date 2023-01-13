@@ -1,6 +1,19 @@
-# APECSS
-[![Build test](https://github.com/polycfd/apecss/actions/workflows/test_build.yml/badge.svg)](https://github.com/polycfd/apecss/actions/workflows/test_build.yml)
-[![Run test](https://github.com/polycfd/apecss/actions/workflows/test_run.yml/badge.svg)](https://github.com/polycfd/apecss/actions/workflows/test_run.yml)
+# APECSS 
+
+<p align="left">
+  <a href="https://github.com/polycfd/apecss/actions/workflows/test_build.yml">
+    <img src="https://github.com/polycfd/apecss/actions/workflows/test_build.yml/badge.svg" alt="Issues">
+  </a>
+  <a href="https://github.com/polycfd/apecss/actions/workflows/test_run.yml">
+    <img src="https://github.com/polycfd/apecss/actions/workflows/test_run.yml/badge.svg" alt="License">
+  </a>
+  <a href="https://doi.org/10.1063/5.0131930">
+    <img src="https://img.shields.io/badge/Paper-10.1063/5.0131930-blue" alt="Paper">
+  </a>
+  <a href="https://doi.org/10.5281/zenodo.7249297">
+    <img src="https://img.shields.io/badge/All%20releases-10.5281/zenodo.7249297-blue" alt="Latest version">
+  </a>
+</p>
 
 APECSS is a software toolbox to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written in C and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
@@ -45,6 +58,17 @@ There are several ways in which you can use the APECSS library. You can either i
 - A ````src```` folder with a file called ````*_apecss.c```` that acts as the standalone interface to the APECSS library. This file contains the ````main()```` function and any additional functionality required to simulate a specific scenario.
 - A ````build```` folder containing the ````CMakeLists.txt```` file and a shell script ````compile.sh```` with which this example can be compiled using the command ````./compile.sh````.
 - One or several ````*.apecss```` files in which the options for a specific case are defined.
+
+## How to cite us
+If you use APECSS for your scientific work, please consider citing the [paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation of APECSS
+
+    F. Denner and S. Schenke, Modeling acoustic emissions and shock formation of cavitation bubbles. Physics of Fluids 35 (2023). 
+
+as well as the version of APECSS you've used for your work, e.g.
+
+    F. Denner and S. Schenke, APECSS (v1.2), (2022). https://doi.org/10.5281/zenodo.7465050
+
+All releases can be found on the [Zenodo page](https://doi.org/10.5281/zenodo.7249297).
 
 ## Acknowledgements
 The development of APECSS has directly benefitted from research funding provided by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation), grant number 441063377.
