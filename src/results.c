@@ -493,7 +493,7 @@ int apecss_results_emissionsspace_storeall(struct APECSS_Bubble *Bubble)
             Bubble->Results->Emissions->SpaceLocation[l].c[Bubble->Results->Emissions->SpaceLocation[l].n] = 0.0;
           }
         }
-        else if (Bubble->Emissions->Type == APECSS_EMISSION_QUASIACOUSTIC || Bubble->Emissions->Type == APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE)
+        else if (Bubble->Emissions->Type == APECSS_EMISSION_QUASIACOUSTIC || Bubble->Emissions->Type == APECSS_EMISSION_FINITE_SPEED_INCOMPRESSIBLE)
         {
           if (r < Current->r)
           {
