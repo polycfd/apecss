@@ -115,7 +115,7 @@ typedef double APECSS_FLOAT;
 // Emission type (bit-wise)
 #define APECSS_EMISSION_NONE (0)  // No emissions are computed | 0000 0000
 #define APECSS_EMISSION_INCOMPRESSIBLE (1)  // Incompressible emissions, see Neppiras (1980) | 0000 0001
-#define APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound | 0000 0010
+#define APECSS_EMISSION_FINITE_SPEED_INCOMPRESSIBLE (2)  // Incompressible emissions tracked with a finite speed of sound | 0000 0010
 #define APECSS_EMISSION_QUASIACOUSTIC (4)  // Quasi-acoustic model of Trilling/Gilmore (1952) | 0000 0100
 #define APECSS_EMISSION_KIRKWOODBETHE (16)  // A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used | 0001 0000
 #define APECSS_EMISSION_EV (17)  // Explicit expression for velocity of Denner & Schenke | 0001 0001
@@ -268,8 +268,8 @@ struct APECSS_Emissions
   // Pointer to the function advancing the emission nodes
   int (*advance)(struct APECSS_Bubble *Bubble);
 
-  // Pointer to the function with the appropriate advecting velocity of the emission nodes
-  APECSS_FLOAT (*get_advectingvelocity)(APECSS_FLOAT u);
+  // Pointer to the function that computes the invariant f
+  APECSS_FLOAT (*compute_f)(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
 
   // Pointer to the function integrating the radial position and velocity along the outgoing characteristic
   int (*integrate_along_characteristic)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
@@ -509,7 +509,7 @@ int apecss_emissions_updatenone(struct APECSS_Bubble *Bubble);
 int apecss_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_addnode(struct APECSS_Bubble *Bubble);
 int apecss_emissions_removenode(struct APECSS_Bubble *Bubble);
-int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubble);
+int apecss_emissions_advance_finitespeedincompressible(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble);
@@ -525,8 +525,10 @@ int apecss_emissions_integrate_siv_general_euler(struct APECSS_Bubble *Bubble, s
 int apecss_emissions_integrate_siv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnzero(APECSS_FLOAT u);
-APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u);
+APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
 
 // ---------------------
 // gas.c

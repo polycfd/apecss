@@ -27,6 +27,9 @@ int apecss_emissions_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Emissions->nNodes = 0;
   Bubble->Emissions->FirstNode = NULL;
   Bubble->Emissions->LastNode = NULL;
+  Bubble->Emissions->advance = NULL;
+  Bubble->Emissions->compute_f = NULL;
+  Bubble->Emissions->integrate_along_characteristic = NULL;
 
   return (0);
 }
@@ -86,15 +89,14 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
 
   // Values used multiple times
   APECSS_FLOAT pL = Bubble->Liquid->get_pressure_bubblewall(Bubble->ODEsSol, Bubble->t, Bubble);
-  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT rhoL = Bubble->Liquid->get_density(pL, Bubble->Liquid);
-  APECSS_FLOAT rhoinf = Bubble->Liquid->get_density(pinf, Bubble->Liquid);
   APECSS_FLOAT hL = Bubble->Liquid->get_enthalpy(pL, rhoL, Bubble->Liquid);
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
+  APECSS_FLOAT hinf = Bubble->Liquid->get_enthalpy(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
   // Compute the invariants f and g
-  New->g = Bubble->R * (hL - Bubble->Liquid->get_enthalpy(pinf, rhoinf, Bubble->Liquid) + 0.5 * APECSS_POW2(Bubble->U));
-  New->f = APECSS_POW2(Bubble->R) * Bubble->U -
-           Bubble->R * New->g / (Bubble->Liquid->get_soundspeed(pL, rhoL, Bubble->Liquid) + Bubble->Emissions->get_advectingvelocity(Bubble->U));
+  New->g = Bubble->R * (hL - hinf + 0.5 * APECSS_POW2(Bubble->U));
+  New->f = Bubble->Emissions->compute_f(Bubble, New->g, pL, rhoL);
 
   // Apply the boundary conditions
   New->r = Bubble->R;
@@ -156,7 +158,7 @@ int apecss_emissions_removenode(struct APECSS_Bubble *Bubble)
 // ADVANCE EMISSION NODES
 // -------------------------------------------------------------------
 
-int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubble)
+int apecss_emissions_advance_finitespeedincompressible(struct APECSS_Bubble *Bubble)
 {
   struct APECSS_EmissionNode *Current = Bubble->Emissions->FirstNode;
 
@@ -166,16 +168,11 @@ int apecss_emissions_advance_finitetimeincompressible(struct APECSS_Bubble *Bubb
   APECSS_FLOAT c = Bubble->Liquid->cref;
   APECSS_FLOAT dr = c * Bubble->dt;
 
-  // Define constants as shortcuts
-  APECSS_FLOAT A = 2.0 * Bubble->R * APECSS_POW2(Bubble->U) + Bubble->ode[0](Bubble->ODEsSol, Bubble->t, Bubble) * APECSS_POW2(Bubble->R);
-  APECSS_FLOAT B = APECSS_POW4(Bubble->R) * APECSS_POW2(Bubble->U);
-  APECSS_FLOAT C = APECSS_POW2(Bubble->R) * Bubble->U;
-
   while (Current != NULL)
   {
     Current->r += dr;
-    Current->u = C / APECSS_POW2(Current->r);
-    Current->p = pinf + rho * (A / Current->r - B / (2.0 * APECSS_POW4(Current->r)));
+    Current->u = Current->f / APECSS_POW2(Current->r);
+    Current->p = pinf + rho * (Current->g / Current->r - 0.5 * APECSS_POW2(Current->u));
 
     // Store data (if applicable)
     Bubble->results_emissionsnode_store(Current, c, pinf, Bubble);
@@ -961,9 +958,22 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
 }
 
 // -------------------------------------------------------------------
-// ADVECTING VELOCITY
+// INVARIANT f
 // -------------------------------------------------------------------
 
-APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnzero(APECSS_FLOAT u) { return (0.0); }
+APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL) { return (0.0); }
 
-APECSS_FLOAT apecss_emissions_getadvectingvelocity_returnvelocity(APECSS_FLOAT u) { return (u); }
+APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
+{
+  return (APECSS_POW2(Bubble->R) * Bubble->U);
+}
+
+APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
+{
+  return (APECSS_POW2(Bubble->R) * Bubble->U - Bubble->R * g / Bubble->Liquid->cref);
+}
+
+APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
+{
+  return (APECSS_POW2(Bubble->R) * Bubble->U - Bubble->R * g / (Bubble->Liquid->get_soundspeed(pL, rhoL, Bubble->Liquid) + Bubble->U));
+}

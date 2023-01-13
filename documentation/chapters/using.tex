@@ -170,7 +170,7 @@ Model to compute the acoustic emissions of the bubble (bit-wise):\vspace{-1em}
 \begin{itemize}[noitemsep]
   \item {\tt APECSS\_EMISSION\_NONE}: Emissions are not modelled.
   \item {\tt APECSS\_EMISSION\_INCOMPRESSIBLE}: Emissions are assumed to occur in an incompressible fluid.
-  \item {\tt APECSS\_EMISSION\_FINITE\_TIME\_INCOMPRESSIBLE}: Emissions are assumed to occur in an incompressible fluid, but the finite propagation speed given by the speed of sound is taken into account.
+  \item {\tt APECSS\_EMISSION\_FINITE\_SPEED\_INCOMPRESSIBLE}: Emissions are assumed to occur in an incompressible fluid, but the finite propagation speed given by the speed of sound is taken into account.
   \item {\tt APECSS\_EMISSION\_QUASIACOUSTIC}: Emissions are modelled under the quasi-acoustic assumption of \citet{Trilling1952} and \citet{Gilmore1952}.
   \item {\tt APECSS\_EMISSION\_KIRKWOODBETHE}: A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used.
   \item {\tt APECSS\_EMISSION\_EV}: Emissions are modelled using the explicit expression based on the Kirkwood-Bethe hypothesis.
@@ -286,6 +286,13 @@ The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()}
 \end{lstlisting}\vspace{-0.75em}
 A solver run is ended with the function {\tt apecss\_bubble\_solver\_finalize()} where, for instance, the arrays and linked list of the acoustic emissions are freed.
 
+\subsection{Output}
+By default, APECSS does \uline{not} write out any output, neither to the terminal nor to a file. 
+
+Basic information about the version and compile options of APECSS can be written out in the terminal using the function {\tt apecss\_infoscreen()} and any user-defined message by passing the desired string to the function {\tt apecss\_writeonscreen()}, as demonstrated in many of the available examples.
+
+Various simulation results associated with the bubble dynamics and the acoustic emissions can be written to file by passing the appropriate options to APECSS (see Sections \ref{sec:bubble_results} and \ref{sec:emissions_results} for more details). In the interest of performance (writing data to file is very expensive), the results are stored in arrays and only written to file when the appropriate {\tt apecss\_results\_*\_write()} function is called, at the end of the simulation or at any appropriate point during the simulation, as shown in the examples. Exporting the results associated with the radial bubble dynamics using the function {\tt apecss\_results\_rayleighplesset\_write()} and the recording of the acoustic emissions at predefined spatial locations using the function {\tt apecss\_results\_emissionsspace\_write()} additionally requires the user to tell APECSS how the data should be handled, using the macros described in Section \ref{sec:using_macros_others}. Either the appropriate file is appended ({\tt APECSS\_RESULTS\_APPEND}), which makes sense if the results should be written out multiple times during a simulation, or the data is written to file in one go ({\tt APECSS\_RESULTS\_WRITE}), which should be used if the results are written out once at the end of the simulation. In both cases, the file is created automatically if it does not exist yet. Alternatively, the option {\tt APECSS\_RESULTS\_DISCARD} deletes the results without writing them to file, which can be useful if the results are used to collect, for instance, some statistics during the simulations but should not be stored in a file.
+
 \subsection{The void data pointer}
 
 Additional data associated with a bubble, an emission node, a gas, a liquid or an interface might be needed for more complex simulations, for instance neighbor information when multiple bubbles interact with each other or the thermal conductivity and heat capacity of the gas inside the bubble when heat transfer is considered. In APECSS, to retain flexibility and avoid unnecessary overhead, the structures {\tt struct APECSS\_Bubble}, {\tt struct APECSS\_EmissionNode}, {\tt struct APECSS\_Gas}, {\tt struct APECSS\_Liquid} and {\tt struct APECSS\_Interface} contain a \texttt{void} pointer called \texttt{user\_data} specifically for the purpose of associating additional data with those structures. This void pointer is not associated with a specific data type, but rather points to some memory location, i.e.~a memory address. 
@@ -329,25 +336,9 @@ APECSS uses function pointers extensively. Function pointers are an elegant mean
 
 To ensure a consistent formatting, please use a \textit{clang} formatter that formats the file automatically upon saving. The file defining the formatting of the APECSS source code ({\tt .clang-format}) is part of the repository. A \textit{clang} formatter (supported by most IDEs and editors) should be used for contributions to APECSS. The formatter should recognize this {\tt .clang-format} file automatically.
 
-\section{Output}
-By default, APECSS does \uline{not} write out any output, neither to the terminal nor to a file. 
-
-Basic information about the version and compile options of APECSS can be written out in the terminal using the function {\tt apecss\_infoscreen()} and any user-defined message by passing the desired string to the function {\tt apecss\_writeonscreen()}, as demonstrated in many of the available examples.
-
-Various simulation results associated with the bubble dynamics and the acoustic emissions can be written to file by passing the appropriate options to APECSS (see Sections \ref{sec:bubble_results} and \ref{sec:emissions_results} for more details). In the interest of performance (writing data to file is very expensive), the results are stored in arrays and only written to file when the appropriate {\tt apecss\_results\_*\_write()} function is called, at the end of the simulation or at any appropriate point during the simulation, as shown in the examples. Exporting the results associated with the radial bubble dynamics using the function {\tt apecss\_results\_rayleighplesset\_write()} and the recording of the acoustic emissions at predefined spatial locations using the function {\tt apecss\_results\_emissionsspace\_write()} additionally requires the user to tell APECSS how the data should be handled, using the macros described in Section \ref{sec:using_macros_others}. Either the appropriate file is appended ({\tt APECSS\_RESULTS\_APPEND}), which makes sense if the results should be written out multiple times during a simulation, or the data is written to file in one go ({\tt APECSS\_RESULTS\_WRITE}), which should be used if the results are written out once at the end of the simulation. In both cases, the file is created automatically if it does not exist yet. Alternatively, the option {\tt APECSS\_RESULTS\_DISCARD} deletes the results without writing them to file, which can be useful if the results are used to collect, for instance, some statistics during the simulations but should not be stored in a file.
-
 \section{Units}
 
-APECSS assumes SI units or any appropriate combination of SI units at all times, e.g.~when reading user-defined options, in all internal computations and when outputting data. To avoid any misunderstanding, the SI base units are the following:\vspace{-1em}
-\begin{itemize}[noitemsep]
-  \item Time in seconds [s]
-  \item Length in meter [m]
-  \item Mass in kilogram [kg]
-  \item Temperature in Kelvin [K]
-  \item Electric current in Ampere [A] 
-  \item Amount of substance in mole [mol]
-  \item Luminosity in candela [cd]
-\end{itemize}
+APECSS assumes SI units or any appropriate combination of SI units at all times, e.g.~when reading user-defined options, in all internal computations and when outputting data. To avoid any misunderstanding, the SI base units are the following:  time in seconds [s], length in meter [m], mass in kilogram [kg], temperature in Kelvin [K], electric current in Ampere [A], amount of substance in mole [mol], luminosity in candela [cd].
 
 \section{Automated testing}
 
@@ -355,3 +346,17 @@ Github {\it workflows} are run automatically to test the functionality of APECSS
 This includes a {\tt Build test} and a {\tt Run test}, the results of which are displayed in the rendered {\tt README.md} file of the Github repository.
 
 The {\tt Build test} checks whether the APECSS library compiles correctly on Linux and MacOS operating systems. The {\tt Run test}, also conducted on both Linux and MacOS operating systems, is more comprehensive, in that it first compiles the APECSS library, then compiles and runs each example. Note that a successful {\tt Run test} does not imply correct results - the {\tt Run test} only tests the basic functionality of the code (e.g.~no segmentation faults), not the correctness of the results APECSS produces. 
+
+\section{Citing APECSS}
+
+If you use APECSS for your scientific work, please consider citing the paper introducing the theoretical foundation of APECSS,\vspace{-0.5em}
+\begin{itemize}[leftmargin=*]
+  \item[] F.~Denner and S.~Schenke, Modeling acoustic emissions and shock formation of cavitation bubbles. Physics of Fluids 35 (2023). \href{https://doi.org/10.1063/5.0131930}{\texttt{https://doi.org/10.1063/5.0131930}} 
+\end{itemize}\vspace{-0.5em}
+as well as the version of APECSS you've used for your work, e.g.\vspace{-0.5em}
+\begin{itemize}[leftmargin=*]
+  \item[] F.~Denner and S.~Schenke, APECSS (v1.2), (2022). \href{https://doi.org/10.1063/5.0131930}{\texttt{https://doi.org/10.5281/zenodo.7465050}}
+\end{itemize}\vspace{-0.5em}
+All releases can be found on the \href{https://doi.org/10.5281/zenodo.7249297}{Zenodo page} of APECSS.
+
+

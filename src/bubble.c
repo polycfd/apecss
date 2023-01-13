@@ -186,9 +186,9 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_INCOMPRESSIBLE;
             }
-            else if (strncasecmp(option3, "ftic", 3) == 0 || strncasecmp(option3, "finitetimeincompressible", 24) == 0)
+            else if (strncasecmp(option3, "fsic", 3) == 0 || strncasecmp(option3, "finitespeedincompressible", 25) == 0)
             {
-              Bubble->Emissions->Type = APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE;
+              Bubble->Emissions->Type = APECSS_EMISSION_FINITE_SPEED_INCOMPRESSIBLE;
             }
             else if (strncasecmp(option3, "qa", 2) == 0 || strncasecmp(option3, "quasiacoustic", 13) == 0)
             {
@@ -531,15 +531,15 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
       Bubble->emissions_update = apecss_emissions_updatelinkedlist;
       Bubble->emissions_free = apecss_emissions_freelinkedlist;
 
-      if (Bubble->Emissions->Type == APECSS_EMISSION_FINITE_TIME_INCOMPRESSIBLE)
+      if (Bubble->Emissions->Type == APECSS_EMISSION_FINITE_SPEED_INCOMPRESSIBLE)
       {
-        Bubble->Emissions->advance = apecss_emissions_advance_finitetimeincompressible;
-        Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
+        Bubble->Emissions->advance = apecss_emissions_advance_finitespeedincompressible;
+        Bubble->Emissions->compute_f = apecss_emissions_f_finitespeedincompressible;
       }
       else if (Bubble->Emissions->Type == APECSS_EMISSION_QUASIACOUSTIC)
       {
         Bubble->Emissions->advance = apecss_emissions_advance_quasiacoustic;
-        Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnzero;
+        Bubble->Emissions->compute_f = apecss_emissions_f_quasiacoustic;
       }
       else if (Bubble->Emissions->Type & APECSS_EMISSION_KIRKWOODBETHE)
       {
@@ -549,6 +549,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
 
           if (Bubble->Emissions->Type == APECSS_EMISSION_EV)
           {
+            Bubble->Emissions->compute_f = apecss_emissions_f_kirkwoodbethe;
+
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_tait_rk4;
             else
@@ -556,6 +558,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
           }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
           {
+            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
+
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_rk4;
             else
@@ -563,6 +567,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
           }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
+            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
+
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_tiv_tait_rk4;
             else
@@ -575,6 +581,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
 
           if (Bubble->Emissions->Type == APECSS_EMISSION_EV)
           {
+            Bubble->Emissions->compute_f = apecss_emissions_f_kirkwoodbethe;
+
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_rk4;
             else
@@ -582,6 +590,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
           }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
           {
+            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
+
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_rk4;
             else
@@ -589,6 +599,8 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
           }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
+            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
+
             if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_tiv_general_rk4;
             else
@@ -597,8 +609,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
         }
         else
           apecss_erroronscreen(-1, "Unknown equation of state defined for the liquid for the emissions.");
-
-        Bubble->Emissions->get_advectingvelocity = apecss_emissions_getadvectingvelocity_returnvelocity;
       }
     }
   }
