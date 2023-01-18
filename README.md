@@ -62,11 +62,11 @@ There are several ways in which you can use the APECSS library. You can either i
 ## How to cite us
 If you use APECSS for your scientific work, please consider citing the [paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation of APECSS
 
-    F. Denner and S. Schenke, Modeling acoustic emissions and shock formation of cavitation bubbles. Physics of Fluids 35 (2023). 
+    F. Denner and S. Schenke, Modeling acoustic emissions and shock formation of cavitation bubbles, Physics of Fluids 35 (2023), 012114. 
 
 as well as the version of APECSS you've used for your work, e.g.
 
-    F. Denner and S. Schenke, APECSS (v1.2), (2022). https://doi.org/10.5281/zenodo.7465050
+    F. Denner and S. Schenke, APECSS (v1.2), Zenodo (2022). https://doi.org/10.5281/zenodo.7465050
 
 All releases can be found on the [Zenodo page](https://doi.org/10.5281/zenodo.7249297).
 
