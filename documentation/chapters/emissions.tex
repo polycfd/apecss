@@ -1,6 +1,6 @@
 \chapter{Acoustic emissions}
 
-Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully-compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
+Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully-compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Please refer to the work of \citet{Denner2023} for a detailed explanation and validation of the different emission models. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
 
 \vspace{0.8em}
 
@@ -24,7 +24,7 @@ The floating-point value given as the final argument of the {\tt Emissions} comm
 
 \section{Lagrangian wave tracking}
 
-APECSS tracks acoustic emissions using a Lagrangian wave tracking approach, illustrated in Figure \ref{fig:lagrangiantracking}, in which so-called \textit{emission nodes} are propagated in the radial direction with propagation speed $\mathcal{C}$. Each emission node, represented in APECSS as a structure {\tt struct APECSS\_EmissionNode} and part of a linked list of these structures, holds the current radial coordinate $r(t)$, the flow velocity $u(r,t)$, the pressure $p(r,t$) and, if applicable, the enthalpy $h(r,t)$, as well as the invariants $f(\tau)$ and $g(\tau)$ computed based on the solution of the RP model. The radial position of an emission node at time $t$ is given as
+APECSS tracks acoustic emissions using a Lagrangian wave tracking approach \citep{Denner2023}, illustrated in Figure \ref{fig:lagrangiantracking}, in which so-called \textit{emission nodes} are propagated in the radial direction with propagation speed $\mathcal{C}$. Each emission node, represented in APECSS as a structure {\tt struct APECSS\_EmissionNode} and part of a linked list of these structures, holds the current radial coordinate $r(t)$, the flow velocity $u(r,t)$, the pressure $p(r,t$) and, if applicable, the enthalpy $h(r,t)$, as well as the invariants $f(\tau)$ and $g(\tau)$ computed based on the solution of the RP model. The radial position of an emission node at time $t$ is given as
 \begin{equation}
     r(t) = R(\tau) + \int_\tau^t \mathcal{C}(r,t) \, \mathrm{d}t, 
     \label{eq:r_t}
@@ -90,7 +90,7 @@ Under the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948}, the propagati
 \end{equation}
 This ODE is numerically integrated using either an Euler scheme or a fourth-order Runge-Kutta (RK4) scheme, with initial condition $r(t) = R(\tau)$ for $t=\tau$, where $\tau$ is the time at which the acoustic information is emitted at the bubble wall. The time-step $\Delta t$ is taken to be the same as used for the integration of the model describing the bubble dynamics (see Section \ref{chap:bubble}).
 
-Three models to compute the velocity $u(r,t)$ at a given emission node are available in APECSS: (i) an explicit expression for $u(r,t)$, (ii) integrating the spatial derivative of the velocity, $\mathrm{d}u(r,t)/\mathrm{d}r$, along the outgoing characteristic, as proposed by \citet{Gilmore1952}, and (iii) integrating the temporal derivative of the velocity, $\mathrm{d}u(r,t)/\mathrm{d}t$, along the outgoing characteristic, as proposed by \citet{Hickling1963}. The assumptions used to derive these models for the acoustic emissions are consistent with the Gilmore model, Eq.~\eqref{eq:gilmore}.
+Three models to compute the velocity $u(r,t)$ at a given emission node are available in APECSS: (i) an explicit expression for $u(r,t)$ \citep{Denner2023}, (ii) integrating the spatial derivative of the velocity, $\mathrm{d}u(r,t)/\mathrm{d}r$, along the outgoing characteristic, as proposed by \citet{Gilmore1952}, and (iii) integrating the temporal derivative of the velocity, $\mathrm{d}u(r,t)/\mathrm{d}t$, along the outgoing characteristic, as proposed by \citet{Hickling1963}. The assumptions used to derive these models for the acoustic emissions are consistent with the Gilmore model, Eq.~\eqref{eq:gilmore}.
 
 Following a similar derivation as for the quasi-acoustic model discussed in Section \ref{sec:emissionsqa}, but assuming a fully-compressible liquid described by a suitable equation of state, the {\it explicit velocity (EV)} is given as
 \begin{equation}
