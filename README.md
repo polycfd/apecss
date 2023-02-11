@@ -6,12 +6,12 @@
   </a>
   <a href="https://github.com/polycfd/apecss/actions/workflows/test_run.yml">
     <img src="https://github.com/polycfd/apecss/actions/workflows/test_run.yml/badge.svg" alt="License">
+  </a> 
+  <a href="https://doi.org/10.5281/zenodo.7249297">
+    <img src="https://img.shields.io/badge/DOI-10.5281/zenodo.7249297-blue" alt="Latest version">
   </a>
   <a href="https://doi.org/10.1063/5.0131930">
     <img src="https://img.shields.io/badge/Paper-10.1063/5.0131930-blue" alt="Paper">
-  </a>
-  <a href="https://doi.org/10.5281/zenodo.7249297">
-    <img src="https://img.shields.io/badge/All%20releases-10.5281/zenodo.7249297-blue" alt="Latest version">
   </a>
 </p>
 
@@ -68,7 +68,7 @@ as well as the version of APECSS you've used for your work, e.g.
 
     F. Denner and S. Schenke, APECSS (v1.2), Zenodo (2022). https://doi.org/10.5281/zenodo.7465050
 
-All releases can be found on the [Zenodo page](https://doi.org/10.5281/zenodo.7249297).
+All releases of APECSS and the corresponding DOIs can be found on the [Zenodo page](https://doi.org/10.5281/zenodo.7249297) of APECSS.
 
 ## Acknowledgements
 The development of APECSS has directly benefitted from research funding provided by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation), grant number 441063377.
