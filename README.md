@@ -26,7 +26,7 @@ Key features of APECSS are:
 - APECSS has no external dependencies, aside from the standard _math_ library and some common C headers (math.h, stdio.h, stdlib.h, string.h).
 
 ## Developers
-- [Fabian Denner](mailto:fabian.denner@ovgu.de) (principal developer, maintainer)
+- [Fabian Denner](mailto:fabian.denner@polymtl.ca) (principal developer, maintainer)
 - [Sören Schenke](mailto:soeren.schenke@ovgu.de)
 
 ## License and Copyright
