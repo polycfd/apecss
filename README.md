@@ -32,6 +32,23 @@ Key features of APECSS are:
 ## License and Copyright
 APECSS is under the copyright of its developers and made available as open-source software under the terms of the [Mozilla Public License Version 2.0](LICENSE.txt).
 
+## Quick Start Guide
+Getting started with APECSS is easy. After downloading APECSS in the directory ````<path to APECSS>````, define the following environment variables:
+- ````APECSS_DIR```` to the directory in which APECSS is located. Using bash, for instance, simply execute the command ````export APECSS_DIR=<path to APECSS>```` or, even better, add this command to your bash profile.
+- ````USRLIB_DIR```` to the directory in which libm.a or libm.dylib (the standard _math_ library) is located. This may, for instance, be ````/usr/lib64/```` on Linux systems or ````/usr/lib/```` on MacOS systems.
+
+Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've successfully compiled APECSS!
+
+There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. Some representative examples are given in the [````$APECSS_DIR/examples````](/examples/) directory. Each directory contains the following:
+- A ````README.md```` file explaining the purpose and specificities of this/these example(s).
+- A ````src```` folder with a file called ````*_apecss.c```` that acts as the standalone interface to the APECSS library. This file contains the ````main()```` function and any additional functionality required to simulate a specific scenario.
+- A ````build```` folder containing the ````CMakeLists.txt```` file and a shell script ````compile.sh```` with which this example can be compiled using the command ````./compile.sh````.
+- One or several ````*.apecss```` files in which the options for a specific case are defined.
+
+If you'd like, for instance, test the installation of APECSS with an ultrasound-driven bubble, navigate to [````$APECSS_DIR/examples/ultrasound````](/examples/ultrasound/). There you can find different test cases, described in more detail in the accompanying [````README.md````](/examples/ultrasound/README.md). Execute the ````compile.sh```` script in the [````build````](/examples/ultrasound/build/) directory. You can now choose which test case to run, by using the corresponding execution command suggested in the [````README.md````](/examples/ultrasound/README.md). 
+
+Note that, for most test cases, the settings and options given by the execution command and the corresponding ````*.apecss```` file reproduce a case previously presented in the literature, as indicated in the ````README.md```` files, which also serves to validate the implementation of APECSS.
+
 ## Repository Structure
 The APECSS repository is structured as follows:
 - The [documentation](/documentation/) folder contains a short [pdf](/documentation/APECSS-Documentation.pdf) documentation of APECSS. The documentation discusses the theory behind APECSS, explains the code structure and how to use APECSS. The documentation will be amended and expanded over time.
@@ -45,19 +62,6 @@ The APECSS repository is structured as follows:
 - The [CONTRIBUTING.md](CONTRIBUTING.md) file containing brief guidelines on how to contribute to APECSS.
 - The [LICENSE.txt](LICENSE.txt) file containing the Mozilla Public License Version 2.0.
 - The [README.md](README.md) file is the file you are currently reading.
-
-## Quick Start Guide
-Getting started with APECSS is easy. After downloading APECSS in the directory ````<path to APECSS>````, define the following environment variables:
-- ````APECSS_DIR```` to the directory in which APECSS is located. Using bash, for instance, simply execute the command ````export APECSS_DIR=<path to APECSS>```` or, even better, add this command to your bash profile.
-- ````USRLIB_DIR```` to the directory in which libm.a or libm.dylib (the standard _math_ library) is located. This may, for instance, be ````/usr/lib64/```` on Linux systems or ````/usr/lib/```` on MacOS systems.
-
-Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've successfully compiled APECSS!
-
-There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. Some representative examples are given in the ````$APECSS_DIR/examples```` directory. Each directory contains the following:
-- A ````README.md```` file explaining the purpose and specificities of this/these example(s).
-- A ````src```` folder with a file called ````*_apecss.c```` that acts as the standalone interface to the APECSS library. This file contains the ````main()```` function and any additional functionality required to simulate a specific scenario.
-- A ````build```` folder containing the ````CMakeLists.txt```` file and a shell script ````compile.sh```` with which this example can be compiled using the command ````./compile.sh````.
-- One or several ````*.apecss```` files in which the options for a specific case are defined.
 
 ## How to cite us
 If you use APECSS for your scientific work, please consider citing the [paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation of APECSS
