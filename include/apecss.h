@@ -603,6 +603,7 @@ APECSS_FLOAT apecss_liquid_pressurederivative_viscous_nonimpl(APECSS_FLOAT R, st
 int apecss_writeonscreen(char *str);
 int apecss_erroronscreen(int num, char *message);
 int apecss_infoscreen();
+int apecss_helpscreen();
 int apecss_readoneoption(FILE *OptionsFile, char *stuk);
 int apecss_lineget(char *ssring, FILE *fp);
 int apecss_linegetskip(char *ssring, FILE *fp);

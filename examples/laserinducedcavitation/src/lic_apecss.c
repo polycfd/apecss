@@ -80,6 +80,10 @@ int main(int argc, char **args)
       sscanf(args[i + 1], "%le", &tEnd);
       i += 2;
     }
+    else if (strcmp("-h", args[i]) == 0)
+    {
+      apecss_helpscreen();
+    }    
     else
     {
       char str[APECSS_STRINGLENGTH_SPRINTF];

@@ -59,6 +59,24 @@ int apecss_infoscreen()
   return (0);
 }
 
+int apecss_helpscreen()
+{
+  printf("| APECSS |  \n");
+  printf("| APECSS | Welcome to the APECSS help screen. \n");
+  printf("| APECSS | -options <path to options file> : Defines the path to the APECSS options file. \n");
+  printf("| APECSS |  \n");
+  printf("| APECSS | For examples on how to use APECSS, see the examples folder in the repository:\n");
+  printf("| APECSS | https://github.com/polycfd/apecss/tree/main/examples \n");
+  printf("| APECSS |  \n");
+  printf("| APECSS | Each example folder contains the following:\n");
+  printf("| APECSS | - A README.md file explaining the purpose and execution of this/these example(s).\n");
+  printf("| APECSS | - A src folder with a file called *_apecss.c that acts as the standalone interface to the APECSS library.\n");
+  printf("| APECSS | - A build folder containing the CMakeLists.txt file and a shell script compile.sh with which this example can be compiled. \n");
+  printf("| APECSS | - One or several *.apecss files in which the options for a specific case are defined.");
+  exit(1);
+}
+
+
 int apecss_readoneoption(FILE* OptionsFile, char* option)
 {
   char ch, ch2;
