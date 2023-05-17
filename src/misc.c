@@ -72,7 +72,7 @@ int apecss_helpscreen()
   printf("| APECSS | - A README.md file explaining the purpose and execution of this/these example(s).\n");
   printf("| APECSS | - A src folder with a file called *_apecss.c that acts as the standalone interface to the APECSS library.\n");
   printf("| APECSS | - A build folder containing the CMakeLists.txt file and a shell script compile.sh with which this example can be compiled. \n");
-  printf("| APECSS | - One or several *.apecss files in which the options for a specific case are defined.");
+  printf("| APECSS | - One or several *.apecss files in which the options for a specific case are defined.\n");
   exit(1);
 }
 
