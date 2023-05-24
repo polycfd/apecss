@@ -1,11 +1,11 @@
 ---
 title: 'APECSS: A software library for cavitation bubble dynamics and acoustic emissions'
 tags:
-  - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - Cavitation
+  - Bubble dynamics
+  - Acoustics
+  - Ultrasound
+  - Rayleigh-Plesset
 authors:
   - name: Fabian Denner
     orcid: 0000-0001-5812-061X
@@ -16,7 +16,7 @@ authors:
     # equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
     affiliation: 2
 affiliations:
- - name: Department of Mechanical Engineering, Polytechnique Montréal, Montréal, H3T 1J4, QC, Canada
+ - name: Department of Mechanical Engineering, Polytechnique Montréal, Montréal, H3T 1J4, Québec, Canada
    index: 1
  - name: Chair of Mechanical Process Engineering, Otto-von-Guericke-Universität Magdeburg, 39106 Magdeburg, Germany
    index: 2
