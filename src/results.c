@@ -16,6 +16,8 @@
 // -------------------------------------------------------------------
 // INITIALIZE
 // -------------------------------------------------------------------
+// Functions initializing the structures that hold the results.
+// -------------------------------------------------------------------
 
 int apecss_results_initializestruct(struct APECSS_Bubble *Bubble)
 {
@@ -66,7 +68,10 @@ int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble)
 }
 
 // -------------------------------------------------------------------
-//  BUBBLE
+// BUBBLE
+// -------------------------------------------------------------------
+// Functions for the handling of the results associated with the 
+// bubble dynamics, e.g. bubble radius and bubble wall velocity.
 // -------------------------------------------------------------------
 
 int apecss_results_rayleighplesset_initialize(struct APECSS_Bubble *Bubble)
@@ -342,6 +347,9 @@ int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // EMISSIONS  (time instance)
 // -------------------------------------------------------------------
+// Functions handling the results associated with the acoustics 
+// emissions recorded in space at user-defined instances of time.
+// -------------------------------------------------------------------
 
 int apecss_results_emissionstime_writenone(struct APECSS_Bubble *Bubble) { return (0); }
 
@@ -402,6 +410,9 @@ APECSS_FLOAT apecss_results_emissionstime_checktime(APECSS_FLOAT tend, struct AP
 
 // -------------------------------------------------------------------
 // EMISSIONS  (space locations)
+// -------------------------------------------------------------------
+// Functions handling the results associated with the acoustics 
+// emissions recorded in time at user-defined locations in space.
 // -------------------------------------------------------------------
 
 int apecss_results_emissionsspace_storenone(struct APECSS_Bubble *Bubble) { return (0); }
@@ -655,6 +666,9 @@ int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // EMISSIONS  (specific emission id)
 // -------------------------------------------------------------------
+// Functions handling the results associated with the acoustics 
+// emissions of user-defined nodes.
+// -------------------------------------------------------------------
 
 int apecss_results_emissionsnodespecific_storenone(struct APECSS_EmissionNode *Node, APECSS_FLOAT c, APECSS_FLOAT pinf, struct APECSS_Bubble *Bubble)
 {
@@ -741,6 +755,9 @@ int apecss_results_emissionsnodespecific_free(struct APECSS_Bubble *Bubble)
 
 // -------------------------------------------------------------------
 // EMISSIONS  (min/max values)
+// -------------------------------------------------------------------
+// Functions handling the results associated with the extrema of the
+// acoustics emissions recorded in a user-defined oscillation period.
 // -------------------------------------------------------------------
 
 int apecss_results_emissionsnodeminmax_identifynone(struct APECSS_Bubble *Bubble) { return (0); }
@@ -892,6 +909,9 @@ int apecss_results_emissionsnodeminmax_write(struct APECSS_Bubble *Bubble)
 
 // -------------------------------------------------------------------
 // EMISSIONS  (general ops for nodes)
+// -------------------------------------------------------------------
+// Functions with general operation associated with the results of the
+// acoustic emissions.
 // -------------------------------------------------------------------
 
 int apecss_results_emissionsnode_initializenode(struct APECSS_ResultsEmissionsNode *Node)

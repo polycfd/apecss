@@ -14,7 +14,10 @@
 #include "apecss.h"
 
 // -------------------------------------------------------------------
-// SET OPTIONS
+// OPTIONS
+// -------------------------------------------------------------------
+// Functions initializing, processing and handling the options of the
+// gas phase.
 // -------------------------------------------------------------------
 
 int apecss_gas_setdefaultoptions(struct APECSS_Gas *Gas)
@@ -205,6 +208,8 @@ int apecss_gas_processoptions(struct APECSS_Gas *Gas)
 // -------------------------------------------------------------------
 // PROPERTIES
 // -------------------------------------------------------------------
+// Functions defining the density of the gas phase.
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_gas_density_constmass(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (Bubble->rhoG0 * APECSS_POW3(Bubble->R0 / R)); }
 
@@ -215,6 +220,13 @@ APECSS_FLOAT apecss_gas_densityderivative_constmass(APECSS_FLOAT R, APECSS_FLOAT
 
 // -------------------------------------------------------------------
 // PRESSURE
+// -------------------------------------------------------------------
+// Functions defining the gas pressure and its derivatives.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_gas_processoptions() and 
+// associated with the function pointers:
+// - Gas->get_pressure()
+// - Gas->get_pressurederivative()
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_gas_pressure_ig(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble)
