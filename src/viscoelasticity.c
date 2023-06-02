@@ -16,6 +16,12 @@
 // -------------------------------------------------------------------
 // ZENER
 // -------------------------------------------------------------------
+// Functions with additional ODEs defining the stresses in a Zener
+// solid.
+// -------------------------------------------------------------------
+// Functions are hooked up to the function pointers Bubble->ode[2] and
+// Bubble->ode[3] in apecss_bubble_processoptions().
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_viscoelastic_zenertaurr_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
@@ -42,6 +48,12 @@ APECSS_FLOAT apecss_viscoelastic_zenervarsigma_ode(APECSS_FLOAT *Sol, APECSS_FLO
 
 // -------------------------------------------------------------------
 // UCM/OLDROYD-B
+// -------------------------------------------------------------------
+// Functions with additional ODEs defining the stresses in a upper-
+// convected Maxwell or Oldroyd-B fluid.
+// -------------------------------------------------------------------
+// Functions are hooked up to the function pointers Bubble->ode[2] and
+// Bubble->ode[3] in apecss_bubble_processoptions().
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_viscoelastic_oldroydb1_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)

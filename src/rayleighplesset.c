@@ -13,7 +13,27 @@
 
 #include "apecss.h"
 
+// -------------------------------------------------------------------
+// RADIUS OF THE BUBBLE WALL
+// -------------------------------------------------------------------
+// Function with the ODE defining the bubble radius, dr/dt = u. This
+// is applied in all bubble dynamics models.
+// -------------------------------------------------------------------
+// Function is hooked up to the function pointer Bubble->ode[1] in 
+// apecss_bubble_processoptions().
+// -------------------------------------------------------------------
+
 APECSS_FLOAT apecss_rp_bubbleradius_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble) { return (Sol[0]); }
+
+// -------------------------------------------------------------------
+// VELOCITY OF THE BUBBLE WALL
+// -------------------------------------------------------------------
+// Functions with the ODE defining the velocity of the bubble wall, 
+// du/dt = [...], based on the chosen bubble dynamics model.
+// -------------------------------------------------------------------
+// Function is hooked up to the function pointer Bubble->ode[0] in 
+// apecss_bubble_processoptions().
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_rp_rayleighplessetvelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {

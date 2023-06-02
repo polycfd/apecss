@@ -13,6 +13,13 @@
 
 #include "apecss.h"
 
+// -------------------------------------------------------------------
+// OPTIONS
+// -------------------------------------------------------------------
+// Functions initializing, processing and handling the options of the
+// ODE solver.
+// -------------------------------------------------------------------
+
 int apecss_odesolver_setdefaultoptions(struct APECSS_NumericsODE *NumericsODE)
 {
   NumericsODE->RKtype = APECSS_RK54_7M;
@@ -248,6 +255,13 @@ int apecss_odesolver_processoptions(struct APECSS_NumericsODE *ODEs)
   return (0);
 }
 
+// -------------------------------------------------------------------
+// SOLVER
+// -------------------------------------------------------------------
+// Function with the actual ODE solver, based on the RK5(4) embedded
+// Runge-Kutta scheme of Dormand and Prince (1980).
+// -------------------------------------------------------------------
+
 APECSS_FLOAT apecss_odesolver(struct APECSS_Bubble *Bubble)
 {
   APECSS_FLOAT *SolTemp, t;
@@ -339,6 +353,13 @@ APECSS_FLOAT apecss_odesolver(struct APECSS_Bubble *Bubble)
 
   return (err);
 }
+
+// -------------------------------------------------------------------
+// TIME STEP
+// -------------------------------------------------------------------
+// Function setting the time-step based on the solution error of the 
+// previous solve.
+// -------------------------------------------------------------------
 
 int apecss_odesolver_settimestep(struct APECSS_NumericsODE *ODEs, APECSS_FLOAT err, APECSS_FLOAT timetoend, APECSS_FLOAT *dt)
 {

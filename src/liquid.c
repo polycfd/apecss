@@ -14,7 +14,10 @@
 #include "apecss.h"
 
 // -------------------------------------------------------------------
-// SET OPTIONS
+// OPTIONS
+// -------------------------------------------------------------------
+// Functions initializing, processing and handling the options of the
+// liquid phase.
 // -------------------------------------------------------------------
 
 int apecss_liquid_setdefaultoptions(struct APECSS_Liquid *Liquid)
@@ -276,6 +279,14 @@ int apecss_liquid_processoptions(struct APECSS_Liquid *Liquid)
 // -------------------------------------------------------------------
 // PROPERTIES
 // -------------------------------------------------------------------
+// Functions defining the thermodynamic properties of the liquid phase
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_liquid_processoptions() and 
+// associated with the function pointers:
+// - Liquid->get_density()
+// - Liquid->get_soundspeed()
+// - Liquid->get_enthalpy()
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_liquid_density_fixed(APECSS_FLOAT p, struct APECSS_Liquid *Liquid) { return (Liquid->rhoref); }
 
@@ -317,6 +328,15 @@ APECSS_FLOAT apecss_liquid_enthalpy_nasg(APECSS_FLOAT p, APECSS_FLOAT rho, struc
 
 // -------------------------------------------------------------------
 // BUBBLE WALL PRESSURE
+// -------------------------------------------------------------------
+// Functions defining the bubble wall pressure and its derivatives,
+// dependent on the rheology of the liquid, the viscous stresses and 
+// surface tension contribution.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_liquid_processoptions() and 
+// associated with the function pointers:
+// - Gas->get_pressure_bubblewall()
+// - Gas->get_pressurederivative_bubblewall_expl()
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_liquid_pressure_bubblewall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
@@ -377,6 +397,15 @@ APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_exploldroydb(APECSS_FLO
 
 // -------------------------------------------------------------------
 // VISCOUS PRESSURE
+// -------------------------------------------------------------------
+// Functions defining the pressure contribution due to viscous 
+// stresses.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_liquid_processoptions() and 
+// associated with the function pointers:
+// - Liquid->get_pressure_viscous()
+// - Liquid->get_pressurederivative_viscous_expl()
+// - Liquid->get_pressurederivative_viscous_impl()
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_liquid_pressure_viscous(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble) { return (4.0 * Bubble->Liquid->mu * U / R); }

@@ -14,7 +14,10 @@
 #include "apecss.h"
 
 // -------------------------------------------------------------------
-// SET OPTIONS
+// OPTIONS
+// -------------------------------------------------------------------
+// Functions initializing, processing and handling the options of the
+// gas-liquid interface.
 // -------------------------------------------------------------------
 
 int apecss_interface_setdefaultoptions(struct APECSS_Interface *Interface)
@@ -188,6 +191,13 @@ int apecss_interface_processoptions(struct APECSS_Interface *Interface)
 // -------------------------------------------------------------------
 // SURFACE TENSION COEFFICIENT
 // -------------------------------------------------------------------
+// Functions defining the surface tension coefficient and its 
+// derivative, based on the chosen model. 
+// -------------------------------------------------------------------
+// The function for surface tension is chosen in 
+// apecss_interface_processoptions() and associated with the function 
+// pointer Interface->get_surfacetension().
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_interface_surfacetension_clean(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (Bubble->Interface->sigma); }
 
@@ -232,6 +242,13 @@ APECSS_FLOAT apecss_interface_surfacetensionderivative_gompertzmarmottant(APECSS
 // -------------------------------------------------------------------
 // SURFACE TENSION PRESSURE
 // -------------------------------------------------------------------
+// Functions defining the pressure contribution due to surface tension
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_interface_processoptions() and 
+// associated with the function pointers:
+// - Interface->get_pressure_surfacetension()
+// - Interface->get_pressurederivative_surfacetension()
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_interface_surfacetensionpressure_clean(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (2.0 * Bubble->Interface->sigma / R); }
 
@@ -264,6 +281,15 @@ APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_gompertzmarmottan
 
 // -------------------------------------------------------------------
 // VISCOUS PRESSURE
+// -------------------------------------------------------------------
+// Functions defining the pressure contribution due to viscous 
+// stresses of the interface coating.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_interface_processoptions() and 
+// associated with the function pointers:
+// - Interface->get_pressure_viscous()
+// - Interface->get_pressurederivative_viscous_expl()
+// - Interface->get_pressurederivative_viscous_impl()
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_interface_pressure_viscous_clean(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface) { return (0.0); }

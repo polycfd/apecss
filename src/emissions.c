@@ -16,6 +16,8 @@
 // -------------------------------------------------------------------
 // INITIALIZE / FREE
 // -------------------------------------------------------------------
+// Functions dealing with the memory management of the emissions.
+// -------------------------------------------------------------------
 
 int apecss_emissions_initializestruct(struct APECSS_Bubble *Bubble)
 {
@@ -68,6 +70,8 @@ int apecss_emissions_freelinkedlist(struct APECSS_Bubble *Bubble)
 
 // -------------------------------------------------------------------
 // UPDATE
+// -------------------------------------------------------------------
+// Functions updating the linked list of emission nodes.
 // -------------------------------------------------------------------
 
 int apecss_emissions_updatenone(struct APECSS_Bubble *Bubble) { return (0); }
@@ -156,6 +160,12 @@ int apecss_emissions_removenode(struct APECSS_Bubble *Bubble)
 
 // -------------------------------------------------------------------
 // ADVANCE EMISSION NODES
+// -------------------------------------------------------------------
+// Functions advancing the emission nodes in space dependent on the 
+// chosen model for the emissions.
+// -------------------------------------------------------------------
+// The appropriate function is chosen in apecss_bubble_processoptions()
+// and hooked up to the function pointer Bubble->Emissions->advance().
 // -------------------------------------------------------------------
 
 int apecss_emissions_advance_finitespeedincompressible(struct APECSS_Bubble *Bubble)
@@ -396,6 +406,13 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
 
 // -------------------------------------------------------------------
 // INTEGRATION OF POSITION AND VELOCITY ALONG CHARACTERISTIC
+// -------------------------------------------------------------------
+// Functions integrating the position and velocity of the emission
+// nodes dependent on the type of velocity integration and scheme.
+// -------------------------------------------------------------------
+// The appropriate function is chosen in apecss_bubble_processoptions()
+// and hooked up to the function pointer 
+// Bubble->Emissions->integrate_along_characteristic().
 // -------------------------------------------------------------------
 
 int apecss_emissions_integrate_ev_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
@@ -959,6 +976,13 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
 
 // -------------------------------------------------------------------
 // INVARIANT f
+// -------------------------------------------------------------------
+// Functions computing the invariant f dependent on the model chosen
+// for the emissions.
+// -------------------------------------------------------------------
+// The appropriate function is chosen in apecss_bubble_processoptions()
+// and hooked up to the function pointer
+// Bubble->Emissions->compute_f().
 // -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL) { return (0.0); }
