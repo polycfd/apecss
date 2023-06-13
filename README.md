@@ -35,6 +35,12 @@ Key features of APECSS are:
 ## License and Copyright
 APECSS is under the copyright of its developers and made available as open-source software under the terms of the [Mozilla Public License Version 2.0](LICENSE.txt).
 
+## Requirements
+
+APECSS has been developed and tested on Unix systems, using Linux and MacOS operating systems. The only mandatory requirement to compile and run APECSS is a standard C compiler, such as [````gcc````](https://gcc.gnu.org).
+
+Optionally, [````cmake````](https://cmake.org) (version 3.12 or higher) is required if you would like to make use of the provided compilation and test scripts. To use the provided Python scripts for visualizing the output of APECSS, [````Python````](https://www.python.org) (version 3), [````numpy````](https://numpy.org) and [````matplotlib````](https://matplotlib.org) are required. 
+
 ## Quick Start Guide
 
 ### **Installation**
@@ -57,7 +63,7 @@ You can run **all** examples by executing ````./run_all.sh```` in the [````examp
 
 Alternatively, if you're, for instance, specifically interested in an ultrasound-driven bubble, navigate to [````$APECSS_DIR/examples/ultrasound````](/examples/ultrasound/). There you can find different test cases, described in more detail in the accompanying [````README.md````](/examples/ultrasound/README.md). Execute the ````compile.sh```` script in the [````build````](/examples/ultrasound/build/) directory. You can now choose which test case to run, by using the corresponding execution command suggested in the [````README.md````](/examples/ultrasound/README.md). Also, the settings and options given by the execution command and the corresponding ````*.apecss```` file typically reproduce a case previously presented in the literature, as indicated in the ````README.md```` file.
 
-More information about each example, how to run it and what the results might be compared to can be found in the accompanying {\tt README.md} file.
+More information about each example, how to run it and what the results might be compared to can be found in the accompanying ````README.md```` file.
 
 ## Repository Structure
 The APECSS repository is structured as follows:
