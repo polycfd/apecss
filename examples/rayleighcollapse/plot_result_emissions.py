@@ -17,10 +17,10 @@ cm = 1/2.54
 tc = 0.09136264691 # Rayleigh collapse time
 
 # Load the computed results.
-Bubble = np.genfromtxt("Gilmore_R1.000e+00.txt", delimiter=" ")
-Ep2 = np.genfromtxt("EmissionsSpace_2.000e-01.txt", delimiter=" ")
-Ep5 = np.genfromtxt("EmissionsSpace_5.000e-01.txt", delimiter=" ")
-EpX = np.genfromtxt("EmissionsSpace_1.000e+00.txt", delimiter=" ")
+Bubble = np.genfromtxt(path + "Gilmore_R1.000e+00.txt", delimiter=" ")
+Ep2 = np.genfromtxt(path + "EmissionsSpace_2.000e-01.txt", delimiter=" ")
+Ep5 = np.genfromtxt(path + "EmissionsSpace_5.000e-01.txt", delimiter=" ")
+EpX = np.genfromtxt(path + "EmissionsSpace_1.000e+00.txt", delimiter=" ")
 
 # Check if the computed results match the reference results of APECSS.
 rtol = 1.0e-6
