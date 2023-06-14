@@ -58,7 +58,7 @@ jobs:
     - name: Run Rayleigh collapse (with emissions) and check results
       run: |
         ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/emissions.apecss -tend 0.2 -resultsdir ${{github.workspace}}/examples/rayleighcollapse/
-        python plot_result_emissions.py ${{github.workspace}}/examples/rayleighcollapse/
+        python ${{github.workspace}}/examples/rayleighcollapse/plot_result_emissions.py ${{github.workspace}}/examples/rayleighcollapse/
 
     - name: Configure ultrasound
       run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -85,7 +85,9 @@ jobs:
       with:
         python-version: 3.11
     - name: Configure Python
-      run: python -m pip install --upgrade pip requests
+      run: |
+        python -m pip install numpy
+        python -m pip install matplotlib
 
     - name: Configure lib
       run: cmake -S ${{github.workspace}}/lib -B ${{github.workspace}}/lib -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -122,7 +124,7 @@ jobs:
     - name: Run Rayleigh collapse (with emissions) and check results
       run: |
         ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/emissions.apecss -tend 0.2 -resultsdir ${{github.workspace}}/examples/rayleighcollapse/
-        python plot_result_emissions.py ${{github.workspace}}/examples/rayleighcollapse/
+        python ${{github.workspace}}/examples/rayleighcollapse/plot_result_emissions.py ${{github.workspace}}/examples/rayleighcollapse/
 
     - name: Configure ultrasound
       run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
