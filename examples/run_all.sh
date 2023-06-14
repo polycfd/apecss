@@ -1,3 +1,5 @@
+#!/bin/bash
+set -e
 cd binaryinteraction/build
 ./compile.sh
 cd ..
