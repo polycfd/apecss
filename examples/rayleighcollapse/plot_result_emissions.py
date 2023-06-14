@@ -28,7 +28,7 @@ atol = 3.0e-16 # Based (approximately) on the machine precision of double precis
 res = 0
 res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_Gilmore_R1.000e+00.txt", delimiter=" "), Bubble, rtol, atol, False)
 res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_2.000e-01.txt", delimiter=" "), Ep2, rtol, atol, False)
-res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_5.000e-01.txt", delimiter=" "), Ep5, rtol, atol, False)
+res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_5.000e-01.txt", delimiter=" "), Ep2, rtol, atol, False)
 res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_1.000e+00.txt", delimiter=" "), EpX, rtol, atol, False)
 if res == 4:
     print('All results of the Rayleigh collapse with emissions match the corresponding reference!')
