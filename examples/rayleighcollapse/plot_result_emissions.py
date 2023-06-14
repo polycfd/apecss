@@ -1,5 +1,12 @@
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
+
+# Reading an optional argument is required to run this script as a part of a GitHub action
+if len(sys.argv) > 1:
+    path = str(sys.argv[1])
+else:
+    path = "./"
 
 plt.rcParams['font.family']='serif'
 plt.rcParams['font.serif']=['Times New Roman'] + plt.rcParams['font.serif']
@@ -9,15 +16,31 @@ plt.rcParams['font.size']=10
 cm = 1/2.54
 tc = 0.09136264691 # Rayleigh collapse time
 
+# Load the computed results.
 Bubble = np.genfromtxt("Gilmore_R1.000e+00.txt", delimiter=" ")
 Ep2 = np.genfromtxt("EmissionsSpace_2.000e-01.txt", delimiter=" ")
 Ep5 = np.genfromtxt("EmissionsSpace_5.000e-01.txt", delimiter=" ")
 EpX = np.genfromtxt("EmissionsSpace_1.000e+00.txt", delimiter=" ")
 
-Mp = np.genfromtxt("reference-data_emissions/pressure_0p05-0p1-0p2-0p5-1-2", delimiter=" ")
-Mu = np.genfromtxt("reference-data_emissions/velocity_0p05-0p1-0p2-0p5-1-2", delimiter=" ")
-MbR = np.genfromtxt("reference-data_emissions/bubbleVolumeRadius", delimiter=" ")
-Mbpg = np.genfromtxt("reference-data_emissions/bubbleAvgPres", delimiter=" ")
+# Check if the computed results match the reference results of APECSS.
+rtol = 1.0e-6
+atol = 3.0e-16 # Based (approximately) on the machine precision of double precision.
+res = 0
+res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_Gilmore_R1.000e+00.txt", delimiter=" "), Bubble, rtol, atol, False)
+res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_2.000e-01.txt", delimiter=" "), Ep2, rtol, atol, False)
+res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_5.000e-01.txt", delimiter=" "), Ep5, rtol, atol, False)
+res += np.allclose(np.genfromtxt(path + "reference-data_emissions/APECSS_EmissionsSpace_1.000e+00.txt", delimiter=" "), EpX, rtol, atol, False)
+if res == 4:
+    print('All results of the Rayleigh collapse with emissions match the corresponding reference!')
+else:
+    print('-!!!- WARNING -!!!-', 4-res, 'result(s) of the Rayleigh collapse with emissions DO(ES) NOT match the corresponding reference!')
+    sys.exit(1)
+
+# Load the Navier-Stokes reference results
+Mp = np.genfromtxt(path + "reference-data_emissions/NavierStokes_pressure_0p05-0p1-0p2-0p5-1-2", delimiter=" ")
+Mu = np.genfromtxt(path + "reference-data_emissions/NavierStokes_velocity_0p05-0p1-0p2-0p5-1-2", delimiter=" ")
+MbR = np.genfromtxt(path + "reference-data_emissions/NavierStokes_bubbleVolumeRadius", delimiter=" ")
+Mbpg = np.genfromtxt(path + "reference-data_emissions/NavierStokes_bubbleAvgPres", delimiter=" ")
 
 fig1 = plt.figure(figsize=(17*cm,15*cm))
 ax1 = plt.subplot2grid((3,3),(0,0),colspan=1)
@@ -125,3 +148,4 @@ ax8.yaxis.set_label_coords(-0.25, 0.5)
 ax9.yaxis.set_label_coords(-0.25, 0.5)
 
 fig1.savefig('rayleighcollapse_emissions.pdf', bbox_inches='tight',pad_inches=0.035)
+sys.exit(0)

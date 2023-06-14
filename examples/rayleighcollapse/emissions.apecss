@@ -45,6 +45,7 @@ EmissionsSpace 1.0
 END
 
 ODESOLVER
-Tolerance 1.0e-12
+MinTimeStep 1.0e-6
 MaxTimeStep 1.0e-6
+MaxSubIterations 0
 END
