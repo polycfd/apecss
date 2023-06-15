@@ -39,13 +39,13 @@ RESULTS
 Bubble
 OutputFreqRP 1
 OutputDigits 10
-EmissionsSpace 0.1
 EmissionsSpace 0.2
 EmissionsSpace 0.5
 EmissionsSpace 1.0
 END
 
 ODESOLVER
-Tolerance 1.0e-12
+MinTimeStep 1.0e-6
 MaxTimeStep 1.0e-6
+MaxSubIterations 0
 END

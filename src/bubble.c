@@ -14,7 +14,10 @@
 #include "apecss.h"
 
 // -------------------------------------------------------------------
-// SET OPTIONS
+// OPTIONS
+// -------------------------------------------------------------------
+// Functions initializing, processing and handling the options and the
+// related data structures of a bubble.
 // -------------------------------------------------------------------
 
 int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
@@ -906,6 +909,8 @@ int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // SOLVE
 // -------------------------------------------------------------------
+// Functions handling the solver for the bubble dynamics.
+// -------------------------------------------------------------------
 
 int apecss_bubble_solver_initialize(struct APECSS_Bubble *Bubble)
 {
@@ -1006,6 +1011,13 @@ int apecss_bubble_solver_finalize(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // PRESSURE AT INFINITY
 // -------------------------------------------------------------------
+// Functions defining the pressure at infinity and its derivatives.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_bubble_processoptions() and 
+// associated with the function pointers:
+// - Bubble->get_pressure_infinity()
+// - Bubble->get_pressurederivative_infinity()
+// -------------------------------------------------------------------
 
 APECSS_FLOAT apecss_bubble_pressure_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble) { return (Bubble->p0); }
 
@@ -1023,6 +1035,14 @@ APECSS_FLOAT apecss_bubble_pressurederivative_infinity_sinexcitation(APECSS_FLOA
 
 // -------------------------------------------------------------------
 // PROGRESS SCREEN
+// -------------------------------------------------------------------
+// Functions handling the optional progress screen.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_bubble_processoptions() and 
+// associated with the function pointers:
+// - Bubble->progress_initial()
+// - Bubble->progress_update()
+// - Bubble->progress_final()
 // -------------------------------------------------------------------
 
 int apecss_bubble_solver_progress_initialnone() { return (0); }

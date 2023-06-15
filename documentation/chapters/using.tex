@@ -1,5 +1,11 @@
 \chapter{Using APECSS}
 
+\section{Requirements}
+
+APECSS has been developed and tested on Unix systems, using Linux and MacOS operating systems. The only mandatory requirement to compile and run APECSS is a standard C compiler, such as {\tt gcc}.
+
+Optionally, {\tt cmake} (version 3.12 or higher) is required if you would like to make use of the provided compilation and test scripts. To use the provided Python scripts for visualizing the output of APECSS, {\tt Python} (version 3), {\tt numpy} and {\tt matplotlib} are required.
+
 \section{Installation}
 \label{sec:installation}
 
@@ -51,11 +57,17 @@ Some representative examples are available in the {\tt \$APECSS\_DIR/examples} f
   \item A {\tt src/} folder with a file called {\tt *\_apecss.c} that acts as the standalone interface to the APECSS library. This file contains the {\tt main()} function and any additional functionality required to simulate a specific scenario.
   \item A {\tt build/} folder containing the {\tt CMakeLists.txt} file and a shell script {\tt compile.sh} with which this example can be compiled using the command {\tt ./compile.sh}.
   \item One or several {\tt *.apecss} file(s) in which the options for a specific case are defined.
+  \item One or several {\tt plot\_*.py} Python scripts to plot the results of the example. These Python scripts require {\tt numpy} and {\tt matplotlib}, and plot the results into a pdf-file. 
+  \item Some examples have a {\tt reference-data} folder, which contains results of previous studies to quickly validate the overall correct working of APECSS and which are plotted alongside the results produced by APECSS using the Python script(s).
 \end{itemize}
 
-In the examples provided in the {\tt \$APECSS\_DIR/examples} folder, the name of the  {\tt *.apecss} file is passed as an argument with the call to run APECSS, e.g.~executing {\tt ./<APECSS-example> -options run.apecss} to use an options file named {\tt run.apecss}.
+In the examples provided in the {\tt \$APECSS\_DIR/examples} folder, the name of the  {\tt *.apecss} file is passed as an argument with the call to run APECSS, e.g.~executing {\tt ./<APECSS-example> -options run.apecss} to use an options file named {\tt run.apecss}. Note that, for most test cases, the settings and options given by the execution command and the corresponding {\tt *.apecss} file reproduce a case previously presented in the literature, as indicated in the {\tt README.md} files, which also serves to validate the implementation of APECSS.
 
-Detailed information about each example, how to run it and what the results might be compared to can be found in the accompanying {\tt README.md} file.
+You can run \textbf{all} examples by executing {\tt ./run\_all.sh} in the {\tt examples} folder. This shell script compiles, runs and plots the results of all test cases. This is a great way of testing the installation of APECSS and see what sort of results can be output and how these results may be visualized. The script also compares the results computed for a respresentative example (the Rayleigh collapse with emissions) with reference results of APECSS, checking whether the installation produces correct results. Note that {\tt run\_all.sh} assumes that \textit{Python} can be executed using the command {\tt python3}; please adjust this if necessary.
+
+Alternatively, if you're, for instance, specifically interested in an ultrasound-driven bubble, navigate to {\tt \$APECSS\_DIR/examples/ultrasound}. There you can find different test cases, described in more detail in the accompanying {\tt README.md}. Execute the {\tt compile.sh} script in the {\tt build} directory. You can now choose which test case to run, by using the corresponding execution command suggested in the {\tt README.md}. 
+
+More information about each example, how to run it and what the results might be compared to can be found in the accompanying {\tt README.md} file.
 
 \section{Programming in and with APECSS}
 
@@ -297,13 +309,15 @@ Various simulation results associated with the bubble dynamics and the acoustic 
 
 Additional data associated with a bubble, an emission node, a gas, a liquid or an interface might be needed for more complex simulations, for instance neighbor information when multiple bubbles interact with each other or the thermal conductivity and heat capacity of the gas inside the bubble when heat transfer is considered. In APECSS, to retain flexibility and avoid unnecessary overhead, the structures {\tt struct APECSS\_Bubble}, {\tt struct APECSS\_EmissionNode}, {\tt struct APECSS\_Gas}, {\tt struct APECSS\_Liquid} and {\tt struct APECSS\_Interface} contain a \texttt{void} pointer called \texttt{user\_data} specifically for the purpose of associating additional data with those structures. This void pointer is not associated with a specific data type, but rather points to some memory location, i.e.~a memory address. 
 
-A typical use of this void pointer would be to generate a structure that contains all additional data and point the void pointer to the address of this structure. For instance, the void pointer of the bubble structure is used in such a way in the example {\tt \$APECSS\_DIR/examples/laserinducedcavitation}. The structure
+A typical use of this void pointer would be to generate a structure that contains all additional data and point the void pointer to the address of this structure. For instance, the void pointer of the bubble structure is used in such a way in the example {\tt \$APECSS\_DIR/examples/laserinducedcavitation}. 
+\begin{minipage}{\textwidth}
+The structure
 \begin{lstlisting}[style=CStyle,numbers=none]
   struct LIC
   {
     APECSS_FLOAT tauL, Rnbd, Rnc1, Rnc2, tmax1, tmax2;
   };
-\end{lstlisting}\vspace{-0.75em}
+\end{lstlisting}\end{minipage}
 is allocated
 \begin{lstlisting}[style=CStyle,numbers=none]
   struct LIC *lic_data = (struct LIC *) malloc(sizeof(struct LIC));

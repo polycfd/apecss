@@ -2,7 +2,7 @@
 \label{chap:bubble}
 The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type (RP) model, assuming spherical symmetry. This requires to choose a suitable RP-type model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). The results that APECSS can write out based on the RP model are explained in Section \ref{sec:bubble_results}.
 
-APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics sing the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time-step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Delta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
+APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time-step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Delta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
 
 \vspace{0.8em}
 
@@ -134,7 +134,7 @@ and the co-volume of the gas is given as
 \begin{equation}
     b_\mathrm{g} = f_\mathrm{mol} \, N_\mathrm{A} \, \frac{V_\mathrm{mol}}{\mathcal{M}_{\text{g}}}.
 \end{equation}
-The semi-empirical constant $f_\mathrm{mol}$ is based on the repulsive forces acting between the molecules \citep{Kontogeorgis2019,vanderWaals1998}, and is typically taken to be $f_\mathrm{mol}=4$.
+The semi-empirical constant $f_\mathrm{mol}$ is based on the repulsive forces acting between the molecules \citep{Kontogeorgis2019}, and is typically taken to be $f_\mathrm{mol}=4$.
 
 
 \section{The liquid}
@@ -396,4 +396,11 @@ For the bubble dynamics, the following quantities as a function of time are writ
   \item The result of any additional user-defined ODE solved, if applicable.
 \end{itemize}
 
-The first line of the results file(s) lists the variables that were written out and their order.
+The first line of the results file(s) lists the variables that were written out and their order. For instance, Figure \ref{fig:bubble_results} shows the output of the ``simple'' ultrasound-driven lipid-coated microbubble examples ({\tt \$APECSS\_DIR/examples/ultrasound/lipidcoated\_simple.apecss}).
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{./figures/ultrasound_lipidcoated_simple.pdf}
+    \caption{Temporal evolution of the radius $R(t)$, bubble wall velocity $\dot{R}(t)$ and gas pressure $p_\mathrm{G}(t)$ of a lipid-coated microbubble with initial radius $R_0 = 0.975 \, \upmu \mathrm{m}$, driven by ultrasound with a frequency of $2.9 \, \mathrm{MHz}$ and a pressure amplitude of $130 \, \mathrm{kPa}$, as previously considered by \citet{Marmottant2005}. This example can be found in {\tt \$APECSS\_DIR/examples/ultrasound}, called {\tt lipidcoated\_simple}.}
+    \label{fig:bubble_results}
+\end{figure}

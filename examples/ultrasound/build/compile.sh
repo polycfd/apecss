@@ -1,3 +1,4 @@
+#!/bin/bash
 rm ultrasound_apecss
 cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release
 make

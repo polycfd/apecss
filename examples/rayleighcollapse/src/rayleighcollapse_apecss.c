@@ -22,6 +22,8 @@ int main(int argc, char **args)
 {
   char str[APECSS_STRINGLENGTH_SPRINTF];
   char OptionsDir[APECSS_STRINGLENGTH];
+  char ResultsDir[APECSS_STRINGLENGTH];
+  int resultsdir_set = 0;
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Initialize the case-dependent simulation parameters
@@ -45,6 +47,12 @@ int main(int argc, char **args)
       sscanf(args[i + 1], "%le", &tEnd);
       i += 2;
     }
+    else if (strcmp("-resultsdir", args[i]) == 0)
+    {
+      sprintf(ResultsDir, "%s", args[i + 1]);
+      resultsdir_set = 1;
+      i += 2;
+    }
     else if (strcmp("-h", args[i]) == 0)
     {
       apecss_helpscreen();
@@ -65,6 +73,16 @@ int main(int argc, char **args)
   /* Set default options and read the options for the bubble */
   apecss_bubble_setdefaultoptions(Bubble);
   apecss_bubble_readoptions(Bubble, OptionsDir);
+
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // Sets/overwrites the results directory with the one given as a command line argument (optional).
+  if(Bubble->Results != NULL && resultsdir_set) 
+  {
+    strcpy(Bubble->Results->dir, ResultsDir);
+    struct stat st = {0};
+    if (stat(Bubble->Results->dir, &st) == -1) mkdir(Bubble->Results->dir, 0700);
+  }
+  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Allocate the structures for the fluid properties and ODE solver parameters */
   struct APECSS_Gas *Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));

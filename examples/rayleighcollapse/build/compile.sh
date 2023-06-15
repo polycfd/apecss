@@ -1,3 +1,4 @@
+#!/bin/bash
 rm rayleigh_apecss
 cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release
 make
