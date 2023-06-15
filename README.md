@@ -25,7 +25,7 @@ Key features of APECSS are:
 - Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
 - APECSS has no external dependencies, aside from the standard _math_ library and some common C headers (math.h, stdio.h, stdlib.h, string.h).
 
-For more information, please consults the [JOSS paper](https://doi.org/10.21105/joss.05435) discussing the features of APECSS as well as the [PoF paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation.
+For more information, please consult the [JOSS paper](https://doi.org/10.21105/joss.05435) discussing the features of APECSS as well as the [PoF paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation.
 
 ## Developers
 - [Fabian Denner](mailto:fabian.denner@polymtl.ca) (principal developer, maintainer)
