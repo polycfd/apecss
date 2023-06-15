@@ -10,9 +10,6 @@
   <a href="https://doi.org/10.5281/zenodo.7249297">
     <img src="https://img.shields.io/badge/DOI-10.5281/zenodo.7249297-blue" alt="Latest version">
   </a>
-  <a href="https://doi.org/10.1063/5.0131930">
-    <img src="https://img.shields.io/badge/PoF-10.1063/5.0131930-blue" alt="Paper">
-  </a>
   <a href="https://joss.theoj.org/papers/27166cd5496c33d62e74132712efec8a">
     <img src="https://joss.theoj.org/papers/27166cd5496c33d62e74132712efec8a/status.svg">
   </a>
@@ -27,6 +24,8 @@ Key features of APECSS are:
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
 - Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
 - APECSS has no external dependencies, aside from the standard _math_ library and some common C headers (math.h, stdio.h, stdlib.h, string.h).
+
+For more information, please consults the [JOSS paper](https://doi.org/10.21105/joss.05435) discussing the features of APECSS as well as the [PoF paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation.
 
 ## Developers
 - [Fabian Denner](mailto:fabian.denner@polymtl.ca) (principal developer, maintainer)
@@ -80,9 +79,9 @@ The APECSS repository is structured as follows:
 - The [README.md](README.md) file is the file you are currently reading.
 
 ## How to cite us
-If you use APECSS for your scientific work, please consider citing the [paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation of APECSS
+If you use APECSS for your scientific work, please consider citing the [paper](https://doi.org/10.21105/joss.05435) introducing the features and capabilities of APECSS
 
-    F. Denner and S. Schenke, Modeling acoustic emissions and shock formation of cavitation bubbles, Physics of Fluids 35 (2023), 012114. 
+    F. Denner and S. Schenke, APECSS: A software library for cavitation bubble dynamics and acoustic emissions. Journal of Open Source Software 8 (2023), 5435. https://doi.org/10.21105/joss.05435 
 
 as well as the version of APECSS you've used for your work, e.g.
 
