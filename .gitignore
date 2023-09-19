@@ -73,7 +73,6 @@ dkms.conf
 
 # Misc
 .DS_Store
-.vscode
 
 # CMake
 *.cmake

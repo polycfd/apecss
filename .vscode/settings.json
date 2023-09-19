@@ -1,0 +1,15 @@
+{
+    "editor.formatOnSave": true,
+    "files.associations": {
+        "__locale": "cpp",
+        "locale": "cpp",
+        "thread": "cpp",
+        "dna-functions.h": "c",
+        "dna.h": "c",
+        "dna-constants.h": "c",
+        "stdio.h": "c",
+        "*.tcc": "c",
+        "random": "c",
+        "ratio": "c"
+    }
+}

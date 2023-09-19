@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "macos",
+            "macFrameworkPath": [
+                "/System/Library/Frameworks",
+                "/Library/Frameworks"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "macos-clang-x86",
+            "includePath": [
+                "${workspaceFolder}/include/"
+            ]
+        }
+    ],
+    "version": 4
+}
