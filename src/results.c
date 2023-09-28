@@ -70,7 +70,7 @@ int apecss_results_emissions_initializestruct(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // BUBBLE
 // -------------------------------------------------------------------
-// Functions for the handling of the results associated with the 
+// Functions for the handling of the results associated with the
 // bubble dynamics, e.g. bubble radius and bubble wall velocity.
 // -------------------------------------------------------------------
 
@@ -347,7 +347,7 @@ int apecss_results_rayleighplesset_free(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // EMISSIONS  (time instance)
 // -------------------------------------------------------------------
-// Functions handling the results associated with the acoustics 
+// Functions handling the results associated with the acoustics
 // emissions recorded in space at user-defined instances of time.
 // -------------------------------------------------------------------
 
@@ -411,7 +411,7 @@ APECSS_FLOAT apecss_results_emissionstime_checktime(APECSS_FLOAT tend, struct AP
 // -------------------------------------------------------------------
 // EMISSIONS  (space locations)
 // -------------------------------------------------------------------
-// Functions handling the results associated with the acoustics 
+// Functions handling the results associated with the acoustics
 // emissions recorded in time at user-defined locations in space.
 // -------------------------------------------------------------------
 
@@ -666,7 +666,7 @@ int apecss_results_emissionsspace_free(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // EMISSIONS  (specific emission id)
 // -------------------------------------------------------------------
-// Functions handling the results associated with the acoustics 
+// Functions handling the results associated with the acoustics
 // emissions of user-defined nodes.
 // -------------------------------------------------------------------
 
@@ -764,7 +764,9 @@ int apecss_results_emissionsnodeminmax_identifynone(struct APECSS_Bubble *Bubble
 
 int apecss_results_emissionsnodeminmax_identifyall(struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT inv_f = 1.0 / Bubble->Excitation->f;
+  APECSS_FLOAT inv_f = Bubble->tEnd;
+  if (Bubble->Excitation != NULL) inv_f = 1.0 / Bubble->Excitation->f;
+
   APECSS_FLOAT t = Bubble->t + Bubble->dt;
   APECSS_FLOAT period = (APECSS_FLOAT) Bubble->Results->Emissions->MinMaxPeriod;
 
