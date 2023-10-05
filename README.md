@@ -36,18 +36,21 @@ APECSS is under the copyright of its developers and made available as open-sourc
 
 ## Requirements
 
-APECSS has been developed and tested on Unix systems, using Linux and MacOS operating systems. The only mandatory requirement to compile and run APECSS is a standard C compiler, such as [````gcc````](https://gcc.gnu.org).
+APECSS has been developed and tested on Unix systems, using Linux and MacOS operating systems. APECSS has also been installed and executed successfully on Windows 11. The only mandatory requirement to compile and run APECSS is a standard C compiler, such as [````gcc````](https://gcc.gnu.org).
 
 Optionally, [````cmake````](https://cmake.org) (version 3.12 or higher) is required if you would like to make use of the provided compilation and test scripts. To use the provided Python scripts for visualizing the output of APECSS, [````Python````](https://www.python.org) (version 3), [````numpy````](https://numpy.org) and [````matplotlib````](https://matplotlib.org) are required. 
 
 ## Quick Start Guide
 
-### **Installation**
-Getting started with APECSS is easy. After downloading APECSS in the directory ````<path to APECSS>````, define the following environment variables:
+### **Installation on Unix systems**
+Getting started with APECSS using a Unix operating system, e.g. Linux or MacOS, is easy. After downloading APECSS in the directory ````<path to APECSS>````, define the following environment variables:
 - ````APECSS_DIR```` to the directory in which APECSS is located. Using bash, for instance, simply execute the command ````export APECSS_DIR=<path to APECSS>```` or, even better, add this command to your bash profile.
 - ````USRLIB_DIR```` to the directory in which libm.a or libm.dylib (the standard _math_ library) is located. This may, for instance, be ````/usr/lib64/```` on Linux systems or ````/usr/lib/```` on MacOS systems.
 
 Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've successfully compiled APECSS!
+
+### **Installation on Windows 11**
+Installing APECSS on Windows is possible, but a little more involved than the installation on Unix. A step-by-step installation guide on Windows 11, kindly provided by **Maxime Montois**, can be found in the [pdf-documentation](/documentation/APECSS-Documentation.pdf) (see Section 2.2.2). The installation uses `MinGW`, `MSYS2` and `Git Bash` and the instructions also detail small changes to the compile and cmake scripts, as well as the source code, that are required to make APECSS work smoothly on Windows.
 
 ### **Examples**
 There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. Some representative examples are given in the [````$APECSS_DIR/examples````](/examples/) directory. Each directory contains the following:

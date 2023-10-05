@@ -2,14 +2,17 @@
 
 \section{Requirements}
 
-APECSS has been developed and tested on Unix systems, using Linux and MacOS operating systems. The only mandatory requirement to compile and run APECSS is a standard C compiler, such as {\tt gcc}.
+APECSS has been developed and tested on Unix systems, using Linux and MacOS operating systems. APECSS has also been installed and executed successfully on Windows 11. The only mandatory requirement to compile and run APECSS is a standard C compiler, such as {\tt gcc}.
 
 Optionally, {\tt cmake} (version 3.12 or higher) is required if you would like to make use of the provided compilation and test scripts. To use the provided Python scripts for visualizing the output of APECSS, {\tt Python} (version 3), {\tt numpy} and {\tt matplotlib} are required.
 
 \section{Installation}
 \label{sec:installation}
 
-Installing APECSS is easy. After downloading APECSS in the folder {\tt <path to APECSS>}, define the following environment variables:\vspace{-1em}
+\subsection{Unix installation}
+\label{sec:installation_unix}
+
+Installing APECSS on Unix systems, such as Linux and MacOS, is easy. After downloading APECSS in the folder {\tt <path to APECSS>}, define the following environment variables:\vspace{-1em}
 \begin{itemize}[noitemsep]
 \item {\tt APECSS\_DIR} to the folder in which APECSS is located. Using {\tt bash}, for instance, simply execute the command {\tt export APECSS\_DIR=<path to APECSS>} or, even better, add this command to your {\tt bash} profile.
 \item {\tt USRLIB\_DIR} to the folder in which {\tt libm.a} or {\tt libm.dylib} (the standard \textit{math} library) is located. This may, for instance, be {\tt /usr/lib64/} on Linux systems or {\tt /usr/lib/} on MacOS systems.
@@ -26,6 +29,93 @@ to
   cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Debug
 \end{lstlisting}\vspace{-0.75em}
 in the {\tt ./compile\_lib.sh} shell script and, if applicable, in the shell script that compiles the desired example.
+
+\subsection{Windows 11 installation}
+
+Installing APECSS on Windows is a little more involved than the installation on Unix. The installation\footnote{We are grateful to Maxime Montois for these detailed installation instructions.} described below presents a minimalist installation of APECSS on Windows 11, using {\tt MinGW} and {\tt MSYS2}. 
+
+\subsubsection*{Installation of MSYS2}
+
+{\tt MSYS2} is a collection of tools and libraries providing you with an easy-to-use environment for building, installing and running native Windows software.
+\vspace{-1em}
+\begin{enumerate}[noitemsep]
+  \item Download and install {\tt MSYS2} from \url{https://www.msys2.org/}.
+  \item At the end of the installation, leave the {\it Run MSYS2 now} option checked and click {\it Finish}. {\tt MSYS2} is now ready for use and a terminal will launch.
+  \item It's also necessary to install the {\tt gcc} compiler, {\tt cmake} and {\tt make}. Run the following command:
+  \begin{lstlisting}[style=CStyle,numbers=none]
+  pacman -S mingw-w64-x86_64-gcc
+  pacman -S mingw-w64-x86_64-cmake
+  pacman -S mingw-w64-x86_64-make\end{lstlisting}
+   Enter {\tt Y} when prompted to proceed with the installation. To check the installation, you can run these commands:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  gcc --version
+  cmake --version
+  make --version\end{lstlisting}
+You can now close the window.
+\item Add the {\tt MinGW} path to your system's {\tt PATH} environment variable. For example: \\{\tt C:\textbackslash msys64\textbackslash mingw64\textbackslash bin}.
+\item  You can now use the {\tt gcc} compilation tools on your Windows machine.
+\end{enumerate}
+
+\subsubsection*{Installation of Git Bash}
+
+Git Bash is a terminal emulator for Windows that allows you to use Git and Unix/Linux commands in a Windows environment. Git Bash can be installed from \url{https://git-scm.com/downloads}.
+
+\subsubsection*{Compiling APECSS}
+
+Open a Git Bash terminal in the folder of your choice and clone the APECSS repository.
+\begin{lstlisting}[style=CStyle,numbers=none]
+  git clone <repo>\end{lstlisting}
+
+To run, the scripts require some adaptations due to differences between Unix and Windows:
+\vspace{-1em}
+\begin{enumerate}[noitemsep]
+\item In the file {\tt ./lib/compile\_lib.sh}, modify the lines:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  # cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release
+  cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
+  # make
+  mingw32-make\end{lstlisting}
+The first line instructs the compiler to generate Unix {\tt Makefiles}, and the second line accounts for the difference in the {\tt make} command's name between Windows and Unix.
+\item  In the file {\tt ./lib/CMakeLists.txt}, modify the line:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  # set(CMAKE_C_COMPILER /usr/bin/gcc)
+  set(CMAKE_C_COMPILER "C:/msys64/mingw64/bin/gcc.exe")\end{lstlisting}
+This changes the compiler path. Adjust the path if you installed {\tt MSYS2} in a different location.
+\item In the file {\tt ./src/bubble.c}, remove the second argument from the {\tt mkdir} function. For example:
+\begin{lstlisting}[style=CStyle,numbers=none]
+  mkdir(Bubble->Results->dir, 0700)
+  // mkdir(Bubble->Results->dir)\end{lstlisting}
+On Windows, the {\tt mkdir} function only takes one argument; the second argument for permissions does not exist.
+\end{enumerate}
+
+You can also use the {\tt make} command without using {\tt mingw32-make} by copying the {\tt mingw32-make.exe} file to {\tt C:\textbackslash msys64\textbackslash mingw64\textbackslash bin} (or your {\tt MSYS2} installation path) and renaming it to {\tt make.exe}.
+
+With {\tt MinGW}, the math libraries are automatically added during compilation. There is no need to add them in the {\tt CMakeLists.txt}. Therefore, you can remove the code lines related to the math libraries in the {\tt CMake}.
+
+The rest of the installation follows the instruction given for the Unix installation in Section \ref{sec:installation_unix}. 
+
+\subsubsection*{Compiling the examples}
+
+Each example has a {\tt build} folder containing two files: {\tt CMakeLists.txt} and {\tt compile.sh}. You need to make the same modifications as before:
+\vspace{-1em}
+\begin{enumerate}[noitemsep]
+\item Modify {\tt compile.sh} files,
+\begin{lstlisting}[style=CStyle,numbers=none]
+  # cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release
+  cmake CMakeLists.txt -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles"
+  # make
+  mingw32-make\end{lstlisting}
+\item  Modify {\tt CMakeLists.txt} files. 
+\begin{lstlisting}[style=CStyle,numbers=none]
+  # set(CMAKE_C_COMPILER /usr/bin/gcc)
+  set(CMAKE_C_COMPILER "C:/msys64/mingw64/bin/gcc.exe")\end{lstlisting}
+\item Modify {\tt *.c} files.
+\begin{lstlisting}[style=CStyle,numbers=none]
+  mkdir(Bubble->Results->dir, 0700)
+  // mkdir(Bubble->Results->dir)\end{lstlisting}
+\end{enumerate}
+You can follow the instructions in the project's {\tt README} to run the examples.
+
 
 \section{Running APECSS}
 
