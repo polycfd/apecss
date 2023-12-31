@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2023 The APECSS Developers
+// Copyright (C) 2022-2024 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -191,11 +191,11 @@ int apecss_interface_processoptions(struct APECSS_Interface *Interface)
 // -------------------------------------------------------------------
 // SURFACE TENSION COEFFICIENT
 // -------------------------------------------------------------------
-// Functions defining the surface tension coefficient and its 
-// derivative, based on the chosen model. 
+// Functions defining the surface tension coefficient and its
+// derivative, based on the chosen model.
 // -------------------------------------------------------------------
-// The function for surface tension is chosen in 
-// apecss_interface_processoptions() and associated with the function 
+// The function for surface tension is chosen in
+// apecss_interface_processoptions() and associated with the function
 // pointer Interface->get_surfacetension().
 // -------------------------------------------------------------------
 
@@ -244,7 +244,7 @@ APECSS_FLOAT apecss_interface_surfacetensionderivative_gompertzmarmottant(APECSS
 // -------------------------------------------------------------------
 // Functions defining the pressure contribution due to surface tension
 // -------------------------------------------------------------------
-// The functions are chosen in apecss_interface_processoptions() and 
+// The functions are chosen in apecss_interface_processoptions() and
 // associated with the function pointers:
 // - Interface->get_pressure_surfacetension()
 // - Interface->get_pressurederivative_surfacetension()
@@ -282,10 +282,10 @@ APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_gompertzmarmottan
 // -------------------------------------------------------------------
 // VISCOUS PRESSURE
 // -------------------------------------------------------------------
-// Functions defining the pressure contribution due to viscous 
+// Functions defining the pressure contribution due to viscous
 // stresses of the interface coating.
 // -------------------------------------------------------------------
-// The functions are chosen in apecss_interface_processoptions() and 
+// The functions are chosen in apecss_interface_processoptions() and
 // associated with the function pointers:
 // - Interface->get_pressure_viscous()
 // - Interface->get_pressurederivative_viscous_expl()

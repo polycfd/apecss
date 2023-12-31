@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2023 The APECSS Developers
+// Copyright (C) 2022-2024 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -76,7 +76,7 @@ int main(int argc, char **args)
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Sets/overwrites the results directory with the one given as a command line argument (optional).
-  if(Bubble->Results != NULL && resultsdir_set) 
+  if (Bubble->Results != NULL && resultsdir_set)
   {
     strcpy(Bubble->Results->dir, ResultsDir);
     struct stat st = {0};

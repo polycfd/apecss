@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2023 The APECSS Developers
+// Copyright (C) 2022-2024 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -19,7 +19,7 @@
 // Function with the ODE defining the bubble radius, dr/dt = u. This
 // is applied in all bubble dynamics models.
 // -------------------------------------------------------------------
-// Function is hooked up to the function pointer Bubble->ode[1] in 
+// Function is hooked up to the function pointer Bubble->ode[1] in
 // apecss_bubble_processoptions().
 // -------------------------------------------------------------------
 
@@ -28,10 +28,10 @@ APECSS_FLOAT apecss_rp_bubbleradius_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, struc
 // -------------------------------------------------------------------
 // VELOCITY OF THE BUBBLE WALL
 // -------------------------------------------------------------------
-// Functions with the ODE defining the velocity of the bubble wall, 
+// Functions with the ODE defining the velocity of the bubble wall,
 // du/dt = [...], based on the chosen bubble dynamics model.
 // -------------------------------------------------------------------
-// Function is hooked up to the function pointer Bubble->ode[0] in 
+// Function is hooked up to the function pointer Bubble->ode[0] in
 // apecss_bubble_processoptions().
 // -------------------------------------------------------------------
 

@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2023 The APECSS Developers
+// Copyright (C) 2022-2024 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -75,7 +75,6 @@ int apecss_helpscreen()
   printf("| APECSS | - One or several *.apecss files in which the options for a specific case are defined.\n");
   exit(1);
 }
-
 
 int apecss_readoneoption(FILE* OptionsFile, char* option)
 {

@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2023 The APECSS Developers
+// Copyright (C) 2022-2024 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -161,7 +161,7 @@ int apecss_emissions_removenode(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // ADVANCE EMISSION NODES
 // -------------------------------------------------------------------
-// Functions advancing the emission nodes in space dependent on the 
+// Functions advancing the emission nodes in space dependent on the
 // chosen model for the emissions.
 // -------------------------------------------------------------------
 // The appropriate function is chosen in apecss_bubble_processoptions()
@@ -411,7 +411,7 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
 // nodes dependent on the type of velocity integration and scheme.
 // -------------------------------------------------------------------
 // The appropriate function is chosen in apecss_bubble_processoptions()
-// and hooked up to the function pointer 
+// and hooked up to the function pointer
 // Bubble->Emissions->integrate_along_characteristic().
 // -------------------------------------------------------------------
 

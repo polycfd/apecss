@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2023 The APECSS Developers
+// Copyright (C) 2022-2024 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -357,7 +357,7 @@ APECSS_FLOAT apecss_odesolver(struct APECSS_Bubble *Bubble)
 // -------------------------------------------------------------------
 // TIME STEP
 // -------------------------------------------------------------------
-// Function setting the time-step based on the solution error of the 
+// Function setting the time-step based on the solution error of the
 // previous solve.
 // -------------------------------------------------------------------
 
