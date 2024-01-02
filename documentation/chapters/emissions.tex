@@ -12,7 +12,6 @@ Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS
 & {\tt Emissions FSIC <float>} & Computes the acoustic emissions using the finite-speed incompressible model, Section \ref{sec:emissionsfsic}.\\ 
 & {\tt Emissions QA <float>} & Computes the acoustic emissions using the quasi-acoustic model, Section \ref{sec:emissionsqa}.\\ 
 & {\tt Emissions EV <float>} & Computes the acoustic emissions based on the Kirkwood-Bethe hypothesis, Section \ref{sec:emissionskb}, with the explicit expression for velocity, see Eq.~\eqref{eq:u_rt}.\\ 
-& {\tt Emissions SIV <float>} & Computes the acoustic emissions using the model of \citet{Gilmore1952} based on the Kirkwood-Bethe hypothesis, Section \ref{sec:emissionskb}, with the spatially-integrated velocity, see Eq.~\eqref{eq:dudr_rt}.\\ 
 & {\tt Emissions TIV <float>} & Computes the acoustic emissions using the model of \citet{Hickling1963} based on the Kirkwood-Bethe hypothesis, Section \ref{sec:emissionskb}, with the temporally-integrated velocity, see Eq.~\eqref{eq:dudt_rt}.\\ 
 & {\tt EmissionIntegration Euler} & Integrates the radial position and, if applicable, the velocity using an Euler scheme.\\
 & {\tt EmissionIntegration RK4} & Integrates the radial position and, if applicable, the velocity using a conventional fourth-order Runge-Kutta scheme. This is the default.\\
@@ -84,9 +83,9 @@ This approach, referred to in APECSS as {\tt FSIC} or \text{finite-speed incompr
 \section{Emissions based on the Kirkwood-Bethe hypothesis}
 \label{sec:emissionskb}
 
-Under the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948}, the propagation speed along the outgoing characteristic is given as $\mathcal{C}(r,t) = c(r,t) + u(r,t)$. The ODE describing the radial position is, thus, defined as 
+Under the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948}, the propagation speed along the outgoing characteristic is given as $\mathcal{C}(r,t) = c(r,t) + u(r,t)$. The ODE describing the radial position along the outgoing characteristic is, thus, defined as 
 \begin{equation}
-    \frac{\mathrm{d}r(t)}{\mathrm{d}t} = c(r,t) + u(r,t). \label{eq:drdt}
+    \left. \frac{\mathrm{d}r(t)}{\mathrm{d}t} \right|_\text{c} = c(r,t) + u(r,t). \label{eq:drdt}
 \end{equation}
 This ODE is numerically integrated using either an Euler scheme or a fourth-order Runge-Kutta (RK4) scheme, with initial condition $r(t) = R(\tau)$ for $t=\tau$, where $\tau$ is the time at which the acoustic information is emitted at the bubble wall. The time-step $\Delta t$ is taken to be the same as used for the integration of the model describing the bubble dynamics (see Section \ref{chap:bubble}).
 
@@ -102,15 +101,11 @@ with
 \end{equation}
 For $t=\tau$ with $r(t)=R(\tau)$, this expression reduces to $u(R,\tau)=\dot{R}(\tau)$, thus satisfying the boundary conditions at the bubble wall.
 
-\citet{Gilmore1952} proposed instead to solve for the spatial derivative of the velocity along the outgoing characteristic, in APECSS referred to as {\it spatially-integrated velocity (SIV)}, defined as 
+\citet{Hickling1963} proposed to integrate the velocity with respect to time, in APECSS referred to as {\it temporally-integrated velocity (TIV)}, with the temporal derivative of the velocity along the outgoing characteristic given as
 \begin{equation}
-    \frac{\mathrm{d}u(r,t)}{\mathrm{d}r} = - \frac{2 u(r,t)}{r(t)} \left[1+\frac{u(r,t)^2}{c(r,t)^2-u(r,t)^2} \right] + \frac{g(\tau)}{r(t)^2 [c(r,t)-u(r,t)]} \label{eq:dudr_rt}.
+    \left. \frac{\mathrm{d}u(r,t)}{\mathrm{d}t}\right|_\text{c} = - \frac{2 c(r,t)^2 u(r,t)}{r(t) \, [c(r,t)-u(r,t)]} + \frac{g(\tau)} {r(t)^2} \, \frac{c(r,t)+u(r,t)}{c(r,t)-u(r,t)}. \label{eq:dudt_rt}
 \end{equation}
-Alternatively, \citet{Hickling1963} proposed to integrate the velocity with respect to time, in APECSS referred to as {\it temporally-integrated velocity (TIV)}, with the temporal derivative of the velocity along the outgoing characteristic given as
-\begin{equation}
-    \frac{\mathrm{d}u(r,t)}{\mathrm{d}t} =  - \frac{2 c(r,t)^2 u(r,t)}{r(t) \, [c(r,t)-u(r,t)]} + \frac{g(\tau)}{r(t)^2} \, \frac{c(r,t)+u(r,t)}{c(r,t)-u(r,t)}. \label{eq:dudt_rt}
-\end{equation}
-If either Eq.~\eqref{eq:dudr_rt} or Eq.~\eqref{eq:dudt_rt} is chosen to determine the velocity, this differential equation for the velocity is integrated together with the equation for ${\mathrm{d}r(t)/\mathrm{d}t}$, Eq.~\eqref{eq:drdt}, using the initial condition $u(R,\tau) = \dot{R}(\tau)$. Note that with $\mathrm{d}r(t)/\mathrm{t}$ defined by Eq.~\eqref{eq:drdt} and $g(\tau)$ given by Eq.~\eqref{eq:g_R}, Eqs.~\eqref{eq:dudr_rt} and \eqref{eq:dudt_rt} are interchangeable by the relation ${\mathrm{d}u/\mathrm{d}t} = ({\mathrm{d}u/\mathrm{d}r}) \, ({\mathrm{d}r/\mathrm{d}t})$. 
+This differential equation for the velocity is integrated together with the equation for ${\mathrm{d}r(t)/\mathrm{d}t}$, Eq.~\eqref{eq:drdt}, using the initial condition $u(R,\tau) = \dot{R}(\tau)$.
 
 Regardless of the choice of velocity model, the invariant $g(\tau)$ is defined as
 \begin{align}
