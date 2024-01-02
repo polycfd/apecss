@@ -185,7 +185,7 @@ int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
 
     if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
       Bubble->Results->RayleighPlesset->cL[Bubble->Results->RayleighPlesset->n] =
-          apecss_liquid_soundspeed_nasg(pL, apecss_liquid_density_nasg(pL, Bubble->Liquid), Bubble->Liquid);
+          Bubble->Liquid->get_soundspeed(pL, Bubble->Liquid->get_density(pL, Bubble->Liquid), Bubble->Liquid);
 
     for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
     {
