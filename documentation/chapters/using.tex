@@ -32,7 +32,7 @@ in the {\tt ./compile\_lib.sh} shell script and, if applicable, in the shell scr
 
 \subsection{Windows 11 installation}
 
-Installing APECSS on Windows is a little more involved than the installation on Unix. The installation\footnote{We are grateful to Maxime Montois for these detailed installation instructions.} described below presents a minimalist installation of APECSS on Windows 11, using {\tt MinGW} and {\tt MSYS2}. 
+Installing APECSS on Windows is a little more involved than the installation on Unix. The installation\footnote{We are grateful to Maxime Montois for these detailed installation instructions, and to Pierre Couloumbel for further improvements.} described below presents a minimalist installation of APECSS on Windows 11, using {\tt MinGW} and {\tt MSYS2}. 
 
 \subsubsection*{Installation of MSYS2}
 
@@ -45,12 +45,13 @@ Installing APECSS on Windows is a little more involved than the installation on 
   \begin{lstlisting}[style=CStyle,numbers=none]
   pacman -S mingw-w64-x86_64-gcc
   pacman -S mingw-w64-x86_64-cmake
-  pacman -S mingw-w64-x86_64-make\end{lstlisting}
-   Enter {\tt Y} when prompted to proceed with the installation. To check the installation, you can run these commands:
+  pacman -S mingw-w64-x86_64-make
+\end{lstlisting}
+Enter {\tt Y} when prompted to proceed with the installation. Note that all libraries will be downloaded in the {\tt mingw64} folder. To check the installation, you have to use the {\tt MSYS2 MINGW64} terminal and run these commands:
 \begin{lstlisting}[style=CStyle,numbers=none]
   gcc --version
   cmake --version
-  make --version\end{lstlisting}
+  mingw32-make --version\end{lstlisting}
 You can now close the window.
 \item Add the {\tt MinGW} path to your system's {\tt PATH} environment variable. For example: \\{\tt C:\textbackslash msys64\textbackslash mingw64\textbackslash bin}.
 \item  You can now use the {\tt gcc} compilation tools on your Windows machine.
