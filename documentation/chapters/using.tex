@@ -32,7 +32,7 @@ in the {\tt ./compile\_lib.sh} shell script and, if applicable, in the shell scr
 
 \subsection{Windows 11 installation}
 
-Installing APECSS on Windows is a little more involved than the installation on Unix. The installation\footnote{We are grateful to Maxime Montois for these detailed installation instructions, and to Pierre Couloumbel for further improvements.} described below presents a minimalist installation of APECSS on Windows 11, using {\tt MinGW} and {\tt MSYS2}. 
+Installing APECSS on Windows is a little more involved than the installation on Unix. The installation\footnote{We are grateful to Maxime Montois for these detailed installation instructions, and to Pierre Coulombel for further improvements.} described below presents a minimalist installation of APECSS on Windows 11, using {\tt MinGW} and {\tt MSYS2}. 
 
 \subsubsection*{Installation of MSYS2}
 
@@ -84,8 +84,8 @@ The first line instructs the compiler to generate Unix {\tt Makefiles}, and the 
 This changes the compiler path. Adjust the path if you installed {\tt MSYS2} in a different location.
 \item In the file {\tt ./src/bubble.c}, remove the second argument from the {\tt mkdir} function. For example:
 \begin{lstlisting}[style=CStyle,numbers=none]
-  mkdir(Bubble->Results->dir, 0700)
-  // mkdir(Bubble->Results->dir)\end{lstlisting}
+  //mkdir(Bubble->Results->dir, 0700)
+  mkdir(Bubble->Results->dir)\end{lstlisting}
 On Windows, the {\tt mkdir} function only takes one argument; the second argument for permissions does not exist.
 \end{enumerate}
 
