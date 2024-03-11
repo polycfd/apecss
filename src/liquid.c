@@ -408,13 +408,19 @@ APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_exploldroydb(APECSS_FLO
 // - Liquid->get_pressurederivative_viscous_impl()
 // -------------------------------------------------------------------
 
-APECSS_FLOAT apecss_liquid_pressure_viscous(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble) { return (4.0 * Bubble->Liquid->mu * U / R); }
+APECSS_FLOAT apecss_liquid_pressure_viscous(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
+{
+  return (2.0 * Bubble->dimensionality * Bubble->Liquid->mu * U / R);
+}
 
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_expl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
 {
-  return (4.0 * Bubble->Liquid->mu * APECSS_POW2(U / R));
+  return (2.0 * Bubble->dimensionality * Bubble->Liquid->mu * APECSS_POW2(U / R));
 }
 
-APECSS_FLOAT apecss_liquid_pressurederivative_viscous_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (4.0 * Bubble->Liquid->mu / R); }
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
+{
+  return (2.0 * Bubble->dimensionality * Bubble->Liquid->mu / R);
+}
 
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_nonimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (0.0); }

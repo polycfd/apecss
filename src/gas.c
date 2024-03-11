@@ -211,11 +211,14 @@ int apecss_gas_processoptions(struct APECSS_Gas *Gas)
 // Functions defining the density of the gas phase.
 // -------------------------------------------------------------------
 
-APECSS_FLOAT apecss_gas_density_constmass(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (Bubble->rhoG0 * APECSS_POW3(Bubble->R0 / R)); }
+APECSS_FLOAT apecss_gas_density_constmass(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
+{
+  return (Bubble->rhoG0 * APECSS_POW(Bubble->R0 / R, Bubble->dimensionality + 1.0));
+}
 
 APECSS_FLOAT apecss_gas_densityderivative_constmass(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
 {
-  return (-3.0 * apecss_gas_density_constmass(R, Bubble) * U / R);
+  return (-(Bubble->dimensionality + 1.0) * apecss_gas_density_constmass(R, Bubble) * U / R);
 }
 
 // -------------------------------------------------------------------
@@ -231,13 +234,14 @@ APECSS_FLOAT apecss_gas_densityderivative_constmass(APECSS_FLOAT R, APECSS_FLOAT
 
 APECSS_FLOAT apecss_gas_pressure_ig(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->pG0 * APECSS_POW(Bubble->R0 / Sol[1], 3.0 * Bubble->Gas->Gamma));
+  return (Bubble->pG0 * APECSS_POW(Bubble->R0 / Sol[1], (Bubble->dimensionality + 1.0) * Bubble->Gas->Gamma));
 }
 
 APECSS_FLOAT apecss_gas_pressure_hc(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->pG0 *
-          APECSS_POW((APECSS_POW3(Bubble->R0) - APECSS_POW3(Bubble->r_hc)) / (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->r_hc)), Bubble->Gas->Gamma));
+  return (Bubble->pG0 * APECSS_POW((APECSS_POW(Bubble->R0, Bubble->dimensionality + 1.0) - APECSS_POW(Bubble->r_hc, Bubble->dimensionality + 1.0)) /
+                                       (APECSS_POW(Sol[1], Bubble->dimensionality + 1.0) - APECSS_POW(Bubble->r_hc, Bubble->dimensionality + 1.0)),
+                                   Bubble->Gas->Gamma));
 }
 
 APECSS_FLOAT apecss_gas_pressure_nasg(APECSS_FLOAT *Sol, struct APECSS_Bubble *Bubble)
@@ -250,12 +254,13 @@ APECSS_FLOAT apecss_gas_pressure_nasg(APECSS_FLOAT *Sol, struct APECSS_Bubble *B
 
 APECSS_FLOAT apecss_gas_pressurederivative_ig(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (-3.0 * apecss_gas_pressure_ig(Sol, Bubble) * Bubble->Gas->Gamma * Sol[0] / Sol[1]);
+  return (-(Bubble->dimensionality + 1.0) * apecss_gas_pressure_ig(Sol, Bubble) * Bubble->Gas->Gamma * Sol[0] / Sol[1]);
 }
 
 APECSS_FLOAT apecss_gas_pressurederivative_hc(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (-3.0 * apecss_gas_pressure_hc(Sol, Bubble) * Bubble->Gas->Gamma * APECSS_POW2(Sol[1]) * Sol[0] / (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->r_hc)));
+  return (-(Bubble->dimensionality + 1.0) * apecss_gas_pressure_hc(Sol, Bubble) * Bubble->Gas->Gamma * APECSS_POW2(Sol[1]) * Sol[0] /
+          (APECSS_POW3(Sol[1]) - APECSS_POW3(Bubble->r_hc)));
 }
 
 APECSS_FLOAT apecss_gas_pressurederivative_nasg(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)

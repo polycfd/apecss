@@ -400,6 +400,7 @@ struct APECSS_Bubble
   APECSS_FLOAT dt;  // Time-step
 
   int RPModel;  // Model governing the bubble dynamics
+  APECSS_FLOAT dimensionality;  // Dimensionality of the bubble
 
   // Primary variables
   APECSS_FLOAT t;  // Time [s]
@@ -442,6 +443,9 @@ struct APECSS_Bubble
   // Pointers to the functions describing the liquid pressure and its derivative at infinity
   APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+
+  // Pointer to the function returning the radius r^{\alpha/2}, where \alpha defines the dimensionality of the bubble.
+  APECSS_FLOAT (*get_dimensionalradius)(APECSS_FLOAT r);
 
   // Lagrangian emissions (if applicable)
   struct APECSS_Emissions *Emissions;
@@ -495,6 +499,9 @@ APECSS_FLOAT apecss_bubble_pressure_infinity_noexcitation(APECSS_FLOAT t, struct
 APECSS_FLOAT apecss_bubble_pressure_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_bubble_pressurederivative_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_bubble_pressurederivative_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_bubble_dimensionalradius_planar(APECSS_FLOAT r);
+APECSS_FLOAT apecss_bubble_dimensionalradius_cylindrical(APECSS_FLOAT r);
+APECSS_FLOAT apecss_bubble_dimensionalradius_spherical(APECSS_FLOAT r);
 
 // ---------------------
 // emissions.c
