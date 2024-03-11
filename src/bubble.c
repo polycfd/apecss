@@ -201,10 +201,6 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_EV;
             }
-            else if (strncasecmp(option3, "siv", 3) == 0)
-            {
-              Bubble->Emissions->Type = APECSS_EMISSION_SIV;
-            }
             else if (strncasecmp(option3, "tiv", 3) == 0)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_TIV;
@@ -559,15 +555,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
             else
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_tait_euler;
           }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
-          {
-            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
-
-            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_rk4;
-            else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_euler;
-          }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
             Bubble->Emissions->compute_f = apecss_emissions_f_zero;
@@ -590,15 +577,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_rk4;
             else
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_euler;
-          }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
-          {
-            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
-
-            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_rk4;
-            else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_euler;
           }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
