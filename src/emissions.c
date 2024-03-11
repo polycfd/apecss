@@ -220,6 +220,101 @@ int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
+// int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
+// {
+//   struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
+
+//   // Constants used multiple times
+//   APECSS_FLOAT B = Bubble->Liquid->B;
+//   APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
+//   APECSS_FLOAT h_fac = (Gamma - 1.0) * Bubble->Liquid->rhoref / (Gamma * APECSS_POW(Bubble->Liquid->pref + B, (1.0 / Gamma)));
+//   APECSS_FLOAT h_exp = 1.0 / (1.0 - (1.0 / Gamma));
+
+//   // Assuming the time-step is small compared to the timescale over which the ambient/driving pressure changes,
+//   // we take the reference state at infinity as constant.
+//   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
+//   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
+
+//   while (Current != NULL)
+//   {
+//     if (Bubble->Emissions->integrate_along_characteristic(Bubble, Current, hinf))
+//     {
+//       if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation (outward moving node)
+//       {
+//         Current->forward->backward = Current->backward;
+
+//         if (Current->backward != NULL)
+//           Current->backward->forward = Current->forward;
+//         else
+//           Bubble->Emissions->FirstNode = Current->forward;
+
+//         struct APECSS_EmissionNode *Obsolete = Current;
+//         Current = Current->backward;
+//         free(Obsolete);
+//         Bubble->Emissions->nNodes -= 1;
+//       }
+//       else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation (inward moving node)
+//       {
+//         Current->backward->forward = Current->forward;
+
+//         if (Current->forward != NULL)
+//           Current->forward->backward = Current->backward;
+//         else
+//           Bubble->Emissions->LastNode = Current->backward;
+
+//         struct APECSS_EmissionNode *Obsolete = Current;
+//         Current = Current->backward;
+//         free(Obsolete);
+//         Bubble->Emissions->nNodes -= 1;
+//       }
+//       else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation (inward moving node adjacent to the bubble wall)
+//       {
+//         Bubble->Emissions->FirstNode = Current->forward;
+
+//         if (Current->forward != NULL)
+//           Current->forward->backward = Current->backward;
+//         else
+//           Bubble->Emissions->LastNode = Current->backward;
+
+//         struct APECSS_EmissionNode *Obsolete = Current;
+//         Current = NULL;
+//         free(Obsolete);
+//         Bubble->Emissions->nNodes -= 1;
+//       }
+//       else
+//       {
+//         // Evaluate pressure
+//         Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
+
+//         // Store data (if applicable)
+//         Bubble->results_emissionsnode_store(Current, APECSS_SQRT((Gamma - 1.0) * Current->h), pinf, Bubble);
+
+//         // Move to the next node
+//         Current = Current->backward;
+//       }
+//     }
+//     else  // Physically implausible enthalpy/pressure detected, node is discarded
+//     {
+//       if (Current->forward != NULL)
+//         Current->forward->backward = Current->backward;
+//       else
+//         Bubble->Emissions->LastNode = Current->backward;
+
+//       if (Current->backward != NULL)
+//         Current->backward->forward = Current->forward;
+//       else
+//         Bubble->Emissions->FirstNode = Current->forward;
+
+//       struct APECSS_EmissionNode *Obsolete = Current;
+//       Current = Current->backward;
+//       free(Obsolete);
+//       Bubble->Emissions->nNodes -= 1;
+//     }
+//   }
+
+//   return (0);
+// }
+
 int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
 {
   struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
@@ -235,63 +330,18 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
+  // ---------------------------------------
+  // Integrate along the outgoing characteristics
+
   while (Current != NULL)
   {
     if (Bubble->Emissions->integrate_along_characteristic(Bubble, Current, hinf))
     {
-      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation (outward moving node)
-      {
-        Current->forward->backward = Current->backward;
+      // Evaluate pressure
+      Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
 
-        if (Current->backward != NULL)
-          Current->backward->forward = Current->forward;
-        else
-          Bubble->Emissions->FirstNode = Current->forward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation (inward moving node)
-      {
-        Current->backward->forward = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation (inward moving node adjacent to the bubble wall)
-      {
-        Bubble->Emissions->FirstNode = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = NULL;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else
-      {
-        // Evaluate pressure
-        Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
-
-        // Store data (if applicable)
-        Bubble->results_emissionsnode_store(Current, APECSS_SQRT((Gamma - 1.0) * Current->h), pinf, Bubble);
-
-        // Move to the next node
-        Current = Current->backward;
-      }
+      // Move to the next node
+      Current = Current->backward;
     }
     else  // Physically implausible enthalpy/pressure detected, node is discarded
     {
@@ -312,8 +362,185 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
     }
   }
 
+  // ---------------------------------------
+  // Shock treatment (if necessary)
+
+  // Current = Bubble->Emissions->FirstNode;
+  // APECSS_FLOAT mass0 = 0.0;
+  // while (Current != NULL)
+  // {
+  //   if (Current->forward != NULL)
+  //   {
+  //     APECSS_FLOAT rhoavg = 0.5 * (Bubble->Liquid->get_density(Current->p, Bubble->Liquid) + Bubble->Liquid->get_density(Current->forward->p, Bubble->Liquid));
+  //     mass0 += rhoavg * (APECSS_POW3(Current->forward->r) - APECSS_POW3(Current->r));
+  //   }
+
+  //   Current = Current->forward;
+  // }
+
+  int check_for_shocks = 1;
+  while (check_for_shocks)
+  {
+    Current = Bubble->Emissions->FirstNode;
+    check_for_shocks = 0;
+
+    while (Current != NULL)
+    {
+      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
+      {
+        check_for_shocks = 1;  // Requires another complete subsequent iteration to make sure all multivalued solutions have been or are treated
+
+        // Define new properties of the forward node
+        Current->forward->r = 0.5 * (Current->r + Current->forward->r);
+        Current->forward->h = 0.5 * (Current->h + Current->forward->h);
+        Current->forward->u = 0.5 * (Current->u + Current->forward->u);
+        Current->forward->g = Current->forward->r * (Current->forward->h - hinf + 0.5 * APECSS_POW2(Current->forward->u));
+        Current->forward->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
+        Current->forward->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
+
+        // Current node is obsolete and will be deleted
+        struct APECSS_EmissionNode *Obsolete = Current;
+
+        // Redefine the neighbor information
+        Current->forward->backward = Current->backward;
+        if (Current->backward != NULL)
+          Current->backward->forward = Current->forward;
+        else
+          Bubble->Emissions->FirstNode = Current->forward;
+
+        // Move to the next node
+        Current = Current->forward;
+
+        // Delete obsolete node
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else
+      {
+        // Move to the next node without action
+        Current = Current->forward;
+      }
+    }
+  }
+
+  // Current = Bubble->Emissions->FirstNode;
+  // APECSS_FLOAT mass1 = 0.0;
+  // while (Current != NULL)
+  // {
+  //   if (Current->forward != NULL)
+  //   {
+  //     APECSS_FLOAT rhoavg = 0.5 * (Bubble->Liquid->get_density(Current->p, Bubble->Liquid) + Bubble->Liquid->get_density(Current->forward->p, Bubble->Liquid));
+  //     mass1 += rhoavg * (APECSS_POW3(Current->forward->r) - APECSS_POW3(Current->r));
+  //   }
+
+  //   Current = Current->forward;
+  // }
+
+  // ---------------------------------------
+  // Store data (if applicable)
+
+  if (Bubble->Results->Emissions->nNodes + Bubble->Results->Emissions->MinMaxPeriod)
+  {
+    Current = Bubble->Emissions->FirstNode;
+
+    while (Current != NULL)
+    {
+      Bubble->results_emissionsnode_store(Current, APECSS_SQRT((Gamma - 1.0) * Current->h), pinf, Bubble);
+      Current = Current->forward;
+    }
+  }
+
   return (0);
 }
+
+// int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
+// {
+//   struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
+
+//   // Assuming the time-step is small compared to the timescale over which the ambient/driving pressure changes,
+//   // we take the reference state at infinity as constant.
+//   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
+//   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
+
+//   while (Current != NULL)
+//   {
+//     if (Bubble->Emissions->integrate_along_characteristic(Bubble, Current, hinf))
+//     {
+//       if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation (outward moving node)
+//       {
+//         Current->forward->backward = Current->backward;
+
+//         if (Current->backward != NULL)
+//           Current->backward->forward = Current->forward;
+//         else
+//           Bubble->Emissions->FirstNode = Current->forward;
+
+//         struct APECSS_EmissionNode *Obsolete = Current;
+//         Current = Current->backward;
+//         free(Obsolete);
+//         Bubble->Emissions->nNodes -= 1;
+//       }
+//       else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation (inward moving node)
+//       {
+//         Current->backward->forward = Current->forward;
+
+//         if (Current->forward != NULL)
+//           Current->forward->backward = Current->backward;
+//         else
+//           Bubble->Emissions->LastNode = Current->backward;
+
+//         struct APECSS_EmissionNode *Obsolete = Current;
+//         Current = Current->backward;
+//         free(Obsolete);
+//         Bubble->Emissions->nNodes -= 1;
+//       }
+//       else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation (inward moving node adjacent to the bubble wall)
+//       {
+//         Bubble->Emissions->FirstNode = Current->forward;
+
+//         if (Current->forward != NULL)
+//           Current->forward->backward = Current->backward;
+//         else
+//           Bubble->Emissions->LastNode = Current->backward;
+
+//         struct APECSS_EmissionNode *Obsolete = Current;
+//         Current = NULL;
+//         free(Obsolete);
+//         Bubble->Emissions->nNodes -= 1;
+//       }
+//       else
+//       {
+//         // Pressure has already been evaluated iteratively while integrating along the characteristic
+
+//         // Store data (if applicable)
+//         Bubble->results_emissionsnode_store(
+//             Current, Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid), pinf, Bubble);
+
+//         // Move to the next node
+//         Current = Current->backward;
+//       }
+//     }
+//     else  // Physically implausible enthalpy/pressure detected, node is discarded
+//     {
+//       if (Current->forward != NULL)
+//         Current->forward->backward = Current->backward;
+//       else
+//         Bubble->Emissions->LastNode = Current->backward;
+
+//       if (Current->backward != NULL)
+//         Current->backward->forward = Current->forward;
+//       else
+//         Bubble->Emissions->FirstNode = Current->forward;
+
+//       struct APECSS_EmissionNode *Obsolete = Current;
+//       Current = Current->backward;
+//       free(Obsolete);
+//       Bubble->Emissions->nNodes -= 1;
+//     }
+//   }
+
+//   return (0);
+// }
 
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
 {
@@ -324,65 +551,19 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
+  // ---------------------------------------
+  // Integrate along the outgoing characteristic
+
   while (Current != NULL)
   {
     if (Bubble->Emissions->integrate_along_characteristic(Bubble, Current, hinf))
     {
-      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation (outward moving node)
-      {
-        Current->forward->backward = Current->backward;
+      // Pressure has already been evaluated iteratively while integrating along the characteristic
 
-        if (Current->backward != NULL)
-          Current->backward->forward = Current->forward;
-        else
-          Bubble->Emissions->FirstNode = Current->forward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation (inward moving node)
-      {
-        Current->backward->forward = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation (inward moving node adjacent to the bubble wall)
-      {
-        Bubble->Emissions->FirstNode = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = NULL;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else
-      {
-        // Pressure has already been evaluated iteratively while integrating along the characteristic
-
-        // Store data (if applicable)
-        Bubble->results_emissionsnode_store(
-            Current, Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid), pinf, Bubble);
-
-        // Move to the next node
-        Current = Current->backward;
-      }
+      // Move to the next node
+      Current = Current->backward;
     }
-    else  // Physically implausible enthalpy/pressure detected, node is discarded
+    else  // Physically implausible enthalpy/pressure detected, node is discarded. This generally only occurs with the explicit velocity (EV) integration.
     {
       if (Current->forward != NULL)
         Current->forward->backward = Current->backward;
@@ -398,6 +579,91 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
       Current = Current->backward;
       free(Obsolete);
       Bubble->Emissions->nNodes -= 1;
+    }
+  }
+
+  // ---------------------------------------
+  // Shock treatment (if necessary)
+
+  int check_for_shocks = 1;
+  while (check_for_shocks)
+  {
+    Current = Bubble->Emissions->FirstNode;
+    check_for_shocks = 0;
+
+    while (Current != NULL)
+    {
+      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
+      {
+        check_for_shocks = 1;  // Requires another complete subsequent iteration to make sure all multivalued solutions have been or are treated
+
+        // Define new properties of the forward node
+        Current->forward->r = 0.5 * (Current->r + Current->forward->r);
+        Current->forward->h = 0.5 * (Current->h + Current->forward->h);
+        Current->forward->u = 0.5 * (Current->u + Current->forward->u);
+        Current->forward->g = Current->forward->r * (Current->forward->h - hinf + 0.5 * APECSS_POW2(Current->forward->u));
+
+        // Current node is obsolete and will be deleted
+        struct APECSS_EmissionNode *Obsolete = Current;
+
+        // Redefine the neighbor information
+        Current->forward->backward = Current->backward;
+        if (Current->backward != NULL)
+          Current->backward->forward = Current->forward;
+        else
+          Bubble->Emissions->FirstNode = Current->forward;
+
+        // Move to the next node
+        Current = Current->forward;
+
+        // Delete obsolete node
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else
+      {
+        // Move to the next node without action
+        Current = Current->forward;
+      }
+    }
+  }
+
+  // ---------------------------------------
+  // Compute the pressure and (if applicable) the invariant f
+
+  Current = Bubble->Emissions->FirstNode;
+  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
+  APECSS_FLOAT B = Bubble->Liquid->B;
+  APECSS_FLOAT b = Bubble->Liquid->b;
+  APECSS_FLOAT tol = Bubble->Emissions->KB_IterTolerance;
+
+  while (Current != NULL)
+  {
+    APECSS_FLOAT p_prev;
+    do  // Compute pressure iteratively
+    {
+      p_prev = Current->p;
+      APECSS_FLOAT rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
+      Current->p = ((Gamma - 1.0) * rho * Current->h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
+    } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
+
+    Current->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
+
+    Current = Current->forward;
+  }
+
+  // ---------------------------------------
+  // Store data (if applicable)
+
+  if (Bubble->Results->Emissions->nNodes + Bubble->Results->Emissions->MinMaxPeriod > 0)  // Results of at least one specific node are to be stored.
+  {
+    Current = Bubble->Emissions->FirstNode;
+
+    while (Current != NULL)
+    {
+      Bubble->results_emissionsnode_store(
+          Current, Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid), pinf, Bubble);
+      Current = Current->forward;
     }
   }
 
