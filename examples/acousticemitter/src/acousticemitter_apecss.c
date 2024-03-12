@@ -73,8 +73,8 @@ int main(int argc, char **args)
     }
   }
 
-  // Desired time step (1000 time steps per period)
-  APECSS_FLOAT dt_desired = 1.0 / (1000.0 * fa);
+  // Desired time step (100 time steps per period)
+  APECSS_FLOAT dt_desired = 1.0 / (100.0 * fa);
 
   /* Allocate and initialize Bubble structure */
   struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
@@ -95,7 +95,7 @@ int main(int argc, char **args)
   Bubble->t = Bubble->tStart;
   Bubble->dt = dt_desired;
   Bubble->R = Bubble->R0;
-  Bubble->U = Bubble->U0;
+  Bubble->U = 0.0;
 
   Bubble->dtNumber = 0;
   Bubble->emissions_initialize(Bubble);
@@ -154,6 +154,6 @@ int main(int argc, char **args)
 
 APECSS_FLOAT emitter_liquid_pressure_emitterwall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->p0 + 0.5 * dpa * APECSS_COS(2.0 * APECSS_PI * fa * Bubble->t - 0.5 * APECSS_PI));
+  return (Bubble->p0 + dpa * APECSS_COS(2.0 * APECSS_PI * fa * Bubble->t - 0.5 * APECSS_PI));
   // return (Bubble->p0 + 0.5 * dpa * (1.0 - APECSS_COS(2.0 * APECSS_PI * fa * Bubble->t)));
 }
