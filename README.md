@@ -18,7 +18,7 @@
 APECSS is a software toolbox to compute pressure-driven bubble dynamics and the resulting acoustic emissions. It is written in C and has been developed with simplicity, versatility and performance in mind. The acronym APECSS stands for "Acoustic Pulse Emitted by Cavitation in Spherical Symmetry".
 
 Key features of APECSS are:
-- Bubble dynamics using widely-used models (Rayleigh-Plesset, Keller-Miksis, Gilmore), solved using an in-built 5th-order Runge-Kutta scheme with adaptive time-stepping.
+- Bubble dynamics using widely-used models (Rayleigh-Plesset, Keller-Miksis, Gilmore), solved using an in-built 5th-order Runge-Kutta scheme with adaptive time stepping.
 - Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
@@ -75,10 +75,12 @@ The APECSS repository is structured as follows:
 - The [lib](/lib/) folder in which the APECSS library is compiled (at least if you follow the [Quick Start Guide](#quick-start-guide) above).
 - The [src](/src/) folder contains all source files (*.c) of APECSS.
 - The [.clang-format](.clang-format) file, which defines the formatting rules for the source code.
-- The [.gitignore](.gitignore) file telling _git_ which folders and files to ignore.
-- The [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) file containing outlining the code of conduct for this repository.
-- The [CONTRIBUTING.md](CONTRIBUTING.md) file containing brief guidelines on how to contribute to APECSS.
-- The [LICENSE.txt](LICENSE.txt) file containing the Mozilla Public License Version 2.0.
+- The [.gitignore](.gitignore) file tells _git_ which folders and files to ignore.
+- The [CITATION.cff](CITATION.cff) file contains information on how to cite APECSS.
+- The [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) file outlines the code of conduct for this repository.
+- The [CONTRIBUTING.md](CONTRIBUTING.md) file contains brief guidelines on how to contribute to APECSS.
+- The [JOSS-Paper.pdf](JOSS-Paper.pdf) file is the paper about APECSS in the Journal of Open Source Software.
+- The [LICENSE.txt](LICENSE.txt) file contains the Mozilla Public License Version 2.0.
 - The [README.md](README.md) file is the file you are currently reading.
 
 ## How to cite us
@@ -86,7 +88,7 @@ If you use APECSS for your scientific work, please consider citing the [paper](h
 
     F. Denner and S. Schenke, APECSS: A software library for cavitation bubble dynamics and acoustic emissions. Journal of Open Source Software 8 (2023), 5435. https://doi.org/10.21105/joss.05435 
 
-as well as the version of APECSS you've used for your work, e.g.
+and, in the interest of reproducibility, the version of APECSS you've used for your work, e.g.
 
     F. Denner and S. Schenke, APECSS (v1.2), Zenodo (2022). https://doi.org/10.5281/zenodo.7465050
 

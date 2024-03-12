@@ -87,7 +87,7 @@ Under the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948}, the propagati
 \begin{equation}
     \left. \frac{\mathrm{d}r(t)}{\mathrm{d}t} \right|_\text{c} = c(r,t) + u(r,t). \label{eq:drdt}
 \end{equation}
-This ODE is numerically integrated using either an Euler scheme or a fourth-order Runge-Kutta (RK4) scheme, with initial condition $r(t) = R(\tau)$ for $t=\tau$, where $\tau$ is the time at which the acoustic information is emitted at the bubble wall. The time-step $\Delta t$ is taken to be the same as used for the integration of the model describing the bubble dynamics (see Section \ref{chap:bubble}).
+This ODE is numerically integrated using either an Euler scheme or a fourth-order Runge-Kutta (RK4) scheme, with initial condition $r(t) = R(\tau)$ for $t=\tau$, where $\tau$ is the time at which the acoustic information is emitted at the bubble wall. The time step $\Delta t$ is taken to be the same as used for the integration of the model describing the bubble dynamics (see Section \ref{chap:bubble}).
 
 Two models to compute the velocity $u(r,t)$ at a given emission node are available in APECSS: (i) an explicit expression for $u(r,t)$ \citep{Denner2023}  and (ii) integrating the temporal derivative of the velocity, $\mathrm{d}u(r,t)/\mathrm{d}t$, along the outgoing characteristic, as proposed by \citet{Hickling1963}. The assumptions used to derive these models for the acoustic emissions are consistent with the Gilmore model, Eq.~\eqref{eq:gilmore}.
 

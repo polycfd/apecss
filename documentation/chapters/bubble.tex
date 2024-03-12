@@ -2,7 +2,7 @@
 \label{chap:bubble}
 The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type (RP) model, assuming spherical symmetry. This requires to choose a suitable RP-type model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). The results that APECSS can write out based on the RP model are explained in Section \ref{sec:bubble_results}.
 
-APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time-step $\Delta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time-step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Delta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
+APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time step $\Delta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Delta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
 
 \vspace{0.8em}
 
@@ -16,9 +16,9 @@ APECSS solves all ordinary differential equations (ODEs) associated with the bub
 {\tt ODESOLVER} & {\tt RK 7M} & Minimum truncation (7M) coefficients of the RK5(4) scheme of \citet{Dormand1980}. This is the default.\\ 
 & {\tt RK 7S} & Stability optimized (7S) coefficients of the RK5(4) scheme of \citet{Dormand1980}.\\ 
 & {\tt Tolerance <float>} & The desired solution tolerance.\\ 
-& {\tt MinTimeStep <float>} & Minimum time-step $\Delta t$.\\ 
-& {\tt MaxTimeStep <float>} & Maximum time-step $\Delta t$.\\ 
-& {\tt MaxSubIterations <float>} & Maximum number of sub-iterations in a given time-step.\\ 
+& {\tt MinTimeStep <float>} & Minimum time step $\Delta t$.\\ 
+& {\tt MaxTimeStep <float>} & Maximum time step $\Delta t$.\\ 
+& {\tt MaxSubIterations <float>} & Maximum number of sub-iterations in a given time step.\\ 
  \hline
 \end{tabular} \vspace{1em}
 
@@ -337,7 +337,7 @@ R_\text{rupt} = R_\text{buck} \, \sqrt{1+\frac{\sigma_\text{c}}{\chi}}.
 \label{eq:Rrupt}
 \end{equation} 
 
-The radius-dependent surface tension coefficient of the Marmottant model \citep{Marmottant2005}, defined in Eq.~(\ref{eq:sigma_marmottant}), contains two discontinuities at $R=R_\text{buck}$ and $R=R_\text{rupt}$. These discontinuities render the Marmottant model sensitive to the applied time-step when numerically solving the primary ordinary differential equation \citep{Versluis2020}. A continuously differentiable form of the Marmottant model a Gompertz function of the form $f(x) = a \, \text{e}^{-b \, \text{e}^{-c x}}$, a special case of the generalized logistics function, was proposed by \citet{Guemmer2021}. Using this Marmottant-Gompertz model, the surface tension coefficient is defined as
+The radius-dependent surface tension coefficient of the Marmottant model \citep{Marmottant2005}, defined in Eq.~(\ref{eq:sigma_marmottant}), contains two discontinuities at $R=R_\text{buck}$ and $R=R_\text{rupt}$. These discontinuities render the Marmottant model sensitive to the applied time step when numerically solving the primary ordinary differential equation \citep{Versluis2020}. A continuously differentiable form of the Marmottant model a Gompertz function of the form $f(x) = a \, \text{e}^{-b \, \text{e}^{-c x}}$, a special case of the generalized logistics function, was proposed by \citet{Guemmer2021}. Using this Marmottant-Gompertz model, the surface tension coefficient is defined as
 \begin{equation}
 \sigma = \sigma_\text{c} \, \text{e}^{-b \, \text{e}^{c (1-R/R_\text{buck})}}, \label{eq:sigma_gompertz}
 \end{equation}
@@ -386,7 +386,7 @@ For the bubble dynamics, the following quantities as a function of time are writ
 \begin{itemize}[noitemsep]
   \item Time-step number.
   \item Time, $t$.
-  \item Time-step, $\Delta t$.
+  \item Time step, $\Delta t$.
   \item Bubble radius, $R$.
   \item Velocity of the bubble wall, $\dot{R}$.
   \item Pressure of the gas, $p_\mathrm{G}$.
