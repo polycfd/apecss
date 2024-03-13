@@ -392,9 +392,9 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
 
         // Define new properties of the forward node
         Current->forward->r = 0.5 * (Current->r + Current->forward->r);
-        Current->forward->h = 0.5 * (Current->h + Current->forward->h);
         Current->forward->u = 0.5 * (Current->u + Current->forward->u);
-        Current->forward->g = Current->forward->r * (Current->forward->h - hinf + 0.5 * APECSS_POW2(Current->forward->u));
+        Current->forward->g = 0.5 * (Current->g + Current->forward->g);
+        Current->forward->h = hinf + Current->forward->g / Bubble->get_dimensionalradius(Current->forward->r) - 0.5 * APECSS_POW2(Current->forward->u);
         Current->forward->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
         Current->forward->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
 
@@ -690,7 +690,7 @@ int apecss_emissions_integrate_ev_tait_euler(struct APECSS_Bubble *Bubble, struc
 
   Current->r += Bubble->dt * (c + u);
   Current->u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(Current->r) * Current->r) +
-               Current->g / (Bubble->get_dimensionalradius(Current->r) * (c + Current->u));
+               Current->g / (Bubble->get_dimensionalradius(Current->r) * (c + u));
   Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   if (Current->h < 0)  // Flag a physically implausible solution
