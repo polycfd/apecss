@@ -1,6 +1,15 @@
 #!/bin/bash
 set -e
-cd binaryinteraction/build
+cd acousticemitter/build
+./compile.sh
+cd ..
+./build/acousticemitter_apecss -options planar.apecss -tend 0.5 -fa 1e3 -dpa 1e6
+python3 plot_result_planar.py
+rm EmissionsTime_*
+./build/acousticemitter_apecss -options spherical.apecss -tend 4.0e-3 -fa 1500 -dpa 1
+python3 plot_result_spherical.py
+rm EmissionsTime_*
+cd ../binaryinteraction/build
 ./compile.sh
 cd ..
 ./build/binaryinteraction_apecss -options run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
@@ -26,6 +35,9 @@ python3 plot_result_simple.py
 rm RP_R1.000e+00.txt
 ./build/rayleigh_apecss -options emissions.apecss -tend 0.2
 python3 plot_result_emissions.py
+rm EmissionsSpace_* Gilmore_R1.000e+00.txt
+./build/rayleigh_apecss -options shock.apecss -tend 0.11
+python3 plot_result_shock.py
 rm EmissionsSpace_* Gilmore_R1.000e+00.txt
 cd ../ultrasound/build
 ./compile.sh
