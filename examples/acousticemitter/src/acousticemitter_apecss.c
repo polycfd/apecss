@@ -19,6 +19,7 @@
 #include "apecss.h"
 
 APECSS_FLOAT emitter_liquid_pressure_emitterwall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+int planaremitter_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble);
 
 APECSS_FLOAT fa = 0.0;  // Acoustic frequency
 APECSS_FLOAT dpa = 0.0;  // Acoustic pressure amplitude
@@ -73,8 +74,8 @@ int main(int argc, char **args)
     }
   }
 
-  // Desired time step (100 time steps per period)
-  APECSS_FLOAT dt_desired = 1.0 / (100.0 * fa);
+  // Desired time step (200 time steps per period)
+  APECSS_FLOAT dt_desired = 1.0 / (200.0 * fa);
 
   /* Allocate and initialize Bubble structure */
   struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
@@ -91,6 +92,9 @@ int main(int argc, char **args)
   apecss_liquid_processoptions(Liquid);
 
   Bubble->Liquid->get_pressure_bubblewall = emitter_liquid_pressure_emitterwall;
+
+  // To only simulate a part of a very long wave train emitted by the planar emitter
+  if (0 == Bubble->dimensionality) Bubble->emissions_update = planaremitter_emissions_updatelinkedlist;
 
   Bubble->t = Bubble->tStart;
   Bubble->dt = dt_desired;
@@ -118,10 +122,6 @@ int main(int argc, char **args)
     APECSS_FLOAT omega = 2.0 * APECSS_PI * fa;
     Bubble->U = dpa * APECSS_COS(omega * Bubble->t - 0.5 * APECSS_PI) / (rho * c);
     Bubble->R = Bubble->R0 - dpa * APECSS_SIN(omega * Bubble->t - 0.5 * APECSS_PI) / ((omega + APECSS_SMALL) * rho * c);
-
-    // Update allocation of the results (if necessary)
-    Bubble->results_emissionsnodeminmax_identify(Bubble);
-    Bubble->results_emissionsnode_alloc(Bubble);
 
     // Acoustic emissions (if applicable)
     Bubble->emissions_update(Bubble);
@@ -155,5 +155,15 @@ int main(int argc, char **args)
 APECSS_FLOAT emitter_liquid_pressure_emitterwall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   return (Bubble->p0 + dpa * APECSS_COS(2.0 * APECSS_PI * fa * Bubble->t - 0.5 * APECSS_PI));
-  // return (Bubble->p0 + 0.5 * dpa * (1.0 - APECSS_COS(2.0 * APECSS_PI * fa * Bubble->t)));
+}
+
+int planaremitter_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble)
+{
+  if (Bubble->Emissions->nNodes) Bubble->Emissions->advance(Bubble);
+
+  // Only the waves emitted during a short time interval (10 excitation periods) are tracked.
+  if (Bubble->t * fa < 10.0) apecss_emissions_addnode(Bubble);
+  if (Bubble->Emissions->LastNode->r > Bubble->Emissions->CutOffDistance) apecss_emissions_removenode(Bubble);
+
+  return (0);
 }

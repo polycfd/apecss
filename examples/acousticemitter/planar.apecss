@@ -1,0 +1,30 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 1.0
+Emissions EV 750.0
+EmissionIntegration RK4
+PressureAmbient 1.0e5
+Dimensionality Plane
+END
+
+LIQUID
+EoS Tait
+ReferencePressure 1.0e5
+ReferenceDensity 997.0
+PolytropicExponent 7.15
+TaitPressureConst 3.046e8
+END
+
+RESULTS
+OutputDigits 10
+EmissionsTime 1.0e-1
+EmissionsTime 2.0e-1
+EmissionsTime 3.0e-1
+EmissionsTime 4.0e-1
+EmissionsTime 5.0e-1
+END
