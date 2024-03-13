@@ -22,9 +22,7 @@ END
 
 RESULTS
 OutputDigits 10
-EmissionsTime 1.0e-1
-EmissionsTime 2.0e-1
-EmissionsTime 3.0e-1
-EmissionsTime 4.0e-1
-EmissionsTime 5.0e-1
+EmissionsTime 9e-2
+EmissionsTime 26e-2
+EmissionsTime 43e-2
 END
