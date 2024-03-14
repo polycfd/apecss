@@ -764,13 +764,13 @@ int apecss_results_emissionsnodeminmax_identifynone(struct APECSS_Bubble *Bubble
 
 int apecss_results_emissionsnodeminmax_identifyall(struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT inv_f = Bubble->tEnd;
-  if (Bubble->Excitation != NULL) inv_f = 1.0 / Bubble->Excitation->f;
+  APECSS_FLOAT excitation_period = Bubble->tEnd;
+  if (Bubble->Excitation != NULL) excitation_period = 1.0 / Bubble->Excitation->f;
 
   APECSS_FLOAT t = Bubble->t + Bubble->dt;
   APECSS_FLOAT period = (APECSS_FLOAT) Bubble->Results->Emissions->MinMaxPeriod;
 
-  if ((t >= (period - 1.0) * inv_f) && (t < period * inv_f))  // Check if this is the specified period
+  if ((t >= (period - 1.0) * excitation_period) && (t < period * excitation_period))  // Check if this is the specified period
   {
     if (Bubble->R < Bubble->Results->Emissions->Rmin)
     {
