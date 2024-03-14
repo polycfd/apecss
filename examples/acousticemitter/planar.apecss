@@ -6,7 +6,7 @@
 
 BUBBLE
 InitialRadius 1.0
-Emissions EV 750.0
+Emissions TIV 750.0
 EmissionIntegration RK4
 PressureAmbient 1.0e5
 Dimensionality Plane
