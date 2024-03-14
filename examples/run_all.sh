@@ -33,6 +33,9 @@ cd ..
 ./build/rayleigh_apecss -options simple.apecss -tend 1
 python3 plot_result_simple.py
 rm RP_R1.000e+00.txt
+./build/rayleigh_apecss -options cylindrical.apecss -tend 5e-4
+python3 plot_result_cylindrical.py
+rm Gilmore_R2.110e-03.txt
 ./build/rayleigh_apecss -options emissions.apecss -tend 0.2
 python3 plot_result_emissions.py
 rm EmissionsSpace_* Gilmore_R1.000e+00.txt
