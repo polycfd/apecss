@@ -770,7 +770,7 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   else
   {
     // Set the initial gas pressure to the Laplace pressure
-    if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + 2.0 * Bubble->Interface->sigma / Bubble->R0;
+    if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + Bubble->dimensionality * Bubble->Interface->sigma / Bubble->R0;
   }
 
   // ---------------------------------------
