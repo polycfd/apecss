@@ -1,6 +1,6 @@
 \chapter{Acoustic emissions}
 
-Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully-compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Please refer to the work of \citet{Denner2023} for a detailed explanation and validation of the different emission models. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
+Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Please refer to the work of \citet{Denner2023} for a detailed explanation and validation of the different emission models. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
 
 \vspace{0.8em}
 
@@ -19,7 +19,7 @@ Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS
  \hline
 \end{tabular} \vspace{0.2em}
 
-The floating-point value given as the final argument of the {\tt Emissions} command defines the cut-off distance beyond which the emissions are not computed. For the standard incompressible assumption this value has no meaning, but a value is required as a dummy to facilitate the correct reading of the options.
+The floating-point value given as the final argument of the {\tt Emissions} command defines the cut-off distance beyond which the emissions are not computed. For the standard incompressible assumption this value has no meaning, but a value is required as a dummy to facilitate the correct reading of the options. In addition to the emissions of a spherical bubble, the emissions computed based on the Kirkwood-Bethe hypothesis can also be used for cylindrical bubbles and planar cavities. The description of the theory below, however, is limited to the spherical case.
 
 \section{Lagrangian wave tracking}
 

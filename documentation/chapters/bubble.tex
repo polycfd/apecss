@@ -13,6 +13,9 @@ APECSS solves all ordinary differential equations (ODEs) associated with the bub
 {\tt BUBBLE} & {\tt InitialRadius <float>} & The initial radius $R_0$ of the bubble.\\ 
  & {\tt PressureAmbient <float>} & The ambient pressure $p_0$.\\ 
  & {\tt InitialGasPressure <float>} & The initial gas pressure $p_{\mathrm{G},0}$, if different from $p_0$ or the corresponding Laplace pressure.\\ 
+ & {\tt Dimensionality Planar} & Gas cavity in a plane one-dimensional domain (limited to Kirkwood-Bethe based models).\\
+ & {\tt Dimensionality Cylinder} & Cylindrical bubble (limited to Kirkwood-Bethe based models).\\
+ & {\tt Dimensionality Sphere} & Spherical bubble (default).\\
 {\tt ODESOLVER} & {\tt RK 7M} & Minimum truncation (7M) coefficients of the RK5(4) scheme of \citet{Dormand1980}. This is the default.\\ 
 & {\tt RK 7S} & Stability optimized (7S) coefficients of the RK5(4) scheme of \citet{Dormand1980}.\\ 
 & {\tt Tolerance <float>} & The desired solution tolerance.\\ 
@@ -67,7 +70,11 @@ Based on the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948}, \citet{Gil
 \begin{equation}
   \left( 1 - \frac{\dot{R}}{c_\text{L}} \right) R \ddot{R} + \frac{3}{2} \left( 1 - \frac{\dot{R}}{3 c_\text{L}} \right) \dot{R}^2  = \left( 1 + \frac{\dot{R}}{c_\text{L}} \right) H + \left( 1- \frac{\dot{R}}{c_\text{L}} \right) \frac{R \dot{H}}{c_\text{L}}, \label{eq:gilmore}
 \end{equation} 
-where $c_\mathrm{L}$ is the speed of sound of the liquid at the bubble wall, $H = h_\text{L} - h_\infty$ is the enthalpy difference between the bubble wall and infinity, and $\dot{H} = \dot{h}_\text{L} - \dot{h}_\infty$ is the derivative of $H$. The enthalpy $h$ and the speed of sound $c$ are defined by an appropriate equation of state as a function of pressure, with $h_\text{L} = h(p_\text{L})$, $h_\infty = h(p_\infty)$ and $c_\text{L} = c(p_\text{L})$, as detailed in \ref{sec:liquid}.
+where $c_\mathrm{L}$ is the speed of sound of the liquid at the bubble wall, $H = h_\text{L} - h_\infty$ is the enthalpy difference between the bubble wall and infinity, and $\dot{H} = \dot{h}_\text{L} - \dot{h}_\infty$ is the derivative of $H$. The enthalpy $h$ and the speed of sound $c$ are defined by an appropriate equation of state as a function of pressure, with $h_\text{L} = h(p_\text{L})$, $h_\infty = h(p_\infty)$ and $c_\text{L} = c(p_\text{L})$, as detailed in \ref{sec:liquid}. The Gilmore model is also available in a more general formulation,
+\begin{equation}
+    \left( 1 - \frac{\dot{R}}{c_{\mathrm{L}}} \right) R \ddot{R} + \frac{3}{4} \alpha \left( 1 - \frac{\dot{R}}{3 c_{\mathrm{L}}} \right) \dot{R}^2 = \frac{\alpha}{2} \left( 1 + \frac{\dot{R}}{c_{\mathrm{L}}} \right) H + \left( 1- \frac{\dot{R}}{c_{\mathrm{L}}} \right) \frac{R \dot{H}}{c_{\mathrm{L}}}, \label{eq:gilmore_general}
+\end{equation}  
+that is applicable to planar ($\alpha=0$), cylindrical ($\alpha=1$) and spherical ($\alpha=2$) bubbles.
 
 \section{The gas}
 \label{sec:gas}
@@ -95,7 +102,7 @@ In APECSS, every bubble contains a gas, which requires to select an appropriate 
 \end{tabular} \vspace{1em}
 
 
-Using the ideal gas EoS, the pressure and its derivative are given as
+For a spherical bubble, using the ideal gas EoS, the pressure and its derivative are given as
 \begin{align}
   p_\text{G} &= p_\text{G,ref} \left(\frac{R_0}{R}\right)^{3 \Gamma_\text{g}}\\
   \dot{p}_\text{G} &= -3 \, \frac{p_\text{G} \, \Gamma_\text{g} \, \dot{R}}{R},\\
@@ -110,15 +117,13 @@ and using the Noble-Abel-stiffened-gas (NASG) EoS, the pressure and its derivati
   p_\text{G} &= (p_\text{G,ref} + B_\text{g}) \left[\frac{\rho_\text{g} \, (1-b_\text{g} \, \rho_\text{g,ref})}{\rho_\text{g,ref} \, (1- b_\text{g} \, \rho_\text{G})} \right]^{\Gamma_\text{g}} - B_\text{g}\\
   \dot{p}_\text{G} &= \frac{\dot{\rho}_\text{G} \, \Gamma_\text{g} \left(p_\text{G} + B_\text{g} \right)}{\rho_\text{G} \left(1- b_\text{g} \, \rho_\text{G} \right)},
 \end{align}
-where $\Gamma_\mathrm{g}$ is the polytropic exponent, $r_\mathrm{hc}$ is the hardcore radius, $b_\mathrm{g}$ is the co-volume and $B_\mathrm{g}$ is a pressure constant.
-
-Assuming mass conservation, the gas density and its derivative are given by 
+where $\Gamma_\mathrm{g}$ is the polytropic exponent, $r_\mathrm{hc}$ is the hardcore radius, $b_\mathrm{g}$ is the co-volume and $B_\mathrm{g}$ is a pressure constant. Assuming mass conservation, the gas density and its derivative are given by 
 \begin{align}
   \rho_\text{G} &= \rho_\text{g,ref} \left(\frac{R_0}{R}\right)^3 \label{eq:rhoG}\\
   \dot{\rho}_\text{G} &= -3 \, \rho_\text{G}\, \frac{\dot{R}}{R}. \label{eq:dot_rhoG}
 \end{align}
 
-The hardcore radius $r_\mathrm{hc}$ and the co-volume $b_\mathrm{g}$ are set by default to $-1$. If the {\tt HC} or {\tt NASG} model is chosen, the user has to pass values for the hardcore radius $r_\mathrm{hc}$ or the co-volume $b_\mathrm{g}$, respectively. Alternatively, the molecular weight $\mathcal{M}_{\text{g}}$ and the molecular kinematic diameter $\mathcal{D}_{\text{g}}$ of the gas may be defined instead of $r_\mathrm{hc}$ or $b_\mathrm{g}$; APECSS then computes the correct co-volume $b_\mathrm{g}$ or, based on the bubble size, hardcore radius $r_\mathrm{hc}$. Assuming the molecular weight $\mathcal{M}_{\text{g}}$, the bubble contains 
+The hardcore radius $r_\mathrm{hc}$ and the co-volume $b_\mathrm{g}$ are set by default to $-1$. If the {\tt HC} or {\tt NASG} model is chosen, the user has to pass values for the hardcore radius $r_\mathrm{hc}$ or the co-volume $b_\mathrm{g}$, respectively. Alternatively, for a spherical bubble, the molecular weight $\mathcal{M}_{\text{g}}$ and the molecular kinematic diameter $\mathcal{D}_{\text{g}}$ of the gas may be defined instead of $r_\mathrm{hc}$ or $b_\mathrm{g}$; APECSS then computes the correct co-volume $b_\mathrm{g}$ or, based on the bubble size, hardcore radius $r_\mathrm{hc}$. Assuming the molecular weight $\mathcal{M}_{\text{g}}$, the bubble contains 
 \begin{equation}
     N_\mathrm{G} = N_\mathrm{A} \, \frac{\rho_{\mathrm{G},0} V_0}{\mathcal{M}_{\text{g}}} 
 \end{equation}
@@ -167,7 +172,7 @@ In the same way that every bubble contains a gas, in APECSS every bubble is surr
  \hline
 \end{tabular} \vspace{1em}
 
-The pressure at the bubble wall of a Newtonian liquid is given as
+The pressure of a Newtonian liquid at the wall of a spherical bubble is given as
 \begin{equation}
   p_\text{L} = p_\text{G} - \frac{2 \sigma}{R} - 4 \, \mu_\ell \frac{\dot{R}}{R}, \label{eq:pL}
 \end{equation}
@@ -195,11 +200,26 @@ Using the Noble-Abel stiffened-gas (NASG) EoS \citep{LeMetayer2016} instead of t
       h &=& \frac{\Gamma_\ell}{\Gamma_\ell-1} \frac{p+B_\ell}{\rho} - \frac{\Gamma_\ell \, b_\ell}{\Gamma_\ell-1} \, (p+B_\ell) + b_\ell \, p \label{eq:h_NASG} \\
       c &=&\sqrt{\Gamma_\ell \, \frac{(p+B_\ell)}{\rho-b_\ell  \rho^2}},\label{eq:c_NASG}
     \end{eqnarray}
-with $K_\ell = \rho_{\ell,\text{ref}}/[(p_{\ell,\text{ref}}+B_\ell)^{{1/\Gamma_\ell}} \ (1-b_\ell \rho_{\ell,\text{ref}})]$ describing a constant reference state, and where $b_\ell$ is the co-volume of the liquid molecules. The NASG EoS reduces to the Tait EoS for $b_\ell=0$. Appropriate properties for water have, for instance, been proposed by \citet{Chandran2019} as $\Gamma_\ell = 1.19$, $B_\ell = 6.2178 \times 10^{8} \, \mathrm{Pa}$, $b_\ell = 6.7212 \times 10^{-4} \, \mathrm{m}^3/\mathrm{kg}$, $\rho_{\ell,\text{ref}} = 997 \, \mathrm{kg/m}^3$ and $p_{\ell,\text{ref}} = 10^5 \, \mathrm{Pa}$.
+with $K_\ell = \rho_{\ell,\text{ref}}/[(p_{\ell,\text{ref}}+B_\ell)^{{1/\Gamma_\ell}} \ (1-b_\ell \rho_{\ell,\text{ref}})]$ describing a constant reference state, and where $b_\ell$ is the co-volume of the liquid molecules. The NASG EoS reduces to the Tait EoS for $b_\ell=0$. Appropriate properties for water are listed in Table \ref{tab:nasg}.
+
+\begin{table*}
+    \caption{Model constants of the NASG EoS for water proposed in recent years.}
+    \label{tab:nasg}
+    \begin{tabular}{lccc}
+         & ~\citet{LeMetayer2016}~ & ~\citet{Chandran2019}~ & ~\citet{Denner2023}~\\
+        \hline 
+        $\Gamma_\ell$ & 1.19 & 1.19 & 1.11\\
+        $B_\ell \ [\text{Pa}]$ & $7028 \times 10^5$ & $6218 \times 10^5$ & $6480 \times 10^5$ \\
+        $b_\ell \ [\text{m}^3/\text{kg}]$ & $6.61 \times 10^{-4}$ & $6.72 \times 10^{-4}$ & $6.80 \times 10^{-4}$\\
+        $\rho_{\ell,\text{ref}} \ [\text{kg/m}^3]$ & $957.7$ & $997.0$ & $997.0$ \\
+        $p_{\ell,\text{ref}} \ [\text{Pa}]$ & $1.0453 \times 10^5$ & $10^5$ & $10^5$\\
+        \hline
+    \end{tabular}
+\end{table*}
 
 \subsection{Viscoelasticity}
 
-Currently, APECSS supports three widely-used models for viscoelastic media: the Kelvin-Voigt model, the Zener model and the Oldroyd-B model. While the Kelvin-Voigt model merely yields an additional term in the expression for the liquid pressure at the bubble wall, the Zener and Oldroyd-B models each require to solve two additional ODEs.
+Currently, APECSS supports three widely-used models for viscoelastic media in spherical symmetry: the Kelvin-Voigt model, the Zener model and the Oldroyd-B model. While the Kelvin-Voigt model merely yields an additional term in the expression for the liquid pressure at the bubble wall, the Zener and Oldroyd-B models each require to solve two additional ODEs.
 
 \subsubsection{Kelvin-Voigt model}
 
@@ -211,12 +231,7 @@ which contributes to Eq.~\eqref{eq:pL} to obtain
 \begin{equation}
     p_\text{L} = p_\text{G} - \frac{2 \sigma}{R} - 4 \, \mu_\ell \frac{\dot{R}}{R} - \frac{4}{3} \, G_\ell \, \frac{R^3-R_0^3}{R^3}, \label{eq:pL_KV}
 \end{equation}
-where $G_\ell$ is the elastic shear modulus.
-% The derivative of Eq.~\eqref{eq:KVterm} is given as
-% \begin{equation}
-%     \frac{\text{d}}{\text{d}t} \left(\frac{4}{3} \, G_\ell \, \frac{R^3-R_0^3}{R^3} \right) =  4 \, G_\ell \, \frac{R_0^3 \dot{R}}{R^4}.  \label{eq:dotKVterm}
-% \end{equation}
-The derivative of the liquid pressure at the bubble wall is then given as
+where $G_\ell$ is the elastic shear modulus. The derivative of the liquid pressure at the bubble wall is then given as
 \begin{equation}
     \dot{p}_\mathrm{L} = \dot{p}_\mathrm{G} + \frac{2 \, \sigma \, \dot{R}}{R^2} + 4 \, \mu_\ell \left(\frac{\dot{R}^2}{R^2} - \frac{\ddot{R}}{R}\right) - 4 \, G_\ell \, \frac{R_0^3 \dot{R}}{R^4}.
     \label{eq:dotpL_KV}
@@ -382,6 +397,14 @@ The results of the bubble dynamics can be written to disk, if so desired by the 
  \hline
 \end{tabular} \vspace{1em}
 
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{./figures/ultrasound_lipidcoated_simple.pdf}
+    \caption{Temporal evolution of the radius $R(t)$, bubble wall velocity $\dot{R}(t)$ and gas pressure $p_\mathrm{G}(t)$ of a lipid-coated microbubble with initial radius $R_0 = 0.975 \, \upmu \mathrm{m}$, driven by ultrasound with a frequency of $2.9 \, \mathrm{MHz}$ and a pressure amplitude of $130 \, \mathrm{kPa}$, as previously considered by \citet{Marmottant2005}. This example can be found in {\tt \$APECSS\_DIR/examples/ultrasound}, called {\tt lipidcoated\_simple}.}
+    \label{fig:bubble_results}
+\end{figure}
+
 For the bubble dynamics, the following quantities as a function of time are written into a text file, named by the employed RP model and (if applicable) the excitation parameters used:\vspace{-1em}
 \begin{itemize}[noitemsep]
   \item Time-step number.
@@ -397,10 +420,3 @@ For the bubble dynamics, the following quantities as a function of time are writ
 \end{itemize}
 
 The first line of the results file(s) lists the variables that were written out and their order. For instance, Figure \ref{fig:bubble_results} shows the output of the ``simple'' ultrasound-driven lipid-coated microbubble examples ({\tt \$APECSS\_DIR/examples/ultrasound/lipidcoated\_simple.apecss}).
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{./figures/ultrasound_lipidcoated_simple.pdf}
-    \caption{Temporal evolution of the radius $R(t)$, bubble wall velocity $\dot{R}(t)$ and gas pressure $p_\mathrm{G}(t)$ of a lipid-coated microbubble with initial radius $R_0 = 0.975 \, \upmu \mathrm{m}$, driven by ultrasound with a frequency of $2.9 \, \mathrm{MHz}$ and a pressure amplitude of $130 \, \mathrm{kPa}$, as previously considered by \citet{Marmottant2005}. This example can be found in {\tt \$APECSS\_DIR/examples/ultrasound}, called {\tt lipidcoated\_simple}.}
-    \label{fig:bubble_results}
-\end{figure}
