@@ -28,6 +28,15 @@ jobs:
     - name: Build lib
       run: cmake --build ${{github.workspace}}/lib --config ${{env.BUILD_TYPE}}
 
+    - name: Configure acoustic emitter
+      run: cmake -S ${{github.workspace}}/examples/acousticemitter/build -B ${{github.workspace}}/examples/acousticemitter/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build acoustic emitter
+      run: cmake --build ${{github.workspace}}/examples/acousticemitter/build --config ${{env.BUILD_TYPE}}
+    - name: Run acoustic emitter (planar)
+      run: ${{github.workspace}}/examples/acousticemitter/build/acousticemitter_apecss -options ${{github.workspace}}/examples/acousticemitter/planar.apecss -tend 0.5 -fa 1e3 -dpa 1e6
+    - name: Run acoustic emitter (spherical)
+      run: ${{github.workspace}}/examples/acousticemitter/build/acousticemitter_apecss -options ${{github.workspace}}/examples/acousticemitter/spherical.apecss -tend 4.0e-3 -fa 1500 -dpa 1
+
     - name: Configure bubble binary bubble interaction
       run: cmake -S ${{github.workspace}}/examples/binaryinteraction/build -B ${{github.workspace}}/examples/binaryinteraction/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build bubble binary bubble interaction 
@@ -55,10 +64,14 @@ jobs:
       run: cmake --build ${{github.workspace}}/examples/rayleighcollapse/build --config ${{env.BUILD_TYPE}}
     - name: Run Rayleigh collapse (simple)
       run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/simple.apecss -tend 1
+    - name: Run Rayleigh collapse (cylindrical)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/cylindrical.apecss -tend 5e-4
     - name: Run Rayleigh collapse (with emissions) and check results
       run: |
         ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/emissions.apecss -tend 0.2 -resultsdir ${{github.workspace}}/examples/rayleighcollapse/
         python ${{github.workspace}}/examples/rayleighcollapse/plot_result_emissions.py ${{github.workspace}}/examples/rayleighcollapse/
+    - name: Run Rayleigh collapse (shock)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/shock.apecss -tend 0.11
 
     - name: Configure ultrasound
       run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -94,6 +107,15 @@ jobs:
     - name: Build lib
       run: cmake --build ${{github.workspace}}/lib --config ${{env.BUILD_TYPE}}
 
+    - name: Configure acoustic emitter
+      run: cmake -S ${{github.workspace}}/examples/acousticemitter/build -B ${{github.workspace}}/examples/acousticemitter/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build acoustic emitter
+      run: cmake --build ${{github.workspace}}/examples/acousticemitter/build --config ${{env.BUILD_TYPE}}
+    - name: Run acoustic emitter (planar)
+      run: ${{github.workspace}}/examples/acousticemitter/build/acousticemitter_apecss -options ${{github.workspace}}/examples/acousticemitter/planar.apecss -tend 0.5 -fa 1e3 -dpa 1e6
+    - name: Run acoustic emitter (spherical)
+      run: ${{github.workspace}}/examples/acousticemitter/build/acousticemitter_apecss -options ${{github.workspace}}/examples/acousticemitter/spherical.apecss -tend 4.0e-3 -fa 1500 -dpa 1
+
     - name: Configure bubble binary bubble interaction
       run: cmake -S ${{github.workspace}}/examples/binaryinteraction/build -B ${{github.workspace}}/examples/binaryinteraction/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build bubble binary bubble interaction 
@@ -121,11 +143,15 @@ jobs:
       run: cmake --build ${{github.workspace}}/examples/rayleighcollapse/build --config ${{env.BUILD_TYPE}}
     - name: Run Rayleigh collapse (simple)
       run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/simple.apecss -tend 1
+    - name: Run Rayleigh collapse (cylindrical)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/cylindrical.apecss -tend 5e-4
     - name: Run Rayleigh collapse (with emissions) and check results
       run: |
         ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/emissions.apecss -tend 0.2 -resultsdir ${{github.workspace}}/examples/rayleighcollapse/
         python ${{github.workspace}}/examples/rayleighcollapse/plot_result_emissions.py ${{github.workspace}}/examples/rayleighcollapse/
-
+    - name: Run Rayleigh collapse (shock)
+      run: ${{github.workspace}}/examples/rayleighcollapse/build/rayleigh_apecss -options ${{github.workspace}}/examples/rayleighcollapse/shock.apecss -tend 0.11
+  
     - name: Configure ultrasound
       run: cmake -S ${{github.workspace}}/examples/ultrasound/build -B ${{github.workspace}}/examples/ultrasound/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build ultrasound

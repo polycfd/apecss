@@ -185,7 +185,7 @@ int apecss_results_rayleighplesset_storeall(struct APECSS_Bubble *Bubble)
 
     if (Bubble->RPModel == APECSS_BUBBLEMODEL_GILMORE)
       Bubble->Results->RayleighPlesset->cL[Bubble->Results->RayleighPlesset->n] =
-          apecss_liquid_soundspeed_nasg(pL, apecss_liquid_density_nasg(pL, Bubble->Liquid), Bubble->Liquid);
+          Bubble->Liquid->get_soundspeed(pL, Bubble->Liquid->get_density(pL, Bubble->Liquid), Bubble->Liquid);
 
     for (register int userode = 0; userode < Bubble->Results->RayleighPlesset->nUserODEs; userode++)
     {
@@ -376,7 +376,7 @@ int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
 #if defined(APECSS_PRECISION_LONGDOUBLE)
       fprintf(file_ptr, "%.*Le %.*Le %.*Le %.*Le %.*Le \n", Bubble->Results->digits, Node->r, Bubble->Results->digits, Node->p, Bubble->Results->digits,
               Node->u, Bubble->Results->digits, Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid),
-              Bubble->Results->digits, Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble));
+              Bubble->Results->digits, Bubble->get_pressure_infinity(Bubble->t, Bubble));
 #else
       fprintf(file_ptr, "%.*e %.*e %.*e %.*e %.*e \n", Bubble->Results->digits, Node->r, Bubble->Results->digits, Node->p, Bubble->Results->digits, Node->u,
               Bubble->Results->digits, Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid),
@@ -764,13 +764,13 @@ int apecss_results_emissionsnodeminmax_identifynone(struct APECSS_Bubble *Bubble
 
 int apecss_results_emissionsnodeminmax_identifyall(struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT inv_f = Bubble->tEnd;
-  if (Bubble->Excitation != NULL) inv_f = 1.0 / Bubble->Excitation->f;
+  APECSS_FLOAT excitation_period = Bubble->tEnd;
+  if (Bubble->Excitation != NULL) excitation_period = 1.0 / Bubble->Excitation->f;
 
   APECSS_FLOAT t = Bubble->t + Bubble->dt;
   APECSS_FLOAT period = (APECSS_FLOAT) Bubble->Results->Emissions->MinMaxPeriod;
 
-  if ((t >= (period - 1.0) * inv_f) && (t < period * inv_f))  // Check if this is the specified period
+  if ((t >= (period - 1.0) * excitation_period) && (t < period * excitation_period))  // Check if this is the specified period
   {
     if (Bubble->R < Bubble->Results->Emissions->Rmin)
     {

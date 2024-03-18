@@ -21,7 +21,7 @@ PolytropicExponent 1.333333
 END
 
 LIQUID
-EoS NASG
+EoS Tait
 ReferencePressure 1.0e5
 ReferenceDensity 998.0
 ReferenceSoundSpeed 1483.0

@@ -119,8 +119,7 @@ typedef double APECSS_FLOAT;
 #define APECSS_EMISSION_QUASIACOUSTIC (4)  // Quasi-acoustic model of Trilling/Gilmore (1952) | 0000 0100
 #define APECSS_EMISSION_KIRKWOODBETHE (16)  // A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used | 0001 0000
 #define APECSS_EMISSION_EV (17)  // Explicit expression for velocity of Denner & Schenke | 0001 0001
-#define APECSS_EMISSION_SIV (18)  // Spatially-integrated velocity of Gilmore (1952)| 0001 0010
-#define APECSS_EMISSION_TIV (20)  // Temporally-intergrated velocity of Hickling & Plesset (1963) | 0001 0100
+#define APECSS_EMISSION_TIV (18)  // Temporally-intergrated velocity of Hickling & Plesset (1963) | 0001 0010
 
 // Scheme to integrate emissions along outgoing characteristic
 #define APECSS_EMISSION_INTEGRATE_EULER (0)  // Euler scheme
@@ -401,6 +400,7 @@ struct APECSS_Bubble
   APECSS_FLOAT dt;  // Time-step
 
   int RPModel;  // Model governing the bubble dynamics
+  APECSS_FLOAT dimensionality;  // Dimensionality of the bubble
 
   // Primary variables
   APECSS_FLOAT t;  // Time [s]
@@ -443,6 +443,9 @@ struct APECSS_Bubble
   // Pointers to the functions describing the liquid pressure and its derivative at infinity
   APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+
+  // Pointer to the function returning the radius r^{\alpha/2}, where \alpha defines the dimensionality of the bubble.
+  APECSS_FLOAT (*get_dimensionalradius)(APECSS_FLOAT r);
 
   // Lagrangian emissions (if applicable)
   struct APECSS_Emissions *Emissions;
@@ -496,6 +499,9 @@ APECSS_FLOAT apecss_bubble_pressure_infinity_noexcitation(APECSS_FLOAT t, struct
 APECSS_FLOAT apecss_bubble_pressure_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_bubble_pressurederivative_infinity_noexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_bubble_pressurederivative_infinity_sinexcitation(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_bubble_dimensionalradius_planar(APECSS_FLOAT r);
+APECSS_FLOAT apecss_bubble_dimensionalradius_cylindrical(APECSS_FLOAT r);
+APECSS_FLOAT apecss_bubble_dimensionalradius_spherical(APECSS_FLOAT r);
 
 // ---------------------
 // emissions.c
@@ -515,14 +521,10 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble);
 int apecss_emissions_integrate_ev_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_siv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_siv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_ev_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_siv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-int apecss_emissions_integrate_siv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);

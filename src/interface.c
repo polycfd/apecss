@@ -250,7 +250,10 @@ APECSS_FLOAT apecss_interface_surfacetensionderivative_gompertzmarmottant(APECSS
 // - Interface->get_pressurederivative_surfacetension()
 // -------------------------------------------------------------------
 
-APECSS_FLOAT apecss_interface_surfacetensionpressure_clean(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (2.0 * Bubble->Interface->sigma / R); }
+APECSS_FLOAT apecss_interface_surfacetensionpressure_clean(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
+{
+  return (Bubble->dimensionality * Bubble->Interface->sigma / R);
+}
 
 APECSS_FLOAT apecss_interface_surfacetensionpressure_marmottant(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
 {
@@ -264,7 +267,7 @@ APECSS_FLOAT apecss_interface_surfacetensionpressure_gompertzmarmottant(APECSS_F
 
 APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_clean(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
 {
-  return (2.0 * Bubble->Interface->sigma * U / APECSS_POW2(R));
+  return (Bubble->dimensionality * Bubble->Interface->sigma * U / APECSS_POW2(R));
 }
 
 APECSS_FLOAT apecss_interface_surfacetensionpressurederivative_marmottant(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)

@@ -99,7 +99,7 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT hinf = Bubble->Liquid->get_enthalpy(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
   // Compute the invariants f and g
-  New->g = Bubble->R * (hL - hinf + 0.5 * APECSS_POW2(Bubble->U));
+  New->g = Bubble->get_dimensionalradius(Bubble->R) * (hL - hinf + 0.5 * APECSS_POW2(Bubble->U));
   New->f = Bubble->Emissions->compute_f(Bubble, New->g, pL, rhoL);
 
   // Apply the boundary conditions
@@ -235,63 +235,18 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
+  // ---------------------------------------
+  // Integrate along the outgoing characteristics
+
   while (Current != NULL)
   {
     if (Bubble->Emissions->integrate_along_characteristic(Bubble, Current, hinf))
     {
-      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation (outward moving node)
-      {
-        Current->forward->backward = Current->backward;
+      // Evaluate pressure
+      Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
 
-        if (Current->backward != NULL)
-          Current->backward->forward = Current->forward;
-        else
-          Bubble->Emissions->FirstNode = Current->forward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation (inward moving node)
-      {
-        Current->backward->forward = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation (inward moving node adjacent to the bubble wall)
-      {
-        Bubble->Emissions->FirstNode = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = NULL;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else
-      {
-        // Evaluate pressure
-        Current->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
-
-        // Store data (if applicable)
-        Bubble->results_emissionsnode_store(Current, APECSS_SQRT((Gamma - 1.0) * Current->h), pinf, Bubble);
-
-        // Move to the next node
-        Current = Current->backward;
-      }
+      // Move to the next node
+      Current = Current->backward;
     }
     else  // Physically implausible enthalpy/pressure detected, node is discarded
     {
@@ -312,6 +267,68 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
     }
   }
 
+  // ---------------------------------------
+  // Shock treatment (if necessary)
+
+  int check_for_shocks = 1;
+  while (check_for_shocks)
+  {
+    Current = Bubble->Emissions->FirstNode;
+    check_for_shocks = 0;
+
+    while (Current != NULL)
+    {
+      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
+      {
+        check_for_shocks = 1;  // Requires another complete subsequent iteration to make sure all multivalued solutions have been or are treated
+
+        // Define new properties of the forward node
+        Current->forward->r = 0.5 * (Current->r + Current->forward->r);
+        Current->forward->u = 0.5 * (Current->u + Current->forward->u);
+        Current->forward->g = 0.5 * (Current->g + Current->forward->g);
+        Current->forward->h = hinf + Current->forward->g / Bubble->get_dimensionalradius(Current->forward->r) - 0.5 * APECSS_POW2(Current->forward->u);
+        Current->forward->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
+        Current->forward->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
+
+        // Current node is obsolete and will be deleted
+        struct APECSS_EmissionNode *Obsolete = Current;
+
+        // Redefine the neighbor information
+        Current->forward->backward = Current->backward;
+        if (Current->backward != NULL)
+          Current->backward->forward = Current->forward;
+        else
+          Bubble->Emissions->FirstNode = Current->forward;
+
+        // Move to the next node
+        Current = Current->forward;
+
+        // Delete obsolete node
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else
+      {
+        // Move to the next node without action
+        Current = Current->forward;
+      }
+    }
+  }
+
+  // ---------------------------------------
+  // Store data (if applicable)
+
+  if (Bubble->Results->Emissions->nNodes + Bubble->Results->Emissions->MinMaxPeriod)
+  {
+    Current = Bubble->Emissions->FirstNode;
+
+    while (Current != NULL)
+    {
+      Bubble->results_emissionsnode_store(Current, APECSS_SQRT((Gamma - 1.0) * Current->h), pinf, Bubble);
+      Current = Current->forward;
+    }
+  }
+
   return (0);
 }
 
@@ -324,65 +341,19 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = apecss_liquid_enthalpy_nasg(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
+  // ---------------------------------------
+  // Integrate along the outgoing characteristic
+
   while (Current != NULL)
   {
     if (Bubble->Emissions->integrate_along_characteristic(Bubble, Current, hinf))
     {
-      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation (outward moving node)
-      {
-        Current->forward->backward = Current->backward;
+      // Pressure has already been evaluated iteratively while integrating along the characteristic
 
-        if (Current->backward != NULL)
-          Current->backward->forward = Current->forward;
-        else
-          Bubble->Emissions->FirstNode = Current->forward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward != NULL && Current->r < Current->backward->r)  // Check for shock formation (inward moving node)
-      {
-        Current->backward->forward = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = Current->backward;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else if (Current->backward == NULL && Current->r < Bubble->R)  // Check for shock formation (inward moving node adjacent to the bubble wall)
-      {
-        Bubble->Emissions->FirstNode = Current->forward;
-
-        if (Current->forward != NULL)
-          Current->forward->backward = Current->backward;
-        else
-          Bubble->Emissions->LastNode = Current->backward;
-
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current = NULL;
-        free(Obsolete);
-        Bubble->Emissions->nNodes -= 1;
-      }
-      else
-      {
-        // Pressure has already been evaluated iteratively while integrating along the characteristic
-
-        // Store data (if applicable)
-        Bubble->results_emissionsnode_store(
-            Current, Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid), pinf, Bubble);
-
-        // Move to the next node
-        Current = Current->backward;
-      }
+      // Move to the next node
+      Current = Current->backward;
     }
-    else  // Physically implausible enthalpy/pressure detected, node is discarded
+    else  // Physically implausible enthalpy/pressure detected, node is discarded. This generally only occurs with the explicit velocity (EV) integration.
     {
       if (Current->forward != NULL)
         Current->forward->backward = Current->backward;
@@ -398,6 +369,91 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
       Current = Current->backward;
       free(Obsolete);
       Bubble->Emissions->nNodes -= 1;
+    }
+  }
+
+  // ---------------------------------------
+  // Shock treatment (if necessary)
+
+  int check_for_shocks = 1;
+  while (check_for_shocks)
+  {
+    Current = Bubble->Emissions->FirstNode;
+    check_for_shocks = 0;
+
+    while (Current != NULL)
+    {
+      if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
+      {
+        check_for_shocks = 1;  // Requires another complete subsequent iteration to make sure all multivalued solutions have been or are treated
+
+        // Define new properties of the forward node
+        Current->forward->r = 0.5 * (Current->r + Current->forward->r);
+        Current->forward->u = 0.5 * (Current->u + Current->forward->u);
+        Current->forward->g = 0.5 * (Current->g + Current->forward->g);
+        Current->forward->h = hinf + Current->forward->g / Bubble->get_dimensionalradius(Current->forward->r) - 0.5 * APECSS_POW2(Current->forward->u);
+
+        // Current node is obsolete and will be deleted
+        struct APECSS_EmissionNode *Obsolete = Current;
+
+        // Redefine the neighbor information
+        Current->forward->backward = Current->backward;
+        if (Current->backward != NULL)
+          Current->backward->forward = Current->forward;
+        else
+          Bubble->Emissions->FirstNode = Current->forward;
+
+        // Move to the next node
+        Current = Current->forward;
+
+        // Delete obsolete node
+        free(Obsolete);
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else
+      {
+        // Move to the next node without action
+        Current = Current->forward;
+      }
+    }
+  }
+
+  // ---------------------------------------
+  // Compute the pressure and (if applicable) the invariant f
+
+  Current = Bubble->Emissions->FirstNode;
+  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
+  APECSS_FLOAT B = Bubble->Liquid->B;
+  APECSS_FLOAT b = Bubble->Liquid->b;
+  APECSS_FLOAT tol = Bubble->Emissions->KB_IterTolerance;
+
+  while (Current != NULL)
+  {
+    APECSS_FLOAT p_prev;
+    do  // Compute pressure iteratively
+    {
+      p_prev = Current->p;
+      APECSS_FLOAT rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
+      Current->p = ((Gamma - 1.0) * rho * Current->h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
+    } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
+
+    Current->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
+
+    Current = Current->forward;
+  }
+
+  // ---------------------------------------
+  // Store data (if applicable)
+
+  if (Bubble->Results->Emissions->nNodes + Bubble->Results->Emissions->MinMaxPeriod > 0)  // Results of at least one specific node are to be stored.
+  {
+    Current = Bubble->Emissions->FirstNode;
+
+    while (Current != NULL)
+    {
+      Bubble->results_emissionsnode_store(
+          Current, Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid), pinf, Bubble);
+      Current = Current->forward;
     }
   }
 
@@ -423,8 +479,9 @@ int apecss_emissions_integrate_ev_tait_euler(struct APECSS_Bubble *Bubble, struc
   APECSS_FLOAT u = Current->u;
 
   Current->r += Bubble->dt * (c + u);
-  Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * (c + Current->u));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(Current->r) * Current->r) +
+               Current->g / (Bubble->get_dimensionalradius(Current->r) * (c + u));
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   if (Current->h < 0)  // Flag a physically implausible solution
     return (0);
@@ -447,7 +504,7 @@ int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct 
   APECSS_FLOAT u = Current->u;
   APECSS_FLOAT kr1 = c_old + u;
 
-  APECSS_FLOAT h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  APECSS_FLOAT h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   if (h < 0) return (0);  // Flag a physically implausible solution
 
   APECSS_FLOAT c = APECSS_SQRT((Gamma - 1.0) * h);
@@ -455,10 +512,10 @@ int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct 
   // Step 2
 
   r = Current->r + 0.5 * dt * kr1;
-  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(r) * r) + Current->g / (Bubble->get_dimensionalradius(r) * (c + u));
   APECSS_FLOAT kr2 = c + u;
 
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   if (h < 0) return (0);  // Flag a physically implausible solution
 
   c = APECSS_SQRT((Gamma - 1.0) * h);
@@ -466,10 +523,10 @@ int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct 
   // Step 3
 
   r = Current->r + 0.5 * dt * kr2;
-  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(r) * r) + Current->g / (Bubble->get_dimensionalradius(r) * (c + u));
   APECSS_FLOAT kr3 = c + u;
 
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   if (h < 0) return (0);  // Flag a physically implausible solution
 
   c = APECSS_SQRT((Gamma - 1.0) * h);
@@ -477,88 +534,20 @@ int apecss_emissions_integrate_ev_tait_rk4(struct APECSS_Bubble *Bubble, struct 
   // Step 4
 
   r = Current->r + dt * kr3;
-  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(r) * r) + Current->g / (Bubble->get_dimensionalradius(r) * (c + u));
   APECSS_FLOAT kr4 = c + u;
 
   // Solve
 
   Current->r += dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
-  Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * (c_old + Current->u));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(Current->r) * Current->r) +
+               Current->g / (Bubble->get_dimensionalradius(Current->r) * (c_old + Current->u));
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   if (Current->h < 0)  // Flag a physically implausible solution
     return (0);
   else
     return (1);
-}
-
-int apecss_emissions_integrate_siv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
-{
-  // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
-
-  APECSS_FLOAT c = APECSS_SQRT((Bubble->Liquid->Gamma - 1.0) * Current->h);
-  APECSS_FLOAT r = Current->r;
-  APECSS_FLOAT u = Current->u;
-
-  APECSS_FLOAT dr = Bubble->dt * (c + u);
-  Current->r += dr;
-  Current->u += dr * (-2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u)));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
-
-  return (1);
-}
-
-int apecss_emissions_integrate_siv_tait_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
-{
-  // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
-
-  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
-  APECSS_FLOAT dt = Bubble->dt;
-
-  APECSS_FLOAT c = APECSS_SQRT((Gamma - 1.0) * Current->h);
-
-  // Step 1
-
-  APECSS_FLOAT r = Current->r;
-  APECSS_FLOAT u = Current->u;
-  APECSS_FLOAT kr1 = c + u;
-  APECSS_FLOAT ku1 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / r - 0.5 * APECSS_POW2(u)));
-
-  // Step 2
-
-  r = Current->r + 0.5 * dt * kr1;
-  u = Current->u + 0.5 * dt * kr1 * ku1;
-  APECSS_FLOAT kr2 = c + u;
-  APECSS_FLOAT ku2 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / r - 0.5 * APECSS_POW2(u)));
-
-  // Step 3
-
-  r = Current->r + 0.5 * dt * kr2;
-  u = Current->u + 0.5 * dt * kr2 * ku2;
-  APECSS_FLOAT kr3 = c + u;
-  APECSS_FLOAT ku3 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / r - 0.5 * APECSS_POW2(u)));
-
-  // Step 4
-
-  r = Current->r + dt * kr3;
-  u = Current->u + dt * kr3 * ku3;
-  APECSS_FLOAT kr4 = c + u;
-  APECSS_FLOAT ku4 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  // Solve
-
-  APECSS_FLOAT dr = dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
-  Current->r += dr;
-  Current->u += dr * (ku1 + 2.0 * (ku2 + ku3) + ku4) * APECSS_ONESIXTH;
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
-
-  return (1);
 }
 
 int apecss_emissions_integrate_tiv_tait_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
@@ -570,8 +559,8 @@ int apecss_emissions_integrate_tiv_tait_euler(struct APECSS_Bubble *Bubble, stru
   APECSS_FLOAT u = Current->u;
 
   Current->r += Bubble->dt * (c + u);
-  Current->u += Bubble->dt * (((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u)));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->u += Bubble->dt * (Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u)));
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   return (1);
 }
@@ -590,40 +579,40 @@ int apecss_emissions_integrate_tiv_tait_rk4(struct APECSS_Bubble *Bubble, struct
   APECSS_FLOAT r = Current->r;
   APECSS_FLOAT u = Current->u;
   APECSS_FLOAT kr1 = c + u;
-  APECSS_FLOAT ku1 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku1 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
-  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / r - 0.5 * APECSS_POW2(u)));
+  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u)));
 
   // Step 2
 
   r = Current->r + 0.5 * dt * kr1;
   u = Current->u + 0.5 * dt * ku1;
   APECSS_FLOAT kr2 = c + u;
-  APECSS_FLOAT ku2 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku2 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
-  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / r - 0.5 * APECSS_POW2(u)));
+  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u)));
 
   // Step 3
 
   r = Current->r + 0.5 * dt * kr2;
   u = Current->u + 0.5 * dt * ku2;
   APECSS_FLOAT kr3 = c + u;
-  APECSS_FLOAT ku3 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku3 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
-  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / r - 0.5 * APECSS_POW2(u)));
+  c = APECSS_SQRT((Gamma - 1.0) * (hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u)));
 
   // Step 4
 
   r = Current->r + dt * kr3;
   u = Current->u + dt * ku3;
   APECSS_FLOAT kr4 = c + u;
-  APECSS_FLOAT ku4 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku4 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
   // Solve
 
   Current->r += dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
   Current->u += dt * (ku1 + 2.0 * (ku2 + ku3) + ku4) * APECSS_ONESIXTH;
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   return (1);
 }
@@ -641,8 +630,9 @@ int apecss_emissions_integrate_ev_general_euler(struct APECSS_Bubble *Bubble, st
   APECSS_FLOAT u = Current->u;
 
   Current->r += Bubble->dt * (c + u);
-  Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * (c + Current->u));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(Current->r) * Current->r) +
+               Current->g / (Bubble->get_dimensionalradius(Current->r) * (c + Current->u));
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   APECSS_FLOAT p_prev;
   do
@@ -675,7 +665,7 @@ int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, stru
   APECSS_FLOAT u = Current->u;
   APECSS_FLOAT kr1 = c_old + u;
 
-  APECSS_FLOAT h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  APECSS_FLOAT h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   APECSS_FLOAT p = Current->p, p_prev;
   do  // Compute pressure iteratively
   {
@@ -691,10 +681,10 @@ int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, stru
   // Step 2
 
   r = Current->r + 0.5 * dt * kr1;
-  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(r) * r) + Current->g / (Bubble->get_dimensionalradius(r) * (c + u));
   APECSS_FLOAT kr2 = c + u;
 
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   do  // Compute pressure iteratively
   {
     p_prev = p;
@@ -709,10 +699,10 @@ int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, stru
   // Step 3
 
   r = Current->r + 0.5 * dt * kr2;
-  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(r) * r) + Current->g / (Bubble->get_dimensionalradius(r) * (c + u));
   APECSS_FLOAT kr3 = c + u;
 
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   do  // Compute pressure iteratively
   {
     p_prev = p;
@@ -727,14 +717,15 @@ int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, stru
   // Step 4
 
   r = Current->r + dt * kr3;
-  u = Current->f / APECSS_POW2(r) + Current->g / (r * (c + u));
+  u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(r) * r) + Current->g / (Bubble->get_dimensionalradius(r) * (c + u));
   APECSS_FLOAT kr4 = c + u;
 
   // Solve
 
   Current->r += dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
-  Current->u = Current->f / APECSS_POW2(Current->r) + Current->g / (Current->r * (c_old + Current->u));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->u = Bubble->dimensionality * Current->f / (2.0 * Bubble->get_dimensionalradius(Current->r) * Current->r) +
+               Current->g / (Bubble->get_dimensionalradius(Current->r) * (c_old + Current->u));
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   do  // Compute pressure iteratively
   {
@@ -743,120 +734,6 @@ int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, stru
     Current->p = ((Gamma - 1.0) * rho * Current->h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
 
     if (Current->p < -B) return (0);  // Flag a physically implausible solution
-  } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
-
-  return (1);
-}
-
-int apecss_emissions_integrate_siv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
-{
-  // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
-
-  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
-  APECSS_FLOAT B = Bubble->Liquid->B;
-  APECSS_FLOAT b = Bubble->Liquid->b;
-  APECSS_FLOAT tol = Bubble->Emissions->KB_IterTolerance;
-
-  APECSS_FLOAT c = Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid);
-  APECSS_FLOAT r = Current->r;
-  APECSS_FLOAT u = Current->u;
-
-  APECSS_FLOAT dr = Bubble->dt * (c + u);
-  Current->r += dr;
-  Current->u += dr * (-2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u)));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
-
-  APECSS_FLOAT p_prev;
-  do  // Compute pressure iteratively
-  {
-    p_prev = Current->p;
-    APECSS_FLOAT rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
-    Current->p = ((Gamma - 1.0) * rho * Current->h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
-  } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
-
-  return (1);
-}
-
-int apecss_emissions_integrate_siv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf)
-{
-  // Fully-compressible second-order approximation of Gilmore (1952), see Section IV.C, with integration of u over r.
-
-  APECSS_FLOAT Gamma = Bubble->Liquid->Gamma;
-  APECSS_FLOAT B = Bubble->Liquid->B;
-  APECSS_FLOAT b = Bubble->Liquid->b;
-  APECSS_FLOAT dt = Bubble->dt;
-  APECSS_FLOAT tol = Bubble->Emissions->KB_IterTolerance;
-
-  APECSS_FLOAT c = Bubble->Liquid->get_soundspeed(Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid), Bubble->Liquid);
-
-  // Step 1
-
-  APECSS_FLOAT r = Current->r;
-  APECSS_FLOAT u = Current->u;
-  APECSS_FLOAT kr1 = c + u;
-  APECSS_FLOAT ku1 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  APECSS_FLOAT h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
-  APECSS_FLOAT p = Current->p, p_prev;
-  do  // Compute pressure iteratively
-  {
-    p_prev = p;
-    APECSS_FLOAT rho = Bubble->Liquid->get_density(p, Bubble->Liquid);
-    p = ((Gamma - 1.0) * rho * h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
-  } while (APECSS_ABS((p_prev - p)) > tol * APECSS_ABS(p));
-  c = Bubble->Liquid->get_soundspeed(p, Bubble->Liquid->get_density(p, Bubble->Liquid), Bubble->Liquid);
-
-  // Step 2
-
-  r = Current->r + 0.5 * dt * kr1;
-  u = Current->u + 0.5 * dt * kr1 * ku1;
-  APECSS_FLOAT kr2 = c + u;
-  APECSS_FLOAT ku2 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
-  do  // Compute pressure iteratively
-  {
-    p_prev = p;
-    APECSS_FLOAT rho = Bubble->Liquid->get_density(p, Bubble->Liquid);
-    p = ((Gamma - 1.0) * rho * h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
-  } while (APECSS_ABS((p_prev - p)) > tol * APECSS_ABS(p));
-  c = Bubble->Liquid->get_soundspeed(p, Bubble->Liquid->get_density(p, Bubble->Liquid), Bubble->Liquid);
-
-  // Step 3
-
-  r = Current->r + 0.5 * dt * kr2;
-  u = Current->u + 0.5 * dt * kr2 * ku2;
-  APECSS_FLOAT kr3 = c + u;
-  APECSS_FLOAT ku3 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
-  do  // Compute pressure iteratively
-  {
-    p_prev = p;
-    APECSS_FLOAT rho = Bubble->Liquid->get_density(p, Bubble->Liquid);
-    p = ((Gamma - 1.0) * rho * h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
-  } while (APECSS_ABS((p_prev - p)) > tol * APECSS_ABS(p));
-  c = Bubble->Liquid->get_soundspeed(p, Bubble->Liquid->get_density(p, Bubble->Liquid), Bubble->Liquid);
-
-  // Step 4
-
-  r = Current->r + dt * kr3;
-  u = Current->u + dt * kr3 * ku3;
-  APECSS_FLOAT kr4 = c + u;
-  APECSS_FLOAT ku4 = -2.0 * (u + APECSS_POW3(u) / (APECSS_POW2(c) - APECSS_POW2(u))) / r + Current->g / (APECSS_POW2(r) * (c - u));
-
-  // Solve
-
-  APECSS_FLOAT dr = dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
-  Current->r += dr;
-  Current->u += dr * (ku1 + 2.0 * (ku2 + ku3) + ku4) * APECSS_ONESIXTH;
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
-
-  do  // Compute pressure iteratively
-  {
-    p_prev = Current->p;
-    APECSS_FLOAT rho = Bubble->Liquid->get_density(Current->p, Bubble->Liquid);
-    Current->p = ((Gamma - 1.0) * rho * Current->h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
   } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
 
   return (1);
@@ -876,8 +753,8 @@ int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, s
   APECSS_FLOAT u = Current->u;
 
   Current->r += Bubble->dt * (c + u);
-  Current->u += Bubble->dt * (((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u)));
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->u += Bubble->dt * (Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u)));
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   APECSS_FLOAT p_prev;
   do  // Compute pressure iteratively
@@ -907,9 +784,9 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
   APECSS_FLOAT r = Current->r;
   APECSS_FLOAT u = Current->u;
   APECSS_FLOAT kr1 = c + u;
-  APECSS_FLOAT ku1 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku1 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
-  APECSS_FLOAT h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  APECSS_FLOAT h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   APECSS_FLOAT p = Current->p, p_prev;
   do  // Compute pressure iteratively
   {
@@ -924,9 +801,9 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
   r = Current->r + 0.5 * dt * kr1;
   u = Current->u + 0.5 * dt * ku1;
   APECSS_FLOAT kr2 = c + u;
-  APECSS_FLOAT ku2 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku2 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   do  // Compute pressure iteratively
   {
     p_prev = p;
@@ -940,9 +817,9 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
   r = Current->r + 0.5 * dt * kr2;
   u = Current->u + 0.5 * dt * ku2;
   APECSS_FLOAT kr3 = c + u;
-  APECSS_FLOAT ku3 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku3 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
-  h = hinf + Current->g / r - 0.5 * APECSS_POW2(u);
+  h = hinf + Current->g / Bubble->get_dimensionalradius(r) - 0.5 * APECSS_POW2(u);
   do  // Compute pressure iteratively
   {
     p_prev = p;
@@ -956,13 +833,13 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
   r = Current->r + dt * kr3;
   u = Current->u + dt * ku3;
   APECSS_FLOAT kr4 = c + u;
-  APECSS_FLOAT ku4 = ((c + u) * Current->g / r - 2.0 * APECSS_POW2(c) * u) / (r * (c - u));
+  APECSS_FLOAT ku4 = Bubble->dimensionality * ((c + u) * Current->g / (2.0 * Bubble->get_dimensionalradius(r)) - APECSS_POW2(c) * u) / (r * (c - u));
 
   // Solve
 
   Current->r += dt * (kr1 + 2.0 * (kr2 + kr3) + kr4) * APECSS_ONESIXTH;
   Current->u += dt * (ku1 + 2.0 * (ku2 + ku3) + ku4) * APECSS_ONESIXTH;
-  Current->h = hinf + Current->g / Current->r - 0.5 * APECSS_POW2(Current->u);
+  Current->h = hinf + Current->g / Bubble->get_dimensionalradius(Current->r) - 0.5 * APECSS_POW2(Current->u);
 
   do  // Compute pressure iteratively
   {
@@ -999,5 +876,8 @@ APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, APEC
 
 APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
 {
-  return (APECSS_POW2(Bubble->R) * Bubble->U - Bubble->R * g / (Bubble->Liquid->get_soundspeed(pL, rhoL, Bubble->Liquid) + Bubble->U));
+  return (2.0 *
+          (Bubble->get_dimensionalradius(Bubble->R) * Bubble->R * Bubble->U -
+           Bubble->R * g / (Bubble->Liquid->get_soundspeed(pL, rhoL, Bubble->Liquid) + Bubble->U)) /
+          (Bubble->dimensionality + APECSS_SMALL));
 }

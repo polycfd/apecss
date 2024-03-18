@@ -1,0 +1,50 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+InitialRadius 1.0
+RPModel Gilmore
+Emissions TIV 1.1
+EmissionIntegration RK4
+PressureAmbient 1.0e5
+InitialGasPressure 1.0e2
+END
+
+GAS
+EoS NASG
+ReferencePressure 1.0e5
+ReferenceDensity 1.2
+PolytropicExponent 1.4
+CoVolume 1.5e-3
+TaitPressureConst 0.0
+END
+
+LIQUID
+EoS Tait
+ReferencePressure 1.0e5
+ReferenceDensity 997.0
+Viscosity 0.001
+PolytropicExponent 7.15
+TaitPressureConst 3.046e8
+END
+
+INTERFACE
+SurfaceTensionCoeff 0.0
+END
+
+RESULTS
+Bubble
+OutputFreqRP 1
+OutputDigits 10
+EmissionsSpace 0.2
+EmissionsSpace 0.5
+EmissionsSpace 1.0
+END
+
+ODESOLVER
+Tolerance 1.0e-12
+MaxTimeStep 1.0e-5
+END

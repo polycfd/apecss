@@ -85,7 +85,8 @@ APECSS_FLOAT apecss_rp_gilmorevelocity_ode(APECSS_FLOAT *Sol, APECSS_FLOAT t, st
       Bubble->Liquid->get_pressurederivative_viscous_impl(Sol[1], Bubble) + Bubble->Interface->get_pressurederivative_viscous_impl(Sol[1], Bubble->Interface);
   APECSS_FLOAT GilmoreCoeffB = 1.0 + dot_pvisc_impl * inv_cL / rhoL;
 
-  return ((((1.0 + Sol[0] * inv_cL) * H - 1.5 * (1.0 - Sol[0] * APECSS_ONETHIRD * inv_cL) * APECSS_POW2(Sol[0])) / ((1.0 - Sol[0] * inv_cL) * Sol[1]) +
+  return ((Bubble->dimensionality * (0.5 * (1.0 + Sol[0] * inv_cL) * H - 0.75 * (1.0 - Sol[0] * APECSS_ONETHIRD * inv_cL) * APECSS_POW2(Sol[0])) /
+               ((1.0 - Sol[0] * inv_cL) * Sol[1]) +
            dot_Hexpl * inv_cL) /
           GilmoreCoeffB);
 }

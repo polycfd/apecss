@@ -1,0 +1,7 @@
+This example builds a standalone APECSS code for a simple acoustic emitter. 
+
+#### Planar acoustic emitter
+Using [planar.apecss](planar.apecss) with ````./build/acousticemitter_apecss -options planar.apecss -tend 0.5 -fa 1e3 -dpa 1e6```` runs a pulsating planar acoustic emitter that produces an initially harmonic wave with a pressure ampltiude $\Delta p_\mathrm{a} = 1 \, \mathrm{MPa}$ that develops a shock wave and evolves into a N-shaped wave. The development and decay of this shock wave can be compared against theoretical solutions of the shock formation distance $r_\mathrm{sh}$ of [Blackstock, _The Journal of the Acoustical Society of America_ 36 (1966), 1019-1026](https://doi.org/10.1121/1.1909986) and the asymptotic solution of the wave amplitude of [Fay, _The Journal of the Acoustical Society of America_ 3 (1931), 222-241](https://doi.org/10.1121/1.1915557), respectively.
+
+#### Spherical acoustic emitter
+Using [spherical.apecss](spherical.apecss) with ````./build/acousticemitter_apecss -options spherical.apecss -tend 4.0e-3 -fa 1500 -dpa 1```` runs a pulsating spherical acoustic emitter that produces a harmonic wave with a dimensionless wavenumber of $k_a R_0 = 1$ and a pressure amplitude of $\Delta p_\mathrm{a} = 1 \, \mathrm{Pa}$.

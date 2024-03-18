@@ -183,7 +183,7 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++)
   {
     Bubbles[i]->tStart = tSim;
-    Bubbles[i]->tEnd = tEnd;
+    Bubbles[i]->tEnd = (APECSS_FLOAT) tEnd;
     Bubbles[i]->dt = APECSS_MIN(1.0e-11, dt_interbubble);  // Initial time-step
   }
 
@@ -194,9 +194,9 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_initialize(Bubbles[i]);
 
   /* Solve the bubble dynamics */
-  while (tSim < tEnd)  // Interaction loop, corresponding to the time-intervals at which interactions are considered
+  while (tSim < (APECSS_FLOAT) tEnd)  // Interaction loop, corresponding to the time-intervals at which interactions are considered
   {
-    APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, tEnd - tSim);
+    APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, (APECSS_FLOAT) tEnd - tSim);
     tSim += dtSim;
 
     for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);

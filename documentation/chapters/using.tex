@@ -179,7 +179,7 @@ Based on the chosen precision, {\tt APECSS\_FLOAT} is defined as the standard fl
   \item {\tt APECSS\_ABS(a)}: Absolute value of $a$.
   \item {\tt APECSS\_CEIL(a)}: $a$ rounded to the nearest integer larger than $a$.
   \item {\tt APECSS\_COS(a)}: Cosine of $a$.
-  \item {\tt APECCS\_EPS}: Returns a value that is close to machine epsilon.
+  \item {\tt APECSS\_EPS}: Returns a value that is close to machine epsilon.
   \item {\tt APECSS\_EXP(a)}: $\text{e}$ to the power $a$.
   \item {\tt APECSS\_LOG(a)}: Natural logarithm of $a$.
   \item {\tt APECSS\_POW(a,b)}: $a$ to the power $b$.
@@ -197,7 +197,7 @@ Macros that provide a shortcut to frequently-used computational operations are:\
   \item {\tt APECSS\_POW2(a)}: Returns $a^2$.
   \item {\tt APECSS\_POW3(a)}: Returns $a^3$.
   \item {\tt APECSS\_POW4(a)}: Returns $a^4$.
-  \item {\tt APECCS\_MAX(a,b)}: Returns the maximum of $a$ and $b$.
+  \item {\tt APECSS\_MAX(a,b)}: Returns the maximum of $a$ and $b$.
   \item {\tt APECSS\_MAX3(a,b,c)}: Returns the maximum of $a$, $b$ and $c$.
   \item {\tt APECSS\_MIN(a,b)}: Returns the minimum of $a$ and $b$.
   \item {\tt APECSS\_MIN3(a,b,c)}: Returns the minimum of $a$, $b$ and $c$.
@@ -209,7 +209,7 @@ Macros that provide a shortcut to frequently-used constants are:\vspace{-1em}
   \item {\tt APECSS\_E}: Returns $\mathrm{e}=2.7182818284590452353602874713526624977572$.
   \item {\tt APECSS\_ONETHIRD}: Returns $1/3$.
   \item {\tt APECSS\_ONESIXTH}: Returns $1/6$.
-  \item {\tt APECCS\_AVOGADRO}: Returns the Avogadro constant, $N_\mathrm{A}=6.02214076 \times 10^{23} \, \mathrm{mol}^{-1}$.
+  \item {\tt APECSS\_AVOGADRO}: Returns the Avogadro constant, $N_\mathrm{A}=6.02214076 \times 10^{23} \, \mathrm{mol}^{-1}$.
   \item {\tt APECSS\_LN\_OF\_2}: Returns the natural logarithm of 2, $\ln(2)=0.693147180559945309$.
   \item {\tt APECSS\_LN\_OF\_10}: Returns the natural logarithm of 10, $\ln(10)=2.302585092994045684$.
   \item {\tt APECSS\_LARGE}: Returns a large number, defined as $10^{15}$.
@@ -277,7 +277,6 @@ Model to compute the acoustic emissions of the bubble (bit-wise):\vspace{-1em}
   \item {\tt APECSS\_EMISSION\_QUASIACOUSTIC}: Emissions are modelled under the quasi-acoustic assumption of \citet{Trilling1952} and \citet{Gilmore1952}.
   \item {\tt APECSS\_EMISSION\_KIRKWOODBETHE}: A model based on the Kirkwood-Bethe hypothesis (EKB, GFC, HPE) is used.
   \item {\tt APECSS\_EMISSION\_EV}: Emissions are modelled using the explicit expression based on the Kirkwood-Bethe hypothesis.
-  \item {\tt APECSS\_EMISSION\_SIV}: Emissions are modelled using the spatially-integrated velocity, based on the Kirkwood-Bethe hypothesis, of \citet{Gilmore1952}.
   \item {\tt APECSS\_EMISSION\_TIV}: Emissions are modelled using the temporally-integrated velocity, based on the Kirkwood-Bethe hypothesis, of \citet{Hickling1963}.
 \end{itemize}
 
@@ -377,7 +376,7 @@ The heart of APECSS is, of course, the solver for the bubble dynamics. The solve
   apecss_bubble_solver_run(tend, Bubble);
   apecss_bubble_solver_finalize(Bubble);
 \end{lstlisting}\vspace{-0.75em}
-The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()} makes sure all counters, the solution error variable and, if applicable, result variables are initialized correctly. The function {\tt apecss\_bubble\_solver\_run()} contains the time-stepping procedure that executes the solver until a specified end time {\tt tend}, given as the first argument of the function call. In the examples found in {\tt \$APECSS\_DIR/examples}, the function {\tt apecss\_bubble\_solver\_run()} is only called once with {\tt tend = Bubble->tEnd}, i.e.~the end of the simulation. However, the user is free to call the function {\tt apecss\_bubble\_solver\_run()} an \uline{arbitrary number of times}, with any meaningful end time. This facilitates coupling APECSS to other numerical software frameworks, where {\tt tend} then could for instance be the end of the next time-step of a fluid dynamics solver. As an example simply chopping the simulation up into five equal-sized parts would look like:
+The initialization of the solver with {\tt apecss\_bubble\_solver\_initialize()} makes sure all counters, the solution error variable and, if applicable, result variables are initialized correctly. The function {\tt apecss\_bubble\_solver\_run()} contains the time-stepping procedure that executes the solver until a specified end time {\tt tend}, given as the first argument of the function call. In the examples found in {\tt \$APECSS\_DIR/examples}, the function {\tt apecss\_bubble\_solver\_run()} is only called once with {\tt tend = Bubble->tEnd}, i.e.~the end of the simulation. However, the user is free to call the function {\tt apecss\_bubble\_solver\_run()} an \uline{arbitrary number of times}, with any meaningful end time. This facilitates coupling APECSS to other numerical software frameworks, where {\tt tend} then could for instance be the end of the next time step of a fluid dynamics solver. As an example simply chopping the simulation up into five equal-sized parts would look like:
 \begin{lstlisting}[style=CStyle,numbers=none]
   apecss_bubble_solver_initialize(Bubble);
   apecss_bubble_solver_run(0.2 * tend, Bubble);

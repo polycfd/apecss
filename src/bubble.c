@@ -72,6 +72,7 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
 
   // Governing RP model
   Bubble->RPModel = APECSS_BUBBLEMODEL_RP;
+  Bubble->dimensionality = 2.0;
 
   // Bubble properties
   Bubble->R0 = 1.0;
@@ -97,6 +98,7 @@ int apecss_bubble_setdefaultoptions(struct APECSS_Bubble *Bubble)
   // Set default pointers to functions
   Bubble->get_pressure_infinity = apecss_bubble_pressure_infinity_noexcitation;
   Bubble->get_pressurederivative_infinity = apecss_bubble_pressurederivative_infinity_noexcitation;
+  Bubble->get_dimensionalradius = apecss_bubble_dimensionalradius_spherical;
   Bubble->emissions_initialize = apecss_emissions_initializenone;
   Bubble->emissions_update = apecss_emissions_updatenone;
   Bubble->emissions_free = apecss_emissions_freenone;
@@ -201,10 +203,6 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_EV;
             }
-            else if (strncasecmp(option3, "siv", 3) == 0)
-            {
-              Bubble->Emissions->Type = APECSS_EMISSION_SIV;
-            }
             else if (strncasecmp(option3, "tiv", 3) == 0)
             {
               Bubble->Emissions->Type = APECSS_EMISSION_TIV;
@@ -241,6 +239,33 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
 
           l = apecss_readoneoption(OptionsFile, option3);
           Bubble->Emissions->KB_IterTolerance = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "dimensionality", 14) == 0)
+        {
+          if ((l = apecss_readoneoption(OptionsFile, option3)) == EOF)
+          {
+            StatusSection = 0;
+            StatusFile = 0;
+          }
+          else
+          {
+            line += l - 1;
+            if (strncasecmp(option3, "plane", 6) == 0)
+            {
+              Bubble->dimensionality = 0.0;
+              Bubble->get_dimensionalradius = apecss_bubble_dimensionalradius_planar;
+            }
+            else if (strncasecmp(option3, "cylinder", 8) == 0)
+            {
+              Bubble->dimensionality = 1.0;
+              Bubble->get_dimensionalradius = apecss_bubble_dimensionalradius_cylindrical;
+            }
+            else
+            {
+              Bubble->dimensionality = 2.0;
+              Bubble->get_dimensionalradius = apecss_bubble_dimensionalradius_spherical;
+            }
+          }
         }
         else if (strncasecmp(option2, "initialradius", 13) == 0)
         {
@@ -559,15 +584,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
             else
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_tait_euler;
           }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
-          {
-            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
-
-            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_rk4;
-            else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_tait_euler;
-          }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
             Bubble->Emissions->compute_f = apecss_emissions_f_zero;
@@ -590,15 +606,6 @@ int apecss_bubble_processoptions(struct APECSS_Bubble *Bubble)
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_rk4;
             else
               Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_ev_general_euler;
-          }
-          else if (Bubble->Emissions->Type == APECSS_EMISSION_SIV)
-          {
-            Bubble->Emissions->compute_f = apecss_emissions_f_zero;
-
-            if (Bubble->Emissions->Scheme == APECSS_EMISSION_INTEGRATE_RK4)
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_rk4;
-            else
-              Bubble->Emissions->integrate_along_characteristic = apecss_emissions_integrate_siv_general_euler;
           }
           else if (Bubble->Emissions->Type == APECSS_EMISSION_TIV)
           {
@@ -763,7 +770,7 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   else
   {
     // Set the initial gas pressure to the Laplace pressure
-    if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + 2.0 * Bubble->Interface->sigma / Bubble->R0;
+    if (Bubble->pG0 < -Bubble->Gas->B) Bubble->pG0 = Bubble->p0 + Bubble->dimensionality * Bubble->Interface->sigma / Bubble->R0;
   }
 
   // ---------------------------------------
@@ -1032,6 +1039,23 @@ APECSS_FLOAT apecss_bubble_pressurederivative_infinity_sinexcitation(APECSS_FLOA
 {
   return (-Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * t));
 }
+
+// -------------------------------------------------------------------
+// DIMENSIONAL RADIUS
+// -------------------------------------------------------------------
+// Functions defining the dimensional radius associated with the
+// radial kinetic enthalpy of the liquid.
+// -------------------------------------------------------------------
+// The functions are chosen in apecss_bubble_processoptions() and
+// associated with the function pointers:
+// - Bubble->get_dimensionalradius()
+// ------------------------------------------------------------------- +
+
+APECSS_FLOAT apecss_bubble_dimensionalradius_planar(APECSS_FLOAT r) { return (1.0); }
+
+APECSS_FLOAT apecss_bubble_dimensionalradius_cylindrical(APECSS_FLOAT r) { return (APECSS_SQRT(r)); }
+
+APECSS_FLOAT apecss_bubble_dimensionalradius_spherical(APECSS_FLOAT r) { return (r); }
 
 // -------------------------------------------------------------------
 // PROGRESS SCREEN
