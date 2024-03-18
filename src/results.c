@@ -376,7 +376,7 @@ int apecss_results_emissionstime_writeall(struct APECSS_Bubble *Bubble)
 #if defined(APECSS_PRECISION_LONGDOUBLE)
       fprintf(file_ptr, "%.*Le %.*Le %.*Le %.*Le %.*Le \n", Bubble->Results->digits, Node->r, Bubble->Results->digits, Node->p, Bubble->Results->digits,
               Node->u, Bubble->Results->digits, Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid),
-              Bubble->Results->digits, Bubble->Liquid->get_pressure_infinity(Bubble->t, Bubble));
+              Bubble->Results->digits, Bubble->get_pressure_infinity(Bubble->t, Bubble));
 #else
       fprintf(file_ptr, "%.*e %.*e %.*e %.*e %.*e \n", Bubble->Results->digits, Node->r, Bubble->Results->digits, Node->p, Bubble->Results->digits, Node->u,
               Bubble->Results->digits, Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid),
