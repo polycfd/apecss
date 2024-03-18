@@ -21,8 +21,8 @@
 APECSS_FLOAT emitter_liquid_pressure_emitterwall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 int planaremitter_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble);
 
-APECSS_FLOAT fa = 0.0;  // Acoustic frequency
-APECSS_FLOAT dpa = 0.0;  // Acoustic pressure amplitude
+double fa = 0.0;  // Acoustic frequency
+double dpa = 0.0;  // Acoustic pressure amplitude
 
 int main(int argc, char **args)
 {
@@ -31,7 +31,7 @@ int main(int argc, char **args)
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Initialize the case-dependent simulation parameters
-  APECSS_FLOAT tend = 0.0;  // End time of the simulation
+  double tend = 0.0;  // End time of the simulation
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   apecss_infoscreen();
@@ -75,7 +75,7 @@ int main(int argc, char **args)
   }
 
   // Desired time step (200 time steps per period)
-  APECSS_FLOAT dt_desired = 1.0 / (200.0 * fa);
+  APECSS_FLOAT dt_desired = 1.0 / (200.0 * (APECSS_FLOAT) fa);
 
   /* Allocate and initialize Bubble structure */
   struct APECSS_Bubble *Bubble = (struct APECSS_Bubble *) malloc(sizeof(struct APECSS_Bubble));
@@ -96,6 +96,8 @@ int main(int argc, char **args)
   // To only simulate a part of a very long wave train emitted by the planar emitter
   if (0 == Bubble->dimensionality) Bubble->emissions_update = planaremitter_emissions_updatelinkedlist;
 
+  Bubble->tStart = 0.0;
+  Bubble->tEnd = (APECSS_FLOAT) tend;
   Bubble->t = Bubble->tStart;
   Bubble->dt = dt_desired;
   Bubble->R = Bubble->R0;
@@ -107,9 +109,9 @@ int main(int argc, char **args)
   clock_t starttimebubble = clock();
 
   // Solve the acoustic emissions
-  while (Bubble->t < tend - APECSS_SMALL)
+  while (Bubble->t < Bubble->tEnd - APECSS_SMALL)
   {
-    APECSS_FLOAT next_event_time = apecss_results_emissionstime_checktime(tend, Bubble);
+    APECSS_FLOAT next_event_time = apecss_results_emissionstime_checktime((APECSS_FLOAT) tend, Bubble);
     Bubble->dt = APECSS_MIN(dt_desired, next_event_time - Bubble->t);
 
     ++(Bubble->dtNumber);
@@ -119,9 +121,9 @@ int main(int argc, char **args)
     APECSS_FLOAT rho = Liquid->get_density(p, Liquid);
     APECSS_FLOAT c = Liquid->get_soundspeed(p, rho, Liquid);
 
-    APECSS_FLOAT omega = 2.0 * APECSS_PI * fa;
-    Bubble->U = dpa * APECSS_COS(omega * Bubble->t - 0.5 * APECSS_PI) / (rho * c);
-    Bubble->R = Bubble->R0 - dpa * APECSS_SIN(omega * Bubble->t - 0.5 * APECSS_PI) / ((omega + APECSS_SMALL) * rho * c);
+    APECSS_FLOAT omega = 2.0 * APECSS_PI * (APECSS_FLOAT) fa;
+    Bubble->U = (APECSS_FLOAT) dpa * APECSS_COS(omega * Bubble->t - 0.5 * APECSS_PI) / (rho * c);
+    Bubble->R = Bubble->R0 - (APECSS_FLOAT) dpa * APECSS_SIN(omega * Bubble->t - 0.5 * APECSS_PI) / ((omega + APECSS_SMALL) * rho * c);
 
     // Acoustic emissions (if applicable)
     Bubble->emissions_update(Bubble);
@@ -154,7 +156,7 @@ int main(int argc, char **args)
 
 APECSS_FLOAT emitter_liquid_pressure_emitterwall(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->p0 + dpa * APECSS_COS(2.0 * APECSS_PI * fa * Bubble->t - 0.5 * APECSS_PI));
+  return (Bubble->p0 + (APECSS_FLOAT) dpa * APECSS_COS(2.0 * APECSS_PI * (APECSS_FLOAT) fa * Bubble->t - 0.5 * APECSS_PI));
 }
 
 int planaremitter_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble)
@@ -162,7 +164,7 @@ int planaremitter_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble)
   if (Bubble->Emissions->nNodes) Bubble->Emissions->advance(Bubble);
 
   // Only the waves emitted during a short time interval (10 excitation periods) are tracked.
-  if (Bubble->t * fa < 10.0) apecss_emissions_addnode(Bubble);
+  if (Bubble->t * (APECSS_FLOAT) fa < 10.0) apecss_emissions_addnode(Bubble);
   if (Bubble->Emissions->LastNode->r > Bubble->Emissions->CutOffDistance) apecss_emissions_removenode(Bubble);
 
   return (0);
