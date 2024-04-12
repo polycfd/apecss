@@ -268,7 +268,7 @@ struct APECSS_Emissions
   int (*advance)(struct APECSS_Bubble *Bubble);
 
   // Pointer to the function that computes the invariant f
-  APECSS_FLOAT (*compute_f)(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+  APECSS_FLOAT (*compute_f)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
 
   // Pointer to the function integrating the radial position and velocity along the outgoing characteristic
   int (*integrate_along_characteristic)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
@@ -527,10 +527,10 @@ int apecss_emissions_integrate_ev_general_euler(struct APECSS_Bubble *Bubble, st
 int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
-APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
-APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
-APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
+APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
+APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
+APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
 
 // ---------------------
 // gas.c

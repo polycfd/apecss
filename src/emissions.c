@@ -98,15 +98,15 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
   APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
   APECSS_FLOAT hinf = Bubble->Liquid->get_enthalpy(pinf, Bubble->Liquid->get_density(pinf, Bubble->Liquid), Bubble->Liquid);
 
-  // Compute the invariants f and g
-  New->g = Bubble->get_dimensionalradius(Bubble->R) * (hL - hinf + 0.5 * APECSS_POW2(Bubble->U));
-  New->f = Bubble->Emissions->compute_f(Bubble, New->g, pL, rhoL);
-
   // Apply the boundary conditions
   New->r = Bubble->R;
   New->u = Bubble->U;
   New->h = hL;
   New->p = pL;
+
+  // Compute the invariants f and g
+  New->g = Bubble->get_dimensionalradius(Bubble->R) * (hL - hinf + 0.5 * APECSS_POW2(Bubble->U));
+  New->f = Bubble->Emissions->compute_f(Bubble, New);  // Requires knowledge of invariant g
 
   // Set the neighbor information
   if (Bubble->Emissions->nNodes)
@@ -271,6 +271,8 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
   // Shock treatment (if necessary)
 
   int check_for_shocks = 1;
+  int shocks_detected = 0;
+
   while (check_for_shocks)
   {
     Current = Bubble->Emissions->FirstNode;
@@ -281,6 +283,7 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
       if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
       {
         check_for_shocks = 1;  // Requires another complete subsequent iteration to make sure all multivalued solutions have been or are treated
+        shocks_detected = 1;  // A multivalued solution associated with a shock has been detected.
 
         // Define new properties of the forward node
         Current->forward->r = 0.5 * (Current->r + Current->forward->r);
@@ -288,7 +291,6 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
         Current->forward->g = 0.5 * (Current->g + Current->forward->g);
         Current->forward->h = hinf + Current->forward->g / Bubble->get_dimensionalradius(Current->forward->r) - 0.5 * APECSS_POW2(Current->forward->u);
         Current->forward->p = APECSS_POW(h_fac * Current->h, h_exp) - B;
-        Current->forward->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
 
         // Current node is obsolete and will be deleted
         struct APECSS_EmissionNode *Obsolete = Current;
@@ -312,6 +314,20 @@ int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble)
         // Move to the next node without action
         Current = Current->forward;
       }
+    }
+  }
+
+  // ---------------------------------------
+  // Update invariant f for the explicit velocity expression (if applicable)
+
+  if (shocks_detected && Bubble->Emissions->Type == APECSS_EMISSION_EV)
+  {
+    Current = Bubble->Emissions->FirstNode;
+
+    while (Current != NULL)
+    {
+      Current->f = Bubble->Emissions->compute_f(Bubble, Current);
+      Current = Current->forward;
     }
   }
 
@@ -376,6 +392,8 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
   // Shock treatment (if necessary)
 
   int check_for_shocks = 1;
+  int shocks_detected = 0;
+
   while (check_for_shocks)
   {
     Current = Bubble->Emissions->FirstNode;
@@ -386,6 +404,7 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
       if (Current->forward != NULL && Current->r > Current->forward->r)  // Check for shock formation
       {
         check_for_shocks = 1;  // Requires another complete subsequent iteration to make sure all multivalued solutions have been or are treated
+        shocks_detected = 1;  // A multivalued solution associated with a shock has been detected.
 
         // Define new properties of the forward node
         Current->forward->r = 0.5 * (Current->r + Current->forward->r);
@@ -437,7 +456,8 @@ int apecss_emissions_advance_kirkwoodbethe_general(struct APECSS_Bubble *Bubble)
       Current->p = ((Gamma - 1.0) * rho * Current->h - (1.0 - b * rho) * Gamma * B) / (Gamma - b * rho);
     } while (APECSS_ABS((p_prev - Current->p)) > tol * APECSS_ABS(Current->p));
 
-    Current->f = Bubble->Emissions->compute_f(Bubble, Current->g, Current->p, Bubble->Liquid->get_density(Current->p, Bubble->Liquid));
+    // Update invariant f for the explicit velocity expression (if applicable)
+    if (shocks_detected && Bubble->Emissions->Type == APECSS_EMISSION_EV) Current->f = Bubble->Emissions->compute_f(Bubble, Current);
 
     Current = Current->forward;
   }
@@ -862,22 +882,22 @@ int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, str
 // Bubble->Emissions->compute_f().
 // -------------------------------------------------------------------
 
-APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL) { return (0.0); }
+APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node) { return (0.0); }
 
-APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
+APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node)
 {
-  return (APECSS_POW2(Bubble->R) * Bubble->U);
+  return (APECSS_POW2(Node->r) * Node->u);
 }
 
-APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
+APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node)
 {
-  return (APECSS_POW2(Bubble->R) * Bubble->U - Bubble->R * g / Bubble->Liquid->cref);
+  return (APECSS_POW2(Node->r) * Node->u - Node->r * Node->g / Bubble->Liquid->cref);
 }
 
-APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL)
+APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node)
 {
   return (2.0 *
-          (Bubble->get_dimensionalradius(Bubble->R) * Bubble->R * Bubble->U -
-           Bubble->R * g / (Bubble->Liquid->get_soundspeed(pL, rhoL, Bubble->Liquid) + Bubble->U)) /
+          (Bubble->get_dimensionalradius(Node->r) * Node->r * Node->u -
+           Node->r * Node->g / (Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid) + Node->u)) /
           (Bubble->dimensionality + APECSS_SMALL));
 }
