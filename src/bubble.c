@@ -233,6 +233,13 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
             }
           }
         }
+        else if (strncasecmp(option2, "pruneemissions", 14) == 0)
+        {
+          Bubble->Emissions->pruneList = 1;
+
+          l = apecss_readoneoption(OptionsFile, option3);
+          Bubble->Emissions->pruneTolerance = APECSS_STRINGTOFLOAT(option3);
+        }
         else if (strncasecmp(option2, "kbitertolerance", 15) == 0)
         {
           if (Bubble->Emissions == NULL) apecss_emissions_initializestruct(Bubble);

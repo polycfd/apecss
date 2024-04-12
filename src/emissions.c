@@ -27,6 +27,8 @@ int apecss_emissions_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Emissions->CutOffDistance = 1.0e-3;
   Bubble->Emissions->KB_IterTolerance = 1.0;
   Bubble->Emissions->nNodes = 0;
+  Bubble->Emissions->pruneList = 0;
+  Bubble->Emissions->pruneTolerance = 1.0e-6;
   Bubble->Emissions->FirstNode = NULL;
   Bubble->Emissions->LastNode = NULL;
   Bubble->Emissions->advance = NULL;
@@ -81,6 +83,7 @@ int apecss_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble)
   if (Bubble->Emissions->nNodes) Bubble->Emissions->advance(Bubble);
   apecss_emissions_addnode(Bubble);
   if (Bubble->Emissions->LastNode->r > Bubble->Emissions->CutOffDistance) apecss_emissions_removenode(Bubble);
+  if (Bubble->Emissions->pruneList) apecss_emissions_prunelist(Bubble);
 
   return (0);
 }
@@ -126,6 +129,35 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
   // Count the new node in
   Bubble->Emissions->nNodes += 1;
   New->id = Bubble->dtNumber;
+
+  return (0);
+}
+
+int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble)
+{
+  struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode->backward;
+  APECSS_FLOAT tol = Bubble->Emissions->pruneTolerance;
+  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
+
+  if (Current != NULL)
+  {
+    while (Current->backward != NULL)
+    {
+      if (APECSS_MAX(APECSS_ABS(Current->backward->p - Current->forward->p), APECSS_ABS(Current->backward->p - Current->p)) <
+          tol * APECSS_ABS(Current->p - pinf))
+      {
+        struct APECSS_EmissionNode *Obsolete = Current;
+        Current->backward->forward = Current->forward;
+        Current->forward->backward = Current->backward;
+        Current = Current->backward;
+        free(Obsolete);
+      }
+      else
+      {
+        Current = Current->backward;  // Move to the next node
+      }
+    }
+  }
 
   return (0);
 }

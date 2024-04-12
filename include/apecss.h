@@ -264,6 +264,10 @@ struct APECSS_Emissions
   struct APECSS_EmissionNode *FirstNode;  // First node of the linked list
   struct APECSS_EmissionNode *LastNode;  // Last node of the linked list
 
+  // Pruning the list of emission nodes
+  int pruneList;  // Flag indicating whether the linked list is pruned
+  APECSS_FLOAT pruneTolerance;  // Tolerance below which a node is pruned
+
   // Pointer to the function advancing the emission nodes
   int (*advance)(struct APECSS_Bubble *Bubble);
 
@@ -514,6 +518,7 @@ int apecss_emissions_freelinkedlist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_updatenone(struct APECSS_Bubble *Bubble);
 int apecss_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_addnode(struct APECSS_Bubble *Bubble);
+int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_removenode(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_finitespeedincompressible(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
