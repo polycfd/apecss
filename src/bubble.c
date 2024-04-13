@@ -236,9 +236,6 @@ int apecss_bubble_readoptions(struct APECSS_Bubble *Bubble, char *OptionsDir)
         else if (strncasecmp(option2, "pruneemissions", 14) == 0)
         {
           Bubble->Emissions->pruneList = 1;
-
-          l = apecss_readoneoption(OptionsFile, option3);
-          Bubble->Emissions->pruneTolerance = APECSS_STRINGTOFLOAT(option3);
         }
         else if (strncasecmp(option2, "kbitertolerance", 15) == 0)
         {
@@ -821,7 +818,16 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble)
   // ---------------------------------------
   // Emissions
 
-  if (Bubble->Emissions != NULL) Bubble->Emissions->CutOffDistance = APECSS_MAX(Bubble->Emissions->CutOffDistance, Bubble->R0);
+  if (Bubble->Emissions != NULL)
+  {
+    Bubble->Emissions->CutOffDistance = APECSS_MAX(Bubble->Emissions->CutOffDistance, Bubble->R0);
+
+    if (Bubble->Emissions->pruneList && Bubble->Emissions->prune_test == NULL)
+    {
+      apecss_erroronscreen(0, "Prune emissions option invoked but no test function defined. No nodes will be pruned!");
+      Bubble->Emissions->prune_test = apecss_emissions_prune_no_node;
+    }
+  }
 
   // ---------------------------------------
   // Results

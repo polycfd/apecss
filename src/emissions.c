@@ -28,7 +28,7 @@ int apecss_emissions_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Emissions->KB_IterTolerance = 1.0;
   Bubble->Emissions->nNodes = 0;
   Bubble->Emissions->pruneList = 0;
-  Bubble->Emissions->pruneTolerance = 1.0e-6;
+  Bubble->Emissions->prune_test = NULL;
   Bubble->Emissions->FirstNode = NULL;
   Bubble->Emissions->LastNode = NULL;
   Bubble->Emissions->advance = NULL;
@@ -135,16 +135,13 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
 
 int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble)
 {
-  struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode->backward;
-  APECSS_FLOAT tol = Bubble->Emissions->pruneTolerance;
-  APECSS_FLOAT pinf = Bubble->get_pressure_infinity(Bubble->t, Bubble);
-
-  if (Current != NULL)
+  if (Bubble->Emissions->nNodes > 2)  // The list needs to consist of at least 3 nodes.
   {
+    struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode->backward;
+
     while (Current->backward != NULL)
     {
-      if (APECSS_MAX(APECSS_ABS(Current->backward->p - Current->forward->p), APECSS_ABS(Current->backward->p - Current->p)) <
-          tol * APECSS_ABS(Current->p - pinf))
+      if (Bubble->Emissions->prune_test(Current))
       {
         struct APECSS_EmissionNode *Obsolete = Current;
         Current->backward->forward = Current->forward;
@@ -933,3 +930,15 @@ APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, stru
            Node->r * Node->g / (Bubble->Liquid->get_soundspeed(Node->p, Bubble->Liquid->get_density(Node->p, Bubble->Liquid), Bubble->Liquid) + Node->u)) /
           (Bubble->dimensionality + APECSS_SMALL));
 }
+
+// -------------------------------------------------------------------
+// PRUNING OF EMISSION NODES
+// -------------------------------------------------------------------
+// Dummy test function for the pruning of emission nodes.
+// -------------------------------------------------------------------
+// This function is hooked up to the function pointer
+// Bubble->Emissions->prune_test() if no user-defined test function
+// has been defined. No nodes will be pruned.
+// -------------------------------------------------------------------
+
+int apecss_emissions_prune_no_node(struct APECSS_EmissionNode *Node) { return (0); }
