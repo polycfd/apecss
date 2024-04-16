@@ -264,11 +264,15 @@ struct APECSS_Emissions
   struct APECSS_EmissionNode *FirstNode;  // First node of the linked list
   struct APECSS_EmissionNode *LastNode;  // Last node of the linked list
 
+  // Pruning the list of emission nodes
+  int pruneList;  // Flag indicating whether the linked list is pruned
+  int (*prune_test)(struct APECSS_EmissionNode *Node);
+
   // Pointer to the function advancing the emission nodes
   int (*advance)(struct APECSS_Bubble *Bubble);
 
   // Pointer to the function that computes the invariant f
-  APECSS_FLOAT (*compute_f)(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+  APECSS_FLOAT (*compute_f)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
 
   // Pointer to the function integrating the radial position and velocity along the outgoing characteristic
   int (*integrate_along_characteristic)(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
@@ -514,6 +518,8 @@ int apecss_emissions_freelinkedlist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_updatenone(struct APECSS_Bubble *Bubble);
 int apecss_emissions_updatelinkedlist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_addnode(struct APECSS_Bubble *Bubble);
+int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble);
+int apecss_emissions_prune_no_node(struct APECSS_EmissionNode *Node);
 int apecss_emissions_removenode(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_finitespeedincompressible(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
@@ -527,10 +533,10 @@ int apecss_emissions_integrate_ev_general_euler(struct APECSS_Bubble *Bubble, st
 int apecss_emissions_integrate_ev_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_euler(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
 int apecss_emissions_integrate_tiv_general_rk4(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Current, APECSS_FLOAT hinf);
-APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
-APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
-APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
-APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, APECSS_FLOAT g, APECSS_FLOAT pL, APECSS_FLOAT rhoL);
+APECSS_FLOAT apecss_emissions_f_zero(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
+APECSS_FLOAT apecss_emissions_f_finitespeedincompressible(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
+APECSS_FLOAT apecss_emissions_f_quasiacoustic(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
+APECSS_FLOAT apecss_emissions_f_kirkwoodbethe(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node);
 
 // ---------------------
 // gas.c

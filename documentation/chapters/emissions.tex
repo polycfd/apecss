@@ -16,6 +16,7 @@ Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS
 & {\tt EmissionIntegration Euler} & Integrates the radial position and, if applicable, the velocity using an Euler scheme.\\
 & {\tt EmissionIntegration RK4} & Integrates the radial position and, if applicable, the velocity using a conventional fourth-order Runge-Kutta scheme. This is the default.\\
 & {\tt KBIterTolerance <float>} & Tolerance $\eta$ for the evaluation of the pressure using a model based on the Kirkwood-Bethe hypothesis in conjunction with the NASG EoS.\\
+& {\tt PruneEmissions} & Prune the list of emission nodes according to a test function provided by the user. This test function must  be hooked up to the function pointer {\tt Bubble->Emissions->prune\_test()}.\\
  \hline
 \end{tabular} \vspace{0.2em}
 
