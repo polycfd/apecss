@@ -23,7 +23,7 @@ Key features of APECSS are:
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
 - Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
-- APECSS has no external dependencies, aside from the standard _math_ library and some common C headers (math.h, stdio.h, stdlib.h, string.h).
+- APECSS has, aside from the C standard library, no external dependencies.
 
 For more information, please consult the [JOSS paper](https://doi.org/10.21105/joss.05435) discussing the features of APECSS as well as the [PoF paper](https://doi.org/10.1063/5.0131930) introducing the theoretical foundation.
 
@@ -50,7 +50,7 @@ Getting started with APECSS using a Unix operating system, e.g. Linux or MacOS, 
 Now, navigate into the folder ````$APECSS_DIR/lib```` and execute ````./compile_lib.sh````. This shell script will compile the APECSS library using _cmake_ with the ````CMakeLists.txt```` file provided in this folder. By default, APECSS is compiled with double precision and in _Release_ mode, meaning all optimization flags are enabled. That's it, you've successfully compiled APECSS!
 
 ### **Installation on Windows 11**
-Installing APECSS on Windows is possible, but a little more involved than the installation on Unix. A step-by-step installation guide on Windows 11, kindly provided by **Maxime Montois**, can be found in the [pdf-documentation](/documentation/APECSS-Documentation.pdf) (see Section 2.2.2). The installation uses `MinGW`, `MSYS2` and `Git Bash` and the instructions also detail small changes to the compile and cmake scripts, as well as the source code, that are required to make APECSS work smoothly on Windows.
+Installing APECSS on Windows is possible, but a little more involved than the installation on Unix. A step-by-step installation guide on Windows 11, kindly provided by Maxime Montois, can be found in the [pdf-documentation](/documentation/APECSS-Documentation.pdf) (see Section 2.2.2). The installation uses `MinGW`, `MSYS2` and `Git Bash` and the instructions also detail small changes to the compile and cmake scripts, as well as the source code, that are required to make APECSS work smoothly on Windows.
 
 ### **Examples**
 There are several ways in which you can use the APECSS library. You can either incorporate selected features of APECSS into your own software or you can program an interface to use APECSS as a standalone program. Some representative examples are given in the [````$APECSS_DIR/examples````](/examples/) directory. Each directory contains the following:

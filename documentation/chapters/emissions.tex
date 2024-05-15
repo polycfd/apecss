@@ -1,6 +1,6 @@
 \chapter{Acoustic emissions}
 
-Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Please refer to the work of \citet{Denner2023} for a detailed explanation and validation of the different emission models. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
+Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS offers different models for the acoustic emissions, assuming an incompressible liquid, a weakly-compressible liquid or a fully compressible liquid. To account for a finite propagation speed, the information associated with an emitted acoustic wave is propagated along the radial coordinate axis using a Lagrangian wave tracking approach. Please refer to the work of \citet{Denner2023} for a detailed explanation and validation of the different emission models, and the review of \citet{Denner2024a} for the methodology applied to treat shock waves. Unless specifically told to do so, APECSS does not compute any acoustic emissions. 
 
 \vspace{0.8em}
 
@@ -20,7 +20,7 @@ Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS
  \hline
 \end{tabular} \vspace{0.2em}
 
-The floating-point value given as the final argument of the {\tt Emissions} command defines the cut-off distance beyond which the emissions are not computed. For the standard incompressible assumption this value has no meaning, but a value is required as a dummy to facilitate the correct reading of the options. In addition to the emissions of a spherical bubble, the emissions computed based on the Kirkwood-Bethe hypothesis can also be used for cylindrical bubbles and planar cavities. The description of the theory below, however, is limited to the spherical case.
+The floating-point value given as the final argument of the {\tt Emissions} command defines the cut-off distance beyond which the emissions are not computed. For the standard incompressible assumption this value has no meaning, but a value is required as a dummy to facilitate the correct reading of the options. In addition to the emissions of a spherical bubble, the emissions computed based on the Kirkwood-Bethe hypothesis can also be used for cylindrical bubbles and planar cavities \citep{Denner2024a}. The description of the theory below, however, is limited to the spherical case.
 
 \section{Lagrangian wave tracking}
 
@@ -129,7 +129,7 @@ p(r,t) = \frac{\left[\Gamma-1\right] \rho(r,t) \, h(r,t) - \left[1 - b \, \rho(r
 \end{eqnarray}
 Since the pressure $p(r,t)$ and the density $\rho(r,t)$ depend explicitly on each other in this formulation, Eq.~(\ref{eq:p_rt_NASG}) has to be solved iteratively. As a convergence criterion for the iterative approximation we use $|p_j(r,t) - p_{j-1}(r,t)| < \eta \, |p_j(r,t)|$, where $j$ denotes the iteration counter and $\eta$ is a predefined tolerance (see option {\tt KBIterTolerance}). Preliminary tests identified a tolerance of $\eta = 10^{-4}$ to be sufficiently small.
 
-Emission nodes with a higher pressure propagate faster than nodes with a lower pressure, which in turn leads to progressive steepening of the acoustic wave. As a result, an emission node may overtake the forerunning emission node, yielding an unphysical multivalued solution. In reality, such a multivalued solution is avoided by the formation of a shock front \citep{Fay1931}. While treating such multivalued solutions is often done in a post-processing step, APECSS deals with multivalued solutions at run time. An emission node that overtakes its forerunning neighbor is discarded, see Fig.~\ref{fig:lagrangiantrackingshock}, and the thermodynamic values of the forerunning neighbor are reevaluated by a simple averaging procedure. Thus, a unique and physically plausible solution is maintained.
+Emission nodes with a higher pressure propagate faster than nodes with a lower pressure, which in turn leads to progressive steepening of the acoustic wave. As a result, an emission node may overtake the forerunning emission node, yielding an unphysical multivalued solution. In reality, such a multivalued solution is avoided by the formation of a shock front \citep{Fay1931}. While treating such multivalued solutions is often done in a post-processing step, APECSS deals with multivalued solutions at run time. An emission node that overtakes its forerunning neighbor is discarded, see Fig.~\ref{fig:lagrangiantrackingshock}, and the thermodynamic values of the forerunning neighbor are reevaluated by a simple averaging procedure, as described in \citep{Denner2024a}. Thus, a unique and physically plausible solution is maintained.
 
 \begin{figure}
     \begin{center}

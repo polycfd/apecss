@@ -2,7 +2,7 @@
 \label{chap:bubble}
 The dynamic behaviour of the bubble is modelled with a Rayleigh-Plesset-type (RP) model, assuming spherical symmetry. This requires to choose a suitable RP-type model (Section \ref{sec:rpmodels}) and define appropriate conditions for the gas  (Section \ref{sec:gas}), the liquid (Section \ref{sec:liquid}), the interface (Section \ref{sec:interface}), as well as at infinity (Section \ref{sec:infinity}). The results that APECSS can write out based on the RP model are explained in Section \ref{sec:bubble_results}.
 
-APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time step $\Delta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Delta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
+APECSS solves all ordinary differential equations (ODEs) associated with the bubble dynamics using the embedded RK5(4) scheme of \citet{Dormand1980}, whereby a fifth-order Runge-Kutta scheme is used to solve the ODEs and the corresponding fourth-order Runge-Kutta scheme is used to estimate the solution error. Based on this solution error, the time step $\Updelta t$ used to advance the solution of the ODEs is adapted. If the solution error of a newly computed solution in a time step does not satisfy the error tolerance, the solution is rewound and recomputed with a smaller $\Updelta t$ (cf. sub-iteration), adapted based on the solution error of the previous attempt. 
 
 \vspace{0.8em}
 
@@ -19,8 +19,8 @@ APECSS solves all ordinary differential equations (ODEs) associated with the bub
 {\tt ODESOLVER} & {\tt RK 7M} & Minimum truncation (7M) coefficients of the RK5(4) scheme of \citet{Dormand1980}. This is the default.\\ 
 & {\tt RK 7S} & Stability optimized (7S) coefficients of the RK5(4) scheme of \citet{Dormand1980}.\\ 
 & {\tt Tolerance <float>} & The desired solution tolerance.\\ 
-& {\tt MinTimeStep <float>} & Minimum time step $\Delta t$.\\ 
-& {\tt MaxTimeStep <float>} & Maximum time step $\Delta t$.\\ 
+& {\tt MinTimeStep <float>} & Minimum time step $\Updelta t$.\\ 
+& {\tt MaxTimeStep <float>} & Maximum time step $\Updelta t$.\\ 
 & {\tt MaxSubIterations <float>} & Maximum number of sub-iterations in a given time step.\\ 
  \hline
 \end{tabular} \vspace{1em}
@@ -66,7 +66,7 @@ The Keller-Miksis model \citep{Keller1980, Prosperetti1986}, which incorporates 
 \end{equation}
 where $c_{\ell,\mathrm{ref}}$ is the speed of sound of the liquid. Both $\rho_{\ell,\mathrm{ref}}$ and $c_{\ell,\mathrm{ref}}$ are assumed to be constant, limiting the Keller-Miksis model to moderate liquid pressures ($p_\mathrm{L} \lesssim 10^8 \, \mathrm{Pa}$).
 
-Based on the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Cole1948}, \citet{Gilmore1952} derived a second-order ordinary differential equation describing the radial dynamics of a bubble in a compressible liquid, %given as
+Based on the Kirkwood-Bethe hypothesis \citep{Kirkwood1942,Denner2024a}, \citet{Gilmore1952} derived a second-order ordinary differential equation describing the radial dynamics of a bubble in a compressible liquid, %given as
 \begin{equation}
   \left( 1 - \frac{\dot{R}}{c_\text{L}} \right) R \ddot{R} + \frac{3}{2} \left( 1 - \frac{\dot{R}}{3 c_\text{L}} \right) \dot{R}^2  = \left( 1 + \frac{\dot{R}}{c_\text{L}} \right) H + \left( 1- \frac{\dot{R}}{c_\text{L}} \right) \frac{R \dot{H}}{c_\text{L}}, \label{eq:gilmore}
 \end{equation} 
@@ -74,7 +74,7 @@ where $c_\mathrm{L}$ is the speed of sound of the liquid at the bubble wall, $H 
 \begin{equation}
     \left( 1 - \frac{\dot{R}}{c_{\mathrm{L}}} \right) R \ddot{R} + \frac{3}{4} \alpha \left( 1 - \frac{\dot{R}}{3 c_{\mathrm{L}}} \right) \dot{R}^2 = \frac{\alpha}{2} \left( 1 + \frac{\dot{R}}{c_{\mathrm{L}}} \right) H + \left( 1- \frac{\dot{R}}{c_{\mathrm{L}}} \right) \frac{R \dot{H}}{c_{\mathrm{L}}}, \label{eq:gilmore_general}
 \end{equation}  
-that is applicable to planar ($\alpha=0$), cylindrical ($\alpha=1$) and spherical ($\alpha=2$) bubbles.
+that is applicable to planar ($\alpha=0$), cylindrical ($\alpha=1$) and spherical ($\alpha=2$) bubbles \citep{Denner2024a}.
 
 \section{The gas}
 \label{sec:gas}
@@ -262,19 +262,19 @@ the combined viscous and elastic contributions, where $\lambda_\ell$ is the rela
 
 The question is now how to solve the ODEs for $\varsigma$ and $\tau_{rr}$ in such a way that we always obtain a meaningful result, even if $\lambda_\ell=0$. In order for a customary ODE solver to handle this correctly, we rearrange Eqs.~\eqref{eq:ode_varsigma} and \eqref{eq:ode_tau}. Under the discrete assumption
 \begin{equation}
-    \dot{\varsigma}  = \frac{\varsigma_{n+1}-\varsigma_n}{\Delta t},
+    \dot{\varsigma}  = \frac{\varsigma_{n+1}-\varsigma_n}{\Updelta t},
 \end{equation}
 Eq.~\eqref{eq:ode_varsigma} becomes
 \begin{equation}
-    \lambda_\ell \frac{\varsigma_{n+1}-\varsigma_n}{\Delta t} + \varsigma_{n+1} +\lambda_\ell \frac{\dot{R}}{R} {\tau}_{rr|R} = - \frac{S}{3}
+    \lambda_\ell \frac{\varsigma_{n+1}-\varsigma_n}{\Updelta t} + \varsigma_{n+1} +\lambda_\ell \frac{\dot{R}}{R} {\tau}_{rr|R} = - \frac{S}{3}
   \end{equation}
 so that, after some further manipulation,
 \begin{equation}
-    \varsigma_{n+1} =  \varsigma_n + \Delta t \frac{- \dfrac{S}{3} - \lambda_\ell  \dfrac{\dot{R}}{R} {\tau}_{rr|R,n} - \varsigma_n}{\lambda_\ell + \Delta t}. \label{eq:varsigma_reformulated}
+    \varsigma_{n+1} =  \varsigma_n + \Updelta t \frac{- \dfrac{S}{3} - \lambda_\ell  \dfrac{\dot{R}}{R} {\tau}_{rr|R,n} - \varsigma_n}{\lambda_\ell + \Updelta t}. \label{eq:varsigma_reformulated}
   \end{equation}
 Similarly, Eq.~\eqref{eq:ode_tau} follows as
 \begin{equation}
-   {\tau}_{rr|R,n+1} = {\tau}_{rr|R,n} + \Delta t \frac{-S-{\tau}_{rr|R,n}}{\lambda_\ell + \Delta t}.
+   {\tau}_{rr|R,n+1} = {\tau}_{rr|R,n} + \Updelta t \frac{-S-{\tau}_{rr|R,n}}{\lambda_\ell + \Updelta t}.
    \label{eq:tau_reformulated}
 \end{equation}
 Even in the limit $\lambda_\ell = 0$, we can now obtain a meaningful answer, that is Eq.~\eqref{eq:varsigma_reformulated} reduces to
@@ -298,8 +298,8 @@ The polymer stress $\mathcal{S} = \mathcal{S}_1 + \mathcal{S}_2$ is split into t
 where $\eta_\ell$ is the polymer viscosity.
 These ODEs are reformulated in a similar manner as for the Zener model shown above, to yield
 \begin{align}
-    \mathcal{S}_{1,n+1} &= \mathcal{S}_{1,n} + \Delta t \frac{-\left(4 \lambda_\ell \dfrac{\dot{R}}{R}+1\right) \mathcal{S}_{1,n}- 2 \eta_\ell \dfrac{\dot{R}}{R}}{\lambda_\ell+\Delta t} \label{eq:ode_oldroydB1disc} \\
-    \mathcal{S}_{2,n+1} &= \mathcal{S}_{2,n} + \Delta t \frac{-\left(\lambda_\ell \dfrac{\dot{R}}{R}+1\right) \mathcal{S}_{2,n}- 2 \eta_\ell \dfrac{\dot{R}}{R}}{\lambda_\ell+\Delta t}.\label{eq:ode_oldroydB2disc}
+    \mathcal{S}_{1,n+1} &= \mathcal{S}_{1,n} + \Updelta t \frac{-\left(4 \lambda_\ell \dfrac{\dot{R}}{R}+1\right) \mathcal{S}_{1,n}- 2 \eta_\ell \dfrac{\dot{R}}{R}}{\lambda_\ell+\Updelta t} \label{eq:ode_oldroydB1disc} \\
+    \mathcal{S}_{2,n+1} &= \mathcal{S}_{2,n} + \Updelta t \frac{-\left(\lambda_\ell \dfrac{\dot{R}}{R}+1\right) \mathcal{S}_{2,n}- 2 \eta_\ell \dfrac{\dot{R}}{R}}{\lambda_\ell+\Updelta t}.\label{eq:ode_oldroydB2disc}
 \end{align}
 For $\lambda_\ell = 0$ Eqs.~\eqref{eq:ode_oldroydB1disc} and \eqref{eq:ode_oldroydB2disc} still give a meaningful result and reduce to a Newtonian fluid with $\mathcal{S} = - 4 \eta_\ell \dot{R}/R$.
 
@@ -409,7 +409,7 @@ For the bubble dynamics, the following quantities as a function of time are writ
 \begin{itemize}[noitemsep]
   \item Time-step number.
   \item Time, $t$.
-  \item Time step, $\Delta t$.
+  \item Time step, $\Updelta t$.
   \item Bubble radius, $R$.
   \item Velocity of the bubble wall, $\dot{R}$.
   \item Pressure of the gas, $p_\mathrm{G}$.
