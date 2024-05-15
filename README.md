@@ -20,6 +20,7 @@ APECSS is a software toolbox to compute pressure-driven bubble dynamics and the 
 Key features of APECSS are:
 - Bubble dynamics using widely-used models (Rayleigh-Plesset, Keller-Miksis, Gilmore), solved using an in-built 5th-order Runge-Kutta scheme with adaptive time stepping.
 - Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
+- *(Work in progress)* Interbubble interactions within a cavitation cluster
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
 - Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
