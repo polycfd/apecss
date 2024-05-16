@@ -311,6 +311,13 @@ struct APECSS_Excitation
   APECSS_FLOAT dp;  // Maximum pressure amplitude [Pa]
 };
 
+struct APECSS_Interaction
+{
+  int nBubbles;  // Number of bubbles in the whole cluster considered
+  APECSS_FLOAT location[3];  // 3D coordinates of the considered bubble
+  APECSS_FLOAT dp_neighbor;  // Pressure induced by interactions with neighboring bubbles
+}
+
 struct APECSS_ResultsBubble
 {
   int freq;  // Frequency with which the results are stored (with respect to the time-step number)
@@ -443,6 +450,9 @@ struct APECSS_Bubble
 
   // Excitation of the bubble (if applicable)
   struct APECSS_Excitation *Excitation;
+
+  // Interactions with neighboring bubbles (if applicable)
+  struct APECSS_Interaction *Interaction;
 
   // Pointers to the functions describing the liquid pressure and its derivative at infinity
   APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);

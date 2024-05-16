@@ -39,6 +39,7 @@ int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Liquid = NULL;
   Bubble->Interface = NULL;
   Bubble->Excitation = NULL;
+  Bubble->Interaction = NULL;
   Bubble->Emissions = NULL;
   Bubble->Results = NULL;
 
