@@ -20,32 +20,41 @@
 // tion bubbles inside a cluster
 // -------------------------------------------------------------------
 
-int apecss_instantaneous_interactions(struct APECSS_Bubble *Bubble_1, struct APECSS_Bubble *Bubble_2)
+int apecss_instantaneous_interactions(struct APECSS_Bubble *Bubbles[])
 {
-  // Compute interactions by considering them instantaneous (fully incompressible approach)
-  struct APECSS_Interaction *Interaction_1 = Bubble_1->Interaction;
-  struct APECSS_Interaction *Interaction_2 = Bubble_2->Interaction;
+  // Compute interactions uby considering them instantaneous (fully incompressible approach)
+  int nBubbles = Bubbles[0]->Interaction->nBubbles;
 
-  // Both bubbles are supposed to be in the same liquid
-  struct APECSS_Liquid *Liquid = Bubble_1->Liquid;
+  struct APECSS_Interaction *Interactions[nBubbles];
+  for (register int i = 0; i < nBubbles; i++)
+  {
+    Interactions[i] = Bubbles[i]->Interaction;
+  }
 
-  APECSS_FLOAT loc_1[3] = Interaction_1->location;
-  APECSS_FLOAT loc_2[3] = Interaction_2->location;
+  // All bubbles are supposed to be in the same liquid
+  struct APECSS_Liquid *Liquid = Bubbles[0]->Liquid;
 
-  APECSS_FLOAT interbubble_dist = APECSS_SQRT(APECSS_POW2(loc_1[0] - loc_2[0]) + APECSS_POW2(loc_1[1] - loc_2[1]) + APECSS_POW2(loc_1[2] - loc_2[2]));
+  for (register int i = 0; i < nBubbles; i++)
+  {
+    APECSS_FLOAT loc_i[3] = Interactions[i]->location;
 
-  APECSS_FLOAT dp_1_2 =
-      Liquid->rhoref * ((2.0 * Bubble_1->R * APECSS_POW2(Bubble_1->U) + APECSS_POW2(Bubble_1->R) * Bubble_1->ode[0](Bubble_1->ODEsSol, Bubble_1->t, Bubble_1)) *
-                            (1 / interbubble_dist) -
-                        (APECSS_POW4(Bubble_1->R) * APECSS_POW2(Bubble_1->U)) * (1 / (2 * APECSS_POW4(interbubble_dist))));
+    for (register int j = 0; j < nBubbles; j++)
+    {
+      if (j != i)
+      {
+        APECSS_FLOAT loc_j[3] = Interactions[j]->location;
 
-  APECSS_FLOAT dp_2_1 =
-      Liquid->rhoref * ((2.0 * Bubble_2->R * APECSS_POW2(Bubble_2->U) + APECSS_POW2(Bubble_2->R) * Bubble_2->ode[0](Bubble_2->ODEsSol, Bubble_2->t, Bubble_2)) *
-                            (1 / interbubble_dist) -
-                        (APECSS_POW4(Bubble_2->R) * APECSS_POW2(Bubble_2->U)) * (1 / (2 * APECSS_POW4(interbubble_dist))));
+        APECSS_FLOAT interbubble_dist = APECSS_SQRT(APECSS_POW2(loc_i[0] - loc_j[0]) + APECSS_POW2(loc_i[1] - loc_j[1]) + APECSS_POW2(loc_i[2] - loc_j[2]));
 
-  Interaction_1->dp_neighbor += dp_2_1;
-  Interaction_2->dp_neighbor += dp_1_2;
+        APECSS_FLOAT dp = Liquid->rhoref * ((2.0 * Bubbles[j]->R * APECSS_POW2(Bubbles[j]->U) +
+                                             APECSS_POW2(Bubbles[j]->R) * Bubbles[j]->ode[0](Bubbles[j]->ODEsSol, Bubbles[j]->t, Bubbles[j])) *
+                                                (1 / interbubble_dist) -
+                                            (APECSS_POW4(Bubbles[j]->R) * APECSS_POW2(Bubbles[j]->U)) * (1 / (2 * APECSS_POW4(interbubble_dist))));
+
+        Interactions[i]->dp_neighbor += dp;
+      }
+    }
+  }
 
   return (0);
 }
@@ -69,6 +78,8 @@ int apecss_quasi_acoustic_interactions(struct APECSS_Bubble *Bubbles[])
     APECSS_FLOAT sumU = 0.0;
     APECSS_FLOAT sumG = 0.0;
 
+    APECSS_FLOAT loc_i[3] = Interactions[i]->location;
+
     for (register int j = 0; j < nBubbles; j++)
     {
       if (j != i)
@@ -77,7 +88,6 @@ int apecss_quasi_acoustic_interactions(struct APECSS_Bubble *Bubbles[])
         APECSS_FLOAT sumG_bubble = 0.0;
         int nodecount_bubble = 0;
 
-        APECSS_FLOAT loc_i[3] = Interactions[i]->location;
         APECSS_FLOAT loc_j[3] = Interactions[j]->location;
 
         APECSS_FLOAT interbubble_dist = APECSS_SQRT(APECSS_POW2(loc_i[0] - loc_j[0]) + APECSS_POW2(loc_i[1] - loc_j[1]) + APECSS_POW2(loc_i[2] - loc_j[2]));
