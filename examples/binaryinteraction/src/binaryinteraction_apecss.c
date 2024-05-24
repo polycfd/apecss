@@ -165,6 +165,12 @@ int main(int argc, char **args)
   // Use the revised pressure at infinity, including neighbor contributions
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->get_pressure_infinity = interaction_bubble_pressure_infinity;
 
+  // Initialisize interaction structure
+  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
+
+  // Update interaction structure
+  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
+
   // Define the size of each bubble
   for (register int i = 0; i < nBubbles; i++)
   {
@@ -174,6 +180,23 @@ int main(int argc, char **args)
       Bubbles[i]->R0 = 10.0e-6;
 
     Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
+  }
+
+  // Define center location for each bubble
+  for (register int i = 0; i < nBubbles; i++)
+  {
+    if (0 == i)
+    {
+      Bubbles[i]->Interaction->location[0] = 0.0;
+      Bubbles[i]->Interaction->location[1] = 0.0;
+      Bubbles[i]->Interaction->location[2] = 0.0;
+    }
+    else if (1 == i)
+    {
+      Bubbles[i]->Interaction->location[0] = bubble_bubble_dist;
+      Bubbles[i]->Interaction->location[1] = 0.0;
+      Bubbles[i]->Interaction->location[2] = 0.0;
+    }
   }
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -201,19 +224,12 @@ int main(int argc, char **args)
 
     for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
+    for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
+
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
-    struct Interaction *data_0 = Bubbles[0]->user_data;
-    data_0->dp_neighbor =
-        Liquid->rhoref *
-        (APECSS_POW2(Bubbles[1]->R) * Bubbles[1]->ode[0](Bubbles[1]->ODEsSol, Bubbles[1]->t, Bubbles[1]) + 2.0 * Bubbles[1]->R * APECSS_POW2(Bubbles[1]->U)) /
-        bubble_bubble_dist;
+    apecss_instantaneous_interactions(Bubbles);
 
-    struct Interaction *data_1 = Bubbles[1]->user_data;
-    data_1->dp_neighbor =
-        Liquid->rhoref *
-        (APECSS_POW2(Bubbles[0]->R) * Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]) + 2.0 * Bubbles[0]->R * APECSS_POW2(Bubbles[0]->U)) /
-        bubble_bubble_dist;
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   }
 
