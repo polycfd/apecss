@@ -588,6 +588,12 @@ APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanimpl(APECSS_FLOAT 
 APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantimpl(APECSS_FLOAT R, struct APECSS_Interface *Interface);
 
 // ---------------------
+// interactions.c
+
+int apecss_instantaneous_interactions(struct APECSS_Bubble *Bubbles[]);
+int apecss_quasi_acoustic_interactions(struct APECSS_Bubble *Bubbles[]);
+
+// ---------------------
 // liquid.c
 
 int apecss_liquid_setdefaultoptions(struct APECSS_Liquid *Liquid);

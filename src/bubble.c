@@ -868,6 +868,12 @@ int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
     Bubble->Emissions = NULL;
   }
 
+  if (Bubble->Interaction != NULL)
+  {
+    free(Bubble->Interaction);
+    Bubble->Interaction = NULL;
+  }
+
   if (Bubble->Results != NULL)
   {
     if (Bubble->Results->RayleighPlesset != NULL)
