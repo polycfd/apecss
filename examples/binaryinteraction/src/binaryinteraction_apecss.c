@@ -167,7 +167,6 @@ int main(int argc, char **args)
 
   // Initialize interaction structure
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
-  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
 
   // Update interaction structure
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
