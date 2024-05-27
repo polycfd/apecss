@@ -95,17 +95,17 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_setdefaultoptions(Bubbles[i]);
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_readoptions(Bubbles[i], OptionsDir);
 
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  // Allocate and set bubble-associated variables for the interaction
-  for (register int i = 0; i < nBubbles; i++)
-  {
-    struct Interaction *interaction_data = (struct Interaction *) malloc(sizeof(struct Interaction));
-    interaction_data->dp_neighbor = 0.0;  // Pressure excerted by the neighbor bubbles
+  // // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // // Allocate and set bubble-associated variables for the interaction
+  // for (register int i = 0; i < nBubbles; i++)
+  // {
+  //   struct Interaction *interaction_data = (struct Interaction *) malloc(sizeof(struct Interaction));
+  //   interaction_data->dp_neighbor = 0.0;  // Pressure excerted by the neighbor bubbles
 
-    // Hook interaction-structure to the void data pointer
-    Bubbles[i]->user_data = interaction_data;
-  }
-  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  //   // Hook interaction-structure to the void data pointer
+  //   Bubbles[i]->user_data = interaction_data;
+  // }
+  // // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Allocate the structures for the fluid properties and ODE solver parameters */
   struct APECSS_Gas *Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
@@ -165,8 +165,9 @@ int main(int argc, char **args)
   // Use the revised pressure at infinity, including neighbor contributions
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->get_pressure_infinity = interaction_bubble_pressure_infinity;
 
-  // Initialisize interaction structure
+  // Initialize interaction structure
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
+  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
 
   // Update interaction structure
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
@@ -262,6 +263,5 @@ int main(int argc, char **args)
 
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  struct Interaction *temp_struct = Bubble->user_data;
-  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + temp_struct->dp_neighbor);
+  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + Bubble->Interaction->dp_neighbor);
 }
