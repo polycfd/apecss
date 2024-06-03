@@ -135,24 +135,40 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble)
 
 int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble)
 {
-  if (Bubble->Emissions->nNodes > 2)  // The list needs to consist of at least 3 nodes.
-  {
-    struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode->backward;
+  // if (Bubble->Emissions->nNodes > 2)  // The list needs to consist of at least 3 nodes.
+  // {
+  //   struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode->backward;
 
-    while (Current->backward != NULL)
+  //   while (Current->backward != NULL)
+  //   {
+  //     if (Bubble->Emissions->prune_test(Current))
+  //     {
+  //       struct APECSS_EmissionNode *Obsolete = Current;
+  //       Current->backward->forward = Current->forward;
+  //       Current->forward->backward = Current->backward;
+  //       Current = Current->backward;
+  //       free(Obsolete);
+  //     }
+  //     else
+  //     {
+  //       Current = Current->backward;  // Move to the next node
+  //     }
+  //   }
+  // }
+
+  struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
+
+  while (Current != NULL)
+  {
+    if (Bubble->Emissions->prune_test(Current))
     {
-      if (Bubble->Emissions->prune_test(Current))
-      {
-        struct APECSS_EmissionNode *Obsolete = Current;
-        Current->backward->forward = Current->forward;
-        Current->forward->backward = Current->backward;
-        Current = Current->backward;
-        free(Obsolete);
-      }
-      else
-      {
-        Current = Current->backward;  // Move to the next node
-      }
+      // Delete the node if it satisfies the pruning condition
+      apecss_emissions_deletenode(Current);
+    }
+    else
+    {
+      // Move to the next node
+      Current = Current->backward;
     }
   }
 
@@ -183,6 +199,47 @@ int apecss_emissions_removenode(struct APECSS_Bubble *Bubble)
       break;
     }
   } while (Bubble->Emissions->LastNode->r > Bubble->Emissions->CutOffDistance);
+
+  return (0);
+}
+
+int apecss_emissions_deletenode(struct APECSS_EmissionNode *Node)
+{
+  struct APECSS_EmissionNode *Obsolete = Node;
+
+  if ((Node->backward != NULL) && (Node->forward != NULL))
+  {
+    // The node has two neighbors
+    Node->backward->forward = Node->forward;
+    Node->forward->backward = Node->backward;
+    Node = Node->backward;
+    Bubble->Emissions->nNodes -= 1;
+  }
+  else if ((Node->backward != NULL) && (Node->forward == NULL))
+  {
+    // The node is LastNode
+    Node->backward->forward = NULL;
+    Bubble->Emissions->LastNode = Node->backward;
+    Node = Node->backward;
+    Bubble->Emissions->nNodes -= 1;
+  }
+  else if ((Node->backward == NULL) && (Node->forward != NULL))
+  {
+    // The node is FirstNode
+    Node->forward->backward = NULL;
+    Bubble->Emissions->FirstNode = Node->forward;
+    Node = NULL;
+    Bubble->Emissions->nNodes -= 1;
+  }
+  else
+  {
+    // There is only one node in the list
+    Bubble->Emissions->FirstNode = NULL;
+    Bubble->Emissions->LastNode = NULL;
+    Bubble->Emissions->nNodes = 0;
+    Node = NULL;
+  }
+  free(Obsolete);
 
   return (0);
 }

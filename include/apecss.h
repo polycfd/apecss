@@ -531,6 +531,7 @@ int apecss_emissions_addnode(struct APECSS_Bubble *Bubble);
 int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble);
 int apecss_emissions_prune_no_node(struct APECSS_EmissionNode *Node);
 int apecss_emissions_removenode(struct APECSS_Bubble *Bubble);
+int apecss_emissions_deletenode(struct APECSS_EmissionNode *Node);
 int apecss_emissions_advance_finitespeedincompressible(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_quasiacoustic(struct APECSS_Bubble *Bubble);
 int apecss_emissions_advance_kirkwoodbethe_tait(struct APECSS_Bubble *Bubble);
