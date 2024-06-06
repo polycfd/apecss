@@ -20,7 +20,7 @@
 // tion bubbles inside a cluster
 // -------------------------------------------------------------------
 
-int apecss_instantaneous_interactions(struct APECSS_Bubble *Bubbles[])
+int apecss_interactions_instantaneous(struct APECSS_Bubble *Bubbles[])
 {
   // Compute interactions uby considering them instantaneous (fully incompressible approach)
   int nBubbles = Bubbles[0]->Interaction->nBubbles;
@@ -57,7 +57,7 @@ int apecss_instantaneous_interactions(struct APECSS_Bubble *Bubbles[])
   return (0);
 }
 
-int apecss_quasi_acoustic_interactions(struct APECSS_Bubble *Bubbles[])
+int apecss_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[])
 {
   // Compute interactions using emission nodes in the quasi acoustic assumption
   int nBubbles = Bubbles[0]->Interaction->nBubbles;

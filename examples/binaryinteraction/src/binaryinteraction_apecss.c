@@ -228,7 +228,7 @@ int main(int argc, char **args)
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
-    apecss_instantaneous_interactions(Bubbles);
+    apecss_interactions_instantaneous(Bubbles);
 
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   }
