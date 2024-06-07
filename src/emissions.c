@@ -163,7 +163,7 @@ int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble)
     if (Bubble->Emissions->prune_test(Current))
     {
       // Delete the node if it satisfies the pruning condition
-      apecss_emissions_deletenode(Current);
+      apecss_emissions_deletenode(Bubble, Current);
     }
     else
     {
@@ -203,7 +203,7 @@ int apecss_emissions_removenode(struct APECSS_Bubble *Bubble)
   return (0);
 }
 
-int apecss_emissions_deletenode(struct APECSS_EmissionNode *Node)
+int apecss_emissions_deletenode(struct APECSS_Bubble *Bubble, struct APECSS_EmissionNode *Node)
 {
   struct APECSS_EmissionNode *Obsolete = Node;
 
