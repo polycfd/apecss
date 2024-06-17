@@ -1,0 +1,38 @@
+#########################################################
+#                                                       #
+#  APECSS Options File                                  #
+#                                                       #
+#########################################################
+
+BUBBLE
+RPModel KM
+Emissions QA 250.0e-6
+PressureAmbient 1.0e5
+END
+
+GAS
+EoS HC
+ReferencePressure 1.0e5
+ReferenceDensity 1.2
+PolytropicExponent 1.4
+END
+
+LIQUID
+ReferencePressure 1.0e5
+ReferenceDensity 1000.0
+ReferenceSoundSpeed 1500.0
+Viscosity 1.002e-3
+END
+
+INTERFACE
+SurfaceTensionCoeff 0.0728
+END
+
+RESULTS
+Bubble
+OutputFreqRP 5
+END
+
+ODESOLVER
+tolerance 1.0e-10
+END
