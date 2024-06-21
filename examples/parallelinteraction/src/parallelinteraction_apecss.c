@@ -18,6 +18,7 @@
 
 #include <time.h>
 #include </usr/include/mpich-x86_64/mpi.h>
+#include <unistd.h>
 #include "apecss.h"
 
 struct APECSS_Parallel_Cluster
@@ -26,13 +27,17 @@ struct APECSS_Parallel_Cluster
   int nBubbles_local, nBubbles_global;
 
   int *bubblerank;  // max id of bubbles for each rank
+  APECSS_FLOAT *bubbleglobal_r;  // instantaneous radius of all bubbles
   APECSS_FLOAT *bubbleglobal_x, *bubbleglobal_y, *bubbleglobal_z;  // x,y,z location of all bubbles
   APECSS_FLOAT *sumGU_rank;  // Contributions from local bubbles to all bubbles
 };
 
 // Declaration of additional case-dependent functions
 APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubble[], struct APECSS_Parallel_Cluster *RankInfo);
+APECSS_FLOAT parallel_proper_cut_off_distance(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo);
+int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo);
+
+int new_apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble, int bubble_id);
 
 int main(int argc, char **args)
 {
@@ -117,7 +122,9 @@ int main(int argc, char **args)
   for (int r = 0; r < RankInfo->size; r++)
   {
     int temp = RankInfo->nBubbles_local;
+    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Bcast(&temp, 1, MPI_INT, r, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
     RankInfo->bubblerank[r + 1] = RankInfo->bubblerank[r] + temp;
     RankInfo->nBubbles_global += temp;
   }
@@ -193,7 +200,11 @@ int main(int argc, char **args)
   for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
 
   // Update interaction structure
-  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;  // Not used?
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+  {
+    Bubbles[i]->Interaction->nBubbles = nBubbles;  // Not used?
+    Bubbles[i]->Interaction->dp_neighbor = 0.0;
+  }
 
   // Define the size of each bubble
   for (register int i = 0; i < RankInfo->nBubbles_local; i++)
@@ -204,6 +215,28 @@ int main(int argc, char **args)
       Bubbles[i]->R0 = 10.0e-6;
 
     Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
+  }
+
+  // Share all initial radii
+  RankInfo->bubbleglobal_r = malloc(RankInfo->nBubbles_global * sizeof(APECSS_FLOAT));
+
+  for (int r = 0; r < RankInfo->size; r++)
+  {
+    int temp = RankInfo->nBubbles_local;
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Bcast(&temp, 1, MPI_INT, r, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    APECSS_FLOAT temp_r;
+
+    for (int i = 0; i < temp; i++)
+    {
+      if (r == RankInfo->rank) temp_r = Bubbles[i]->R0;
+      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Bcast(&temp_r, 1, MPI_DOUBLE, r, MPI_COMM_WORLD);
+      MPI_Barrier(MPI_COMM_WORLD);
+      RankInfo->bubbleglobal_r[RankInfo->bubblerank[r] + i] = temp_r;
+    }
   }
 
   // Define center location for each bubble
@@ -241,7 +274,9 @@ int main(int argc, char **args)
   for (int r = 0; r < RankInfo->size; r++)
   {
     int temp = RankInfo->nBubbles_local;
+    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Bcast(&temp, 1, MPI_INT, r, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
 
     APECSS_FLOAT temp_array[3];
 
@@ -254,13 +289,18 @@ int main(int argc, char **args)
         temp_array[2] = Bubbles[i]->Interaction->location[2];
       }
 
+      MPI_Barrier(MPI_COMM_WORLD);
       MPI_Bcast(temp_array, 3, MPI_DOUBLE, r, MPI_COMM_WORLD);
+      MPI_Barrier(MPI_COMM_WORLD);
 
       RankInfo->bubbleglobal_x[RankInfo->bubblerank[r] + i] = temp_array[0];
       RankInfo->bubbleglobal_y[RankInfo->bubblerank[r] + i] = temp_array[1];
       RankInfo->bubbleglobal_z[RankInfo->bubblerank[r] + i] = temp_array[2];
     }
   }
+
+  // Update emissions cut off distance for each bubble
+  parallel_proper_cut_off_distance(Bubbles, RankInfo);
 
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   // apecss_erroronscreen(-1, "OUT");
@@ -289,11 +329,43 @@ int main(int argc, char **args)
   {
     APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, (APECSS_FLOAT) tEnd - tSim);
     tSim += dtSim;
-    printf("%e\n", tSim);
 
-    for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
+    if (RankInfo->rank == 0) printf("%e\n", tSim);
 
-    for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
+    // for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    //   printf("Bubble %d dp_neighbor %e R %e\n", RankInfo->bubblerank[RankInfo->rank] + i, Bubbles[i]->Interaction->dp_neighbor, Bubbles[i]->R);
+
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++) new_apecss_bubble_solver_run(tSim, Bubbles[i], RankInfo->bubblerank[RankInfo->rank] + i);
+
+    // for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
+
+    // for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    //   printf("Bubble %d counts %d nodes with R=%e\n", RankInfo->bubblerank[RankInfo->rank] + i, Bubbles[i]->Emissions->nNodes, Bubbles[i]->R);
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Share instantaneous radii
+    for (int r = 0; r < RankInfo->size; r++)
+    {
+      int temp = RankInfo->nBubbles_local;
+      MPI_Barrier(MPI_COMM_WORLD);
+      MPI_Bcast(&temp, 1, MPI_INT, r, MPI_COMM_WORLD);
+      MPI_Barrier(MPI_COMM_WORLD);
+
+      APECSS_FLOAT temp_r;
+
+      for (int i = 0; i < temp; i++)
+      {
+        if (r == RankInfo->rank) temp_r = Bubbles[i]->R;
+        MPI_Barrier(MPI_COMM_WORLD);
+        MPI_Bcast(&temp_r, 1, MPI_DOUBLE, r, MPI_COMM_WORLD);
+        MPI_Barrier(MPI_COMM_WORLD);
+        RankInfo->bubbleglobal_r[RankInfo->bubblerank[r] + i] = temp_r;
+      }
+    }
+
+    // if (RankInfo->rank == 0)
+    //   for (register int i = 0; i < RankInfo->nBubbles_global; i++) printf("%d %e\n", i, RankInfo->bubbleglobal_r[i]);
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
@@ -339,13 +411,41 @@ APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, stru
   return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + Bubble->Interaction->dp_neighbor);
 }
 
+APECSS_FLOAT parallel_proper_cut_off_distance(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo)
+{
+  // Determine a proper cut off distance for the emissions
+  // For each bubble, we determine its most distant neighbor
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+  {
+    APECSS_FLOAT x_i = Bubbles[i]->Interaction->location[0];
+    APECSS_FLOAT y_i = Bubbles[i]->Interaction->location[1];
+    APECSS_FLOAT z_i = Bubbles[i]->Interaction->location[2];
+    APECSS_FLOAT dist = 0.0;
+
+    for (register int j = 0; j < RankInfo->nBubbles_global; j++)
+    {
+      APECSS_FLOAT x_j = RankInfo->bubbleglobal_x[j];
+      APECSS_FLOAT y_j = RankInfo->bubbleglobal_y[j];
+      APECSS_FLOAT z_j = RankInfo->bubbleglobal_z[j];
+
+      APECSS_FLOAT dist_ij = APECSS_SQRT(APECSS_POW2(x_i - x_j) + APECSS_POW2(y_i - y_j) + APECSS_POW2(z_i - z_j));
+
+      if (dist_ij > dist) dist = dist_ij;
+    }
+
+    if (Bubbles[i]->Emissions != NULL) Bubbles[i]->Emissions->CutOffDistance = 1.05 * dist;
+  }
+
+  return (0);
+}
+
 int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo)
 {
   // All bubbles are supposed to be in the same liquid
   struct APECSS_Liquid *Liquid = Bubbles[0]->Liquid;
 
   // Reset pressure contributions of the neighours
-  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0;
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
 
   // Locally compute the contribution to each bubble
   for (register int i = 0; i < RankInfo->nBubbles_global; i++)
@@ -359,7 +459,8 @@ int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct
 
     for (register int j = 0; j < RankInfo->nBubbles_local; j++)
     {
-      if (j != i)
+      int bubble_id = RankInfo->bubblerank[RankInfo->rank] + j;
+      if (bubble_id != i)
       {
         APECSS_FLOAT sumU_bubble = 0.0;
         APECSS_FLOAT sumG_bubble = 0.0;
@@ -371,7 +472,7 @@ int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct
 
         APECSS_FLOAT interbubble_dist = APECSS_SQRT(APECSS_POW2(x_i - x_j) + APECSS_POW2(y_i - y_j) + APECSS_POW2(z_i - z_j));
 
-        double r_b = Bubbles[i]->R;
+        double r_b = RankInfo->bubbleglobal_r[i];
 
         // The loop over the emission nodes begins with the most far away from the emitting bubble
         struct APECSS_EmissionNode *Current = Bubbles[j]->Emissions->LastNode;
@@ -394,7 +495,7 @@ int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct
           }
         }
 
-        if (nodecount_bubble)
+        if (nodecount_bubble != 0)
         {
           APECSS_FLOAT inv_nodecount = 1.0 / (APECSS_FLOAT) nodecount_bubble;
           RankInfo->sumGU_rank[i] += sumG_bubble * inv_nodecount;
@@ -404,22 +505,97 @@ int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct
     }
   }
 
-  APECSS_FLOAT *sumGU_all = malloc(2 * RankInfo->nBubbles_global * sizeof(APECSS_FLOAT));
+  APECSS_FLOAT *sumGU_all = malloc(2 * RankInfo->nBubbles_local * sizeof(APECSS_FLOAT));
   for (register int i = 0; i < 2 * RankInfo->nBubbles_local; i++) sumGU_all[i] = 0.0;
 
   // Share the contributions from each rank to all bubbles
   for (int r = 0; r < RankInfo->size; r++)
   {
     APECSS_FLOAT *temp = RankInfo->sumGU_rank;
-    MPI_Bcast(temp, 2 * RankInfo->nBubbles_global, MPI_INT, r, MPI_COMM_WORLD);
-    for (register int i = 0; i < 2 * RankInfo->nBubbles_global; i++) sumGU_all[i] += temp[i];
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Bcast(temp, 2 * RankInfo->nBubbles_global, MPI_DOUBLE, r, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++) sumGU_all[i] += temp[RankInfo->bubblerank[RankInfo->rank] + i];
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+      sumGU_all[i + RankInfo->nBubbles_local] += temp[RankInfo->nBubbles_global + RankInfo->bubblerank[RankInfo->rank] + i];
   }
 
   // Compute the total pressure contributions of the neighbours for all local bubbles
   for (register int i = 0; i < RankInfo->nBubbles_local; i++)
-    Bubbles[i]->Interaction->dp_neighbor = Liquid->rhoref * (sumGU_all[i] - 0.5 * APECSS_POW2(sumGU_all[RankInfo->nBubbles_global]));
+  {
+    Bubbles[i]->Interaction->dp_neighbor = Liquid->rhoref * (sumGU_all[i] - 0.5 * APECSS_POW2(sumGU_all[RankInfo->nBubbles_local + i]));
+    // printf("%d %e\n", RankInfo->bubblerank[RankInfo->rank] + i, Bubbles[i]->Interaction->dp_neighbor);
+  }
 
   free(sumGU_all);
+
+  return (0);
+}
+
+int new_apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble, int bubble_id)
+{
+  while (Bubble->t < tend - 0.01 * Bubble->NumericsODE->dtMin)
+  {
+    // Store the previous solution for sub-iterations
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSolOld[i] = Bubble->ODEsSol[i];
+
+    if (bubble_id == 1) printf("t=%e R=%e U=%e p_infty=%e\n", Bubble->t, Bubble->R, Bubble->U, Bubble->get_pressure_infinity(Bubble->t, Bubble));
+
+    if (isnan(Bubble->R))
+    {
+      printf("Pause because of bubble %d at t=%e", bubble_id, Bubble->t);
+      pause();
+    }
+
+    // Check what comes next: the end of the solver run or, if applicable, a time instance to output the emissions
+    APECSS_FLOAT next_event_time = Bubble->results_emissionstime_check(tend, Bubble);
+
+    // Set the time-step for the ODEs
+    apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+
+    // Solve the ODEs
+    Bubble->err = apecss_odesolver(Bubble);
+
+    // Perform sub-iterations on the control of the time-step when err > tol
+    register int subiter = 0;
+    while ((Bubble->err > Bubble->NumericsODE->tol) && (subiter < Bubble->NumericsODE->maxSubIter))
+    {
+      ++subiter;
+      // Rewind the solution
+      for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = Bubble->ODEsSolOld[i];
+      // Set the time-step for the ODEs
+      apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+      // Solve the ODEs again
+      Bubble->err = apecss_odesolver(Bubble);
+    }
+    Bubble->nSubIter += subiter;
+
+    // Set new values
+    ++(Bubble->dtNumber);
+    Bubble->t += Bubble->dt;
+    Bubble->U = Bubble->ODEsSol[0];
+    Bubble->R = Bubble->ODEsSol[1];
+
+    // Update allocation of the results (if necessary)
+    Bubble->results_emissionsnodeminmax_identify(Bubble);
+    Bubble->results_emissionsnode_alloc(Bubble);
+
+    // Acoustic emissions (if applicable)
+    Bubble->emissions_update(Bubble);
+
+    // Store results (if applicable)
+    Bubble->results_rayleighplesset_store(Bubble);
+    Bubble->results_emissionsspace_store(Bubble);
+
+    // Write one-off results (if applicable)
+    Bubble->results_emissionstime_write(Bubble);
+
+    // Update the last-step solution of the RK54 scheme
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->kLast[i] = Bubble->k7[i];
+
+    // Update progress screen in the terminal (if applicable)
+    Bubble->progress_update(&(*Bubble).progress, Bubble->t - Bubble->tStart, Bubble->tEnd - Bubble->tStart);
+  }
 
   return (0);
 }

@@ -35,4 +35,6 @@ END
 
 ODESOLVER
 tolerance 1.0e-10
+MinTimeStep 1.0e-14
+MaxTimeStep 1.0e-05
 END

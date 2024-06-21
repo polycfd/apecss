@@ -169,7 +169,11 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
 
   // Update interaction structure
-  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
+  for (register int i = 0; i < nBubbles; i++)
+  {
+    Bubbles[i]->Interaction->nBubbles = nBubbles;
+    Bubbles[i]->Interaction->dp_neighbor = 0.0;
+  }
 
   // Define the size of each bubble
   for (register int i = 0; i < nBubbles; i++)
