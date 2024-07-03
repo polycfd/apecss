@@ -21,6 +21,7 @@
 
 // Declaration of additional case-dependent functions
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
 // Declaration of the structure holding the interaction variables of each bubble
 struct Interaction
@@ -164,6 +165,7 @@ int main(int argc, char **args)
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Use the revised pressure at infinity, including neighbor contributions
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->get_pressure_infinity = interaction_bubble_pressure_infinity;
+  for (register int i = 0; i < nBubbles; i++) Bubbles[i]->get_pressurederivative_infinity = interaction_bubble_pressurederivative_infinity;
 
   // Initialize interaction structure
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
@@ -173,6 +175,8 @@ int main(int argc, char **args)
   {
     Bubbles[i]->Interaction->nBubbles = nBubbles;
     Bubbles[i]->Interaction->dp_neighbor = 0.0;
+    Bubbles[i]->Interaction->last_t = 0.0;
+    Bubbles[i]->Interaction->last_pinfinity = Bubbles[i]->p0;
   }
 
   // Define the size of each bubble
@@ -233,8 +237,13 @@ int main(int argc, char **args)
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
     apecss_interactions_instantaneous(Bubbles);
-
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      Bubbles[i]->Interaction->last_t = Bubbles[i]->t;
+      Bubbles[i]->Interaction->last_pinfinity = Bubbles[i]->get_pressure_infinity(Bubbles[i]->t, Bubbles[i]);
+    }
   }
 
   /* Finalize the simulation*/
@@ -267,4 +276,18 @@ int main(int argc, char **args)
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + Bubble->Interaction->dp_neighbor);
+}
+
+APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
+{
+  // Approximate numerical computation of p_infinity
+  APECSS_FLOAT delta_t = t - Bubble->Interaction->last_t;
+  if (delta_t == 0)
+  {
+    return 0.0;
+  }
+  else
+  {
+    return (Bubble->get_pressure_infinity(t, Bubble) - Bubble->Interaction->last_pinfinity) / delta_t;
+  }
 }

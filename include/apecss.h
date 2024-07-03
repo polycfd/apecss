@@ -316,6 +316,8 @@ struct APECSS_Interaction
   int nBubbles;  // Number of bubbles in the whole cluster considered
   APECSS_FLOAT location[3];  // 3D coordinates of the considered bubble
   APECSS_FLOAT dp_neighbor;  // Pressure induced by interactions with neighboring bubbles
+  APECSS_FLOAT last_t;  // Previous timestep when interaction where considered
+  APECSS_FLOAT last_pinfinity;  // Pressure in the liquid at the bubble wall during the previous timestep where interactions where considered
 };
 
 struct APECSS_ResultsBubble
