@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 project (parallelinteraction_apecss)
-set(CMAKE_C_COMPILER /usr/lib64/mpich/bin/mpicc)
+set(CMAKE_C_COMPILER mpicc)
 
 include_directories($ENV{APECSS_DIR}/include)
 FILE (GLOB_RECURSE myfiles ABSOLUTE ../src/*.c)

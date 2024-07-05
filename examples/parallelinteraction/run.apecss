@@ -11,7 +11,7 @@ PressureAmbient 1.0e5
 END
 
 GAS
-EoS HC
+EoS IG
 ReferencePressure 1.0e5
 ReferenceDensity 1.2
 PolytropicExponent 1.4
@@ -35,6 +35,4 @@ END
 
 ODESOLVER
 tolerance 1.0e-10
-MinTimeStep 1.0e-14
-MaxTimeStep 1.0e-05
 END
