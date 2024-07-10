@@ -316,8 +316,10 @@ struct APECSS_Interaction
   int nBubbles;  // Number of bubbles in the whole cluster considered
   APECSS_FLOAT location[3];  // 3D coordinates of the considered bubble
   APECSS_FLOAT dp_neighbor;  // Pressure induced by interactions with neighboring bubbles
-  APECSS_FLOAT last_t;  // Previous timestep when interaction where considered
-  APECSS_FLOAT last_pinfinity;  // Pressure in the liquid at the bubble wall during the previous timestep where interactions where considered
+  APECSS_FLOAT last_t_1;  // Previous timestep when interaction where considered
+  APECSS_FLOAT last_t_2;  // Previous timestep when interaction where considered before last_t_1
+  APECSS_FLOAT last_p_1;  // Pressure induced by neighboring bubbles or total pressure in the far field at last_t_1
+  APECSS_FLOAT last_p_2;  // Pressure induced by neighboring bubbles or total pressure in the far field at last_t_2
 };
 
 struct APECSS_ResultsBubble
@@ -595,6 +597,7 @@ APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantimpl(APECSS_F
 
 int apecss_interactions_instantaneous(struct APECSS_Bubble *Bubbles[]);
 int apecss_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[]);
+int apecss_interactions_cutoffdistance(struct APECSS_Bubble *Bubbles[]);
 
 // ---------------------
 // liquid.c
