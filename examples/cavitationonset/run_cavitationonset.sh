@@ -45,7 +45,7 @@ cd IC/build
 cd ..
 
 ######### Cavitation inception with interactions with varying distance between 2 bubbles ##########
-dist_list=(10 11 12 12.05 12.1 15 20)
+dist_list=(10 11 12 12.05 12.1 12.5 15 20)
 for d in "${dist_list[@]}"
 do
     ./build/cavitationonset_apecss -options run.apecss -amp -25325 -tend 60.0e-6 -nbb 2 -cldistrib 0 -clsize $d -inttype 1
@@ -81,7 +81,7 @@ cd QA/build
 cd ..
 
 ######### Cavitation inception with interactions with varying distance between 2 bubbles ##########
-dist_list=(10 11 12 12.05 12.1 15 20)
+dist_list=(10 11.9 12 15 20)
 for d in "${dist_list[@]}"
 do
     ./build/cavitationonset_apecss -options run.apecss -amp -25325 -tend 60.0e-6 -nbb 2 -cldistrib 0 -clsize $d -inttype 2 -dt_inter 1.0e-09
@@ -89,7 +89,7 @@ do
 done
 
 ######### Cavitation inception with interactions with varying pressure between 2 bubbles ##########
-png_list=(-25325 -26338 -26793.85 -26844.5 -27097.75 -27351 -27958.8 -29377)
+png_list=(-25325 -27351 -27958.8 -27654.9 -29377)
 for png in "${png_list[@]}"
 do
     ./build/cavitationonset_apecss -options run.apecss -amp $png -tend 60.0e-6 -nbb 2 -cldistrib 0 -clsize 10 -inttype 2 -dt_inter 1.0e-09
@@ -109,6 +109,10 @@ cd ..
 echo ""
 echo "Quasi acoustic test cases passed"
 echo ""
+
+######### Plotting results ##########################################################################################################################
+
+python3 plot_results.py
 
 ######### Cleaning ##################################################################################################################################
 
