@@ -44,7 +44,7 @@ int main(int argc, char **args)
   double fa = 0.0;
   double pa = 0.0;
   int cluster_distrib = 0;
-  int cluster_size = 0;
+  double cluster_size = 0;
   int inttype = 0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -87,7 +87,7 @@ int main(int argc, char **args)
     }
     else if (strcmp("-clsize", args[j]) == 0)
     {
-      sscanf(args[j + 1], "%d", &cluster_size);
+      sscanf(args[j + 1], "%le", &cluster_size);
       j += 2;
     }
     else if (strcmp("-inttype", args[j]) == 0)
@@ -344,7 +344,7 @@ int main(int argc, char **args)
   // File to retrieve all valuable information for cavitation onset test case
   FILE *file_ida2009;
   file_ida2009 = fopen("Ida2009_results.txt", "w");
-  fprintf(file_ida2009, "%d Bubbles p0(pa) %e png(Pa) %e D_multiplier(-) %d cl_distrib %d Interaction-type %d\n", nBubbles, Liquid->pref, pa, cluster_size,
+  fprintf(file_ida2009, "%d Bubbles p0(pa) %e png(Pa) %e D_multiplier(-) %e cl_distrib %d Interaction-type %d\n", nBubbles, Liquid->pref, pa, cluster_size,
           cluster_distrib, inttype);
   fprintf(file_ida2009, "Initial_radii(m)");
   for (register int i = 0; i < nBubbles; i++) fprintf(file_ida2009, " %e", Bubbles[i]->R0);
