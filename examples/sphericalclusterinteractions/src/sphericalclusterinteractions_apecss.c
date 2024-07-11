@@ -311,6 +311,19 @@ int main(int argc, char **args)
   // Update cut off distance for each bubble
   parallel_interactions_proper_cutoffdistance(Bubbles, RankInfo);
 
+  // File to retrieve the locations of bubble centers
+  if (RankInfo->rank == 0)
+  {
+    FILE *file_loc;
+    file_loc = fopen("bubble_loc.txt", "w");
+    fprintf(file_loc, "#number x(m) y(m) z(m)\n");
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      fprintf(file_loc, "%d %e %e %e\n", i, Bubble_Center[i][0], Bubble_Center[i][1], Bubble_Center[i][2]);
+    }
+    fclose(file_loc);
+  }
+
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   clock_t starttimebubble = clock();

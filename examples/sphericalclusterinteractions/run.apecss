@@ -30,7 +30,6 @@ END
 
 RESULTS
 Bubble
-OutputFreqRP 5
 END
 
 ODESOLVER
