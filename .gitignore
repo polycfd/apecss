@@ -79,3 +79,8 @@ dkms.conf
 CMakeCache.txt
 CMakeFiles/
 Makefile
+
+# Results
+*.txt
+*.pdf
+*.png
