@@ -175,8 +175,10 @@ int main(int argc, char **args)
   {
     Bubbles[i]->Interaction->nBubbles = nBubbles;
     Bubbles[i]->Interaction->dp_neighbor = 0.0;
-    Bubbles[i]->Interaction->last_t = 0.0;
-    Bubbles[i]->Interaction->last_pinfinity = Bubbles[i]->p0;
+    Bubbles[i]->Interaction->last_t_1 = 0.0;
+    Bubbles[i]->Interaction->last_t_2 = 0.0;
+    Bubbles[i]->Interaction->last_p_1 = 0.0;
+    Bubbles[i]->Interaction->last_p_2 = 0.0;
   }
 
   // Define the size of each bubble
@@ -232,7 +234,7 @@ int main(int argc, char **args)
 
     for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
-    for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
+    // for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
@@ -241,8 +243,11 @@ int main(int argc, char **args)
 
     for (register int i = 0; i < nBubbles; i++)
     {
-      Bubbles[i]->Interaction->last_t = Bubbles[i]->t;
-      Bubbles[i]->Interaction->last_pinfinity = Bubbles[i]->get_pressure_infinity(Bubbles[i]->t, Bubbles[i]);
+      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
+      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
+
+      Bubbles[i]->Interaction->last_t_1 = tSim;
+      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
     }
   }
 
@@ -280,14 +285,15 @@ APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_
 
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  // Approximate numerical computation of p_infinity
-  APECSS_FLOAT delta_t = t - Bubble->Interaction->last_t;
-  if (delta_t == 0)
+  // Approximate numerical computation of p_infinity derivative
+  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
+  APECSS_FLOAT derivative = -Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * t);
+  if (delta_t > Bubble->dt)
   {
-    return 0.0;
+    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) / (Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2)));
   }
   else
   {
-    return (Bubble->get_pressure_infinity(t, Bubble) - Bubble->Interaction->last_pinfinity) / delta_t;
+    return (derivative);
   }
 }
