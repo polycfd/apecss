@@ -6,7 +6,7 @@ file = open("Ida2009_results.txt", "r")
 lines = file.readlines()
 file.close()
 
-count = float(lines[0].split(" ")[0])
+count = int(lines[0].split(" ")[0])
 png = float(lines[0].split(" ")[5])
 cl_size = int(lines[0].split(" ")[7])
 cl_distrib = int(lines[0].split(" ")[9])

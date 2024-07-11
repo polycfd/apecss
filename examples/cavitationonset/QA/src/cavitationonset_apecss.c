@@ -453,16 +453,16 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
     APECSS_FLOAT inv_T = 1 / T;
     derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
   }
-  return (derivative);
+  // return (derivative);
 
-  // APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
-  // if (delta_t > Bubble->dt)
-  // {
-  //   APECSS_FLOAT inv_delta_t = 1 / delta_t;
-  //   return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
-  // }
-  // else
-  // {
-  //   return (derivative);
-  // }
+  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
+  if (delta_t > Bubble->dt)
+  {
+    APECSS_FLOAT inv_delta_t = 1 / delta_t;
+    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
+  }
+  else
+  {
+    return (derivative);
+  }
 }

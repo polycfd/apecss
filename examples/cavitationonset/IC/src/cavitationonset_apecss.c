@@ -95,6 +95,11 @@ int main(int argc, char **args)
       sscanf(args[j + 1], "%d", &inttype);
       j += 2;
     }
+    else if (strcmp("-dt_inter", args[j]) == 0)
+    {
+      sscanf(args[j + 1], "%le", &dt_interbubble);
+      j += 2;
+    }
     else if (strcmp("-h", args[j]) == 0)
     {
       apecss_helpscreen();
@@ -107,6 +112,7 @@ int main(int argc, char **args)
       ++j;
     }
   }
+  dt_interbubble = (APECSS_FLOAT) dt_interbubble;
 
   /* Allocate and initialize Bubble structure */
   struct APECSS_Bubble *Bubbles[nBubbles];
@@ -334,18 +340,34 @@ int main(int argc, char **args)
   /* Initialize */
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_initialize(Bubbles[i]);
 
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // File to retrieve all valuable information for cavitation onset test case
+  FILE *file_ida2009;
+  file_ida2009 = fopen("Ida2009_results.txt", "w");
+  fprintf(file_ida2009, "%d Bubbles p0(pa) %e png(Pa) %e D_multiplier(-) %d cl_distrib %d Interaction-type %d\n", nBubbles, Liquid->pref, pa, cluster_size,
+          cluster_distrib, inttype);
+  fprintf(file_ida2009, "Initial_radii(m)");
+  for (register int i = 0; i < nBubbles; i++) fprintf(file_ida2009, " %e", Bubbles[i]->R0);
+  fprintf(file_ida2009, "\n");
+  fprintf(file_ida2009, "#Time(s) R(m) Pt(Pa)\n");
+  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   /* Solve the bubble dynamics */
   while (tSim < (APECSS_FLOAT) tEnd)  // Interaction loop, corresponding to the time-intervals at which interactions are considered
   {
     APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, (APECSS_FLOAT) tEnd - tSim);
     tSim += dtSim;
 
+    // printf("%e", tSim);
+    // printf(" %e", Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]));
     for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
-    for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
+    // for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
 
+    // printf(" %e", Bubbles[0]->R);
+    // printf(" %e", Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]));
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // Update the contribution of the neighbor bubble
+    // Update the contribution of the neighbor bubbles
     if (inttype == 1)
     {
       apecss_interactions_instantaneous(Bubbles);
@@ -355,15 +377,41 @@ int main(int argc, char **args)
       apecss_interactions_quasi_acoustic(Bubbles);
     }
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // for (register int i = 0; i < nBubbles; i++)
+    // {
+    //   printf(" %e", Bubbles[i]->get_pressure_infinity(tSim, Bubbles[i]));
+    // }
+    // printf(" %e", Bubbles[0]->get_pressure_infinity(Bubbles[0]->t, Bubbles[0]));
+    // printf(" %e", Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]));
+    // printf("\n");
 
-    int index = 1;
-    APECSS_FLOAT derivative = (Bubbles[index]->Interaction->last_p_1 - Bubbles[index]->Interaction->last_p_2) /
-                              (Bubbles[index]->Interaction->last_t_1 - Bubbles[index]->Interaction->last_t_2);
-    printf("%e Bubble %d R %e U %e A %e t_1 %e t_2 %e inv_t %e p_1 %e p_2 %e diff_p %e derivative %e\n", tSim, index, Bubbles[index]->R, Bubbles[index]->U,
-           Bubbles[index]->ode[0](Bubbles[index]->ODEsSol, Bubbles[index]->t, Bubbles[index]), Bubbles[index]->Interaction->last_t_1,
-           Bubbles[index]->Interaction->last_t_2, 1 / (Bubbles[index]->Interaction->last_t_1 - Bubbles[index]->Interaction->last_t_2),
-           Bubbles[index]->Interaction->last_p_1, Bubbles[index]->Interaction->last_p_2,
-           (Bubbles[index]->Interaction->last_p_1 - Bubbles[index]->Interaction->last_p_2), derivative);
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Retrieve data
+    fprintf(file_ida2009, "%e", tSim);
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      fprintf(file_ida2009, " %e", Bubbles[i]->R);
+    }
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      fprintf(file_ida2009, " %e", Bubbles[i]->get_pressure_infinity(tSim, Bubbles[i]));
+    }
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      fprintf(file_ida2009, " %e", Bubbles[i]->ode[0](Bubbles[i]->ODEsSol, Bubbles[i]->t, Bubbles[i]));
+    }
+    fprintf(file_ida2009, "\n");
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // int index = 0;
+    // // APECSS_FLOAT derivative = (Bubbles[index]->Interaction->last_p_1 - Bubbles[index]->Interaction->last_p_2) /
+    // // (Bubbles[index]->Interaction->last_t_1 - Bubbles[index]->Interaction->last_t_2);
+    // printf("%e Bubble %d R %e U %e A %e t_1 %e t_2 %e inv_t %e p_1 %e p_2 %e diff_p %e derivative %e pinfty %e\n", tSim, index, Bubbles[index]->R,
+    //        Bubbles[index]->U, Bubbles[index]->ode[0](Bubbles[index]->ODEsSol, Bubbles[index]->t, Bubbles[index]), Bubbles[index]->Interaction->last_t_1,
+    //        Bubbles[index]->Interaction->last_t_2, 1 / (Bubbles[index]->Interaction->last_t_1 - Bubbles[index]->Interaction->last_t_2),
+    //        Bubbles[index]->Interaction->last_p_1, Bubbles[index]->Interaction->last_p_2,
+    //        (Bubbles[index]->Interaction->last_p_1 - Bubbles[index]->Interaction->last_p_2),
+    //        Bubbles[index]->get_pressurederivative_infinity(tSim, Bubbles[index]), Bubbles[index]->get_pressure_infinity(tSim, Bubbles[index]));
 
     for (register int i = 0; i < nBubbles; i++)
     {
@@ -374,6 +422,8 @@ int main(int argc, char **args)
       Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
     }
   }
+
+  fclose(file_ida2009);
 
   /* Finalize the simulation*/
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_finalize(Bubbles[i]);
@@ -430,6 +480,7 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
     APECSS_FLOAT inv_T = 1 / T;
     derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
   }
+  return (derivative);
 
   APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
   if (delta_t > Bubble->dt)
