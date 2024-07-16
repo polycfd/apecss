@@ -32,6 +32,7 @@ struct APECSS_Parallel_Cluster
 
 // Declaration of additional case-dependent functions
 APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubble[], struct APECSS_Parallel_Cluster *RankInfo);
 
 int main(int argc, char **args)
@@ -188,12 +189,18 @@ int main(int argc, char **args)
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Use the revised pressure at infinity, including neighbor contributions
   for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->get_pressure_infinity = parallel_interactions_bubble_pressure_infinity;
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    Bubbles[i]->get_pressurederivative_infinity = parallel_interactions_bubble_pressurederivative_infinity;
 
   // Allocate interaction structure
   for (register int i = 0; i < RankInfo->nBubbles_local; i++)
   {
     Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
     Bubbles[i]->Interaction->dp_neighbor = 0.0;
+    Bubbles[i]->Interaction->last_t_1 = 0.0;
+    Bubbles[i]->Interaction->last_t_2 = 0.0;
+    Bubbles[i]->Interaction->last_p_1 = 0.0;
+    Bubbles[i]->Interaction->last_p_2 = 0.0;
   }
 
   // Update interaction structure
@@ -304,6 +311,15 @@ int main(int argc, char **args)
     // Update the contribution of the neighbor bubble
     parallel_interactions_quasi_acoustic(Bubbles, RankInfo);
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    {
+      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
+      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
+
+      Bubbles[i]->Interaction->last_t_1 = tSim;
+      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
+    }
   }
 
   /* Finalize the simulation*/
@@ -352,6 +368,20 @@ int main(int argc, char **args)
 APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + Bubble->Interaction->dp_neighbor);
+}
+
+APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
+{
+  APECSS_FLOAT derivative = -2.0 * APECSS_PI * Bubble->Excitation->f * Bubble->Excitation->dp * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * t);
+  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
+  if (delta_t > Bubble->dt)
+  {
+    return (derivative + (Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) / delta_t);
+  }
+  else
+  {
+    return (derivative);
+  }
 }
 
 int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo)
