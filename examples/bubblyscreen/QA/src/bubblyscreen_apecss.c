@@ -35,6 +35,10 @@ APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, stru
 APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubble[], struct APECSS_Parallel_Cluster *RankInfo);
 int parallel_interactions_proper_cutoffdistance(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo);
+int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble);
+
+APECSS_FLOAT maxR;
+APECSS_FLOAT minR;
 
 int main(int argc, char **args)
 {
@@ -109,9 +113,8 @@ int main(int argc, char **args)
   /* Determine the number of bubbles per rank */
   int max_per_rank = ceil((double) nBubbles / (double) mpi_size);
   RankInfo->nBubbles_local = APECSS_MAX(0, APECSS_MIN(max_per_rank, nBubbles - mpi_rank * max_per_rank));
-  // printf("[%i] %i\n", mpi_rank, RankInfo->nBubbles_local);
-  /* Share the parallel distribution of bubbles with all ranks */
 
+  /* Share the parallel distribution of bubbles with all ranks */
   RankInfo->bubblerank = malloc((RankInfo->size + 1) * sizeof(int));
 
   RankInfo->nBubbles_global = 0;
@@ -210,7 +213,7 @@ int main(int argc, char **args)
   // Define the size of each bubble
   for (register int i = 0; i < RankInfo->nBubbles_local; i++)
   {
-    Bubbles[i]->R0 = 10.0e-6;
+    Bubbles[i]->R0 = 1.0e-6;
     Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
   }
 
@@ -225,8 +228,8 @@ int main(int argc, char **args)
 
   for (register int n = 0; n < RankInfo->nBubbles_local; n++)
   {
-    Bubbles[n]->Interaction->location[0] = ((APECSS_FLOAT) ri) * bubble_bubble_dist;
-    Bubbles[n]->Interaction->location[1] = ((APECSS_FLOAT) rj) * bubble_bubble_dist;
+    Bubbles[n]->Interaction->location[0] = ((APECSS_FLOAT) ri) * bubble_bubble_dist - (0.5 * (nBubbles_x - 1)) * bubble_bubble_dist;
+    Bubbles[n]->Interaction->location[1] = ((APECSS_FLOAT) rj) * bubble_bubble_dist - (0.5 * (nBubbles_x - 1)) * bubble_bubble_dist;
     Bubbles[n]->Interaction->location[2] = 0.0;
 
     if (ri < nBubbles_x - 1)
@@ -297,6 +300,38 @@ int main(int argc, char **args)
   // Allocate the pressure contribution array
   RankInfo->sumGU_rank = malloc(2 * RankInfo->nBubbles_global * sizeof(APECSS_FLOAT));
 
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // Lists to gather maximum and minimum radius achieved by each bubble in steady state
+  APECSS_FLOAT max_radii[RankInfo->nBubbles_local];
+  APECSS_FLOAT min_radii[RankInfo->nBubbles_local];
+
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+  {
+    max_radii[i] = Bubbles[i]->R;
+    min_radii[i] = Bubbles[i]->R;
+  }
+
+  // File to retrieve the maximum and minimum radius evolution achieved in steady state
+  FILE *file_extremum;
+  char file_name[APECSS_STRINGLENGTH_SPRINTF_LONG];
+  sprintf(file_name, "bubblyscreen_extremum_%d.txt", RankInfo->rank);
+  file_extremum = fopen(file_name, "w");
+
+  APECSS_FLOAT p0 = Bubbles[0]->p0;
+  APECSS_FLOAT poly = Gas->Gamma;
+  APECSS_FLOAT rho = Liquid->rhoref;
+  APECSS_FLOAT w0 = APECSS_SQRT((3 * poly * p0) / (APECSS_POW2(Bubbles[0]->R0) * rho));
+
+  fprintf(file_extremum, "w0(rad/s) %e f(Hz) %e p(Pa) %e D/R0 %e\n", w0, fa, pa, bubble_bubble_dist / Bubbles[0]->R0);
+  fprintf(file_extremum, "label x(m) y(m) z(m) R0(m) Rmin(m) Rmax(m)\n");
+
+  // File to retrieve the radius evolution during computation
+  FILE *file_radii;
+  file_radii = fopen("bubblyscreen_radii.txt", "w");
+  fprintf(file_radii, "w0(rad/s) %e f(Hz) %e p(Pa) %e D/R0 %e\n", w0, fa, pa, bubble_bubble_dist / Bubbles[0]->R0);
+  fprintf(file_radii, "t(s) R(m)\n");
+  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   /* Solve the bubble dynamics */
   while (tSim < (APECSS_FLOAT) tEnd)  // Interaction loop, corresponding to the time-intervals at which interactions are considered
   {
@@ -304,16 +339,41 @@ int main(int argc, char **args)
     tSim += dtSim;
 
     // See progress during computation
-    printf("%e\n", tSim);
+    if (RankInfo->rank == 0)
+    {
+      printf("D:%le, f:%le, time:%e\n", bubble_bubble_dist, fa, tSim);
+    }
 
-    for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    {
+      maxR = 0.0;
+      minR = Bubbles[i]->R0;
+      apecss_bubble_new_solver_run(tSim, tEnd, Bubbles[i]);
 
-    for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
+      if (maxR > max_radii[i])
+      {
+        max_radii[i] = maxR;
+      }
+      if (minR < min_radii[i])
+      {
+        min_radii[i] = minR;
+      }
+    }
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
     parallel_interactions_quasi_acoustic(Bubbles, RankInfo);
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    if (RankInfo->rank == 0)
+    {
+      fprintf(file_radii, "%e", tSim);
+      for (register int i = 0; i < RankInfo->nBubbles_global; i++)
+      {
+        fprintf(file_radii, " %e", RankInfo->bubbleglobal_R[i]);
+      }
+      fprintf(file_radii, "\n");
+    }
 
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
     {
@@ -324,6 +384,16 @@ int main(int argc, char **args)
       Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
     }
   }
+
+  /* Complete results file */
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+  {
+    fprintf(file_extremum, "%d %e %e %e %e %e %e\n", RankInfo->bubblerank[RankInfo->rank] + i, Bubbles[i]->Interaction->location[0],
+            Bubbles[i]->Interaction->location[1], Bubbles[i]->Interaction->location[2], Bubbles[i]->R0, min_radii[i], max_radii[i]);
+  }
+  fclose(file_extremum);
+
+  fclose(file_radii);
 
   /* Finalize the simulation*/
   for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_finalize(Bubbles[i]);
@@ -400,7 +470,7 @@ int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[], struct
   free(tempR);
 
   // Reset pressure contributions of the neighours
-  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0;
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
 
   // Locally compute the contribution to each bubble
   for (register int j = 0; j < RankInfo->nBubbles_global; j++)
@@ -503,5 +573,75 @@ int parallel_interactions_proper_cutoffdistance(struct APECSS_Bubble *Bubbles[],
     }
     if (Bubbles[i]->Emissions != NULL) Bubbles[i]->Emissions->CutOffDistance = 1.25 * dist;
   }
+  return (0);
+}
+
+int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble)
+{
+  while (Bubble->t < tend - 0.01 * Bubble->NumericsODE->dtMin)
+  {
+    // Store the previous solution for sub-iterations
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSolOld[i] = Bubble->ODEsSol[i];
+
+    // Check what comes next: the end of the solver run or, if applicable, a time instance to output the emissions
+    APECSS_FLOAT next_event_time = Bubble->results_emissionstime_check(tend, Bubble);
+
+    // Set the time-step for the ODEs
+    apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+
+    // Solve the ODEs
+    Bubble->err = apecss_odesolver(Bubble);
+
+    // Perform sub-iterations on the control of the time-step when err > tol
+    register int subiter = 0;
+    while ((Bubble->err > Bubble->NumericsODE->tol) && (subiter < Bubble->NumericsODE->maxSubIter))
+    {
+      ++subiter;
+      // Rewind the solution
+      for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = Bubble->ODEsSolOld[i];
+      // Set the time-step for the ODEs
+      apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+      // Solve the ODEs again
+      Bubble->err = apecss_odesolver(Bubble);
+    }
+    Bubble->nSubIter += subiter;
+
+    // Set new values
+    ++(Bubble->dtNumber);
+    Bubble->t += Bubble->dt;
+    Bubble->U = Bubble->ODEsSol[0];
+    Bubble->R = Bubble->ODEsSol[1];
+
+    // Retrieve data to compute radius oscillation amplitude during
+    if (Bubble->t > tEnd - 10.0 / Bubble->Excitation->f)
+    {
+      maxR = APECSS_MAX(maxR, Bubble->R);
+    }
+    if (Bubble->t > tEnd - 10.0 / Bubble->Excitation->f)
+    {
+      minR = APECSS_MIN(minR, Bubble->R);
+    }
+
+    // Update allocation of the results (if necessary)
+    Bubble->results_emissionsnodeminmax_identify(Bubble);
+    Bubble->results_emissionsnode_alloc(Bubble);
+
+    // Acoustic emissions (if applicable)
+    Bubble->emissions_update(Bubble);
+
+    // Store results (if applicable)
+    Bubble->results_rayleighplesset_store(Bubble);
+    Bubble->results_emissionsspace_store(Bubble);
+
+    // Write one-off results (if applicable)
+    Bubble->results_emissionstime_write(Bubble);
+
+    // Update the last-step solution of the RK54 scheme
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->kLast[i] = Bubble->k7[i];
+
+    // Update progress screen in the terminal (if applicable)
+    Bubble->progress_update(&(*Bubble).progress, Bubble->t - Bubble->tStart, Bubble->tEnd - Bubble->tStart);
+  }
+
   return (0);
 }
