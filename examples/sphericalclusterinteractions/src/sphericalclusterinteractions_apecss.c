@@ -58,7 +58,7 @@ int main(int argc, char **args)
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Set the case-dependent simulation parameters
-  const int nBubbles = 1500;  // Number of bubbles
+  const int nBubbles = 2500;  // Number of bubbles
   APECSS_FLOAT bubble_bubble_dist = 100.0e-6;  // Bubble-bubble minimal distance
   APECSS_FLOAT cluster_radius = 2.5e-3;  // Spherical cluster radius
 
