@@ -42,8 +42,8 @@ Bubbles_loc = []
 R_c = 0
 for i in range(count):
     line = loc_lines[i+1].split(" ")
-    Bubbles_loc.append([float(line[0]), float(line[1]), float(line[2])])
-    R_b = sqrt((float(line[0])**2)+ (float(line[1])**2)+ (float(line[2])**2))
+    Bubbles_loc.append([float(line[1]), float(line[2]), float(line[3])])
+    R_b = sqrt((float(line[1])**2)+ (float(line[2])**2)+ (float(line[3])**2))
     if R_c < R_b :
         R_c = R_b
 
@@ -290,16 +290,14 @@ for i in range(count) :
     if radius_to_center > max_radius_to_center :
         max_radius_to_center = radius_to_center
 
-print(dic_radii)
-
 dic_color_key = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_style_key = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
 
 fig = plt.figure(figsize=(20*cm, 15*cm))
 ax = fig.add_subplot(1, 1, 1)
-ax.set_xlabel(r"$t^{*}$")
-ax.set_ylabel(r"$<R>/R_{0}$")
-ax.set_title("Spherical cluster with " + r"$N=$" + "{} bubbles".format(count))
+ax.set_xlabel(r"$t^{*}$", fontsize=15)
+ax.set_ylabel(r"$<R>/R_{0}$", fontsize=15)
+ax.set_title("Spherical cluster with " + r"$N=$" + "{} bubbles".format(count), fontsize=15)
 ax.grid()
 
 dic_radius_evolution = {1.0 : [], 0.5 : [], 0.0 : []}
@@ -317,6 +315,15 @@ for k in list(dic_radii.keys()) :
             dic_radius_evolution[k].append(np.array(t_uni))
     dic_radius_evolution[k].append(avg_radii / len(index_list))
 
+label_edge_front = 0
+label_edge_back = 0
+
+for index in dic_radii[1.0] :
+    if -cluster_radius < Bubbles_loc[index][0] < -cluster_radius + interval_size :
+        label_edge_front = index
+    elif cluster_radius - interval_size < Bubbles_loc[index][0] < cluster_radius :
+        label_edge_back = index
+
 
 # for k in list(dic_radii.keys()) :
 #     index_list = dic_radii[k]
@@ -327,8 +334,11 @@ for k in list(dic_radii.keys()) :
 #     else :
 #         for i in index_list :
 #             ax.plot(Bubbles[i][:, 1]*fa, Bubbles[i][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
-    
-for k in list(dic_radius_evolution.keys()) :
+
+ax.plot(Bubbles[label_edge_front][:, 1]*fa, Bubbles[label_edge_front][:, 3]/Bubbles[label_edge_front][:, 3][0], linestyle="solid", color="black", linewidth=1.5, label=r"$r/R_{c} \approx 1.0$ (front)")
+ax.plot(Bubbles[label_edge_back][:, 1]*fa, Bubbles[label_edge_back][:, 3]/Bubbles[label_edge_back][:, 3][0], linestyle="solid", color="grey", linewidth=1.5, label=r"$r/R_{c} \approx 1.0$ (back)") 
+
+for k in list(dic_radius_evolution.keys())[1:] :
     ax.plot(dic_radius_evolution[k][0]*fa, dic_radius_evolution[k][1]/dic_radius_evolution[k][1][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
 
 ax.legend(loc="upper right")
@@ -347,16 +357,16 @@ ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
-t_star = 0.8
+t_star = 0.75
 ax = fig.add_subplot(1, 4, 2, projection='3d')
 plot_cluster(ax, Bubbles, Bubbles_loc, t=t_star/fa, figtitle="", grid="False", radius_vis="False")
 ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
 t_star = 1.0
 ax = fig.add_subplot(1, 4, 3, projection='3d')
@@ -365,16 +375,16 @@ ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
-t_star = 1.2
+t_star = 1.25
 ax = fig.add_subplot(1, 4, 4, projection='3d')
 plot_cluster(ax, Bubbles, Bubbles_loc, t=t_star/fa, figtitle="", grid="False", radius_vis="False")
 ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
 # plot_cluster(fig, Bubbles, Bubbles_loc)
 savefig(fig, filename="sphericalclusterinteractions_clusterevolution", format="png")
