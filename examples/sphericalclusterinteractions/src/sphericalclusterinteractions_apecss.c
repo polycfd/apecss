@@ -12,8 +12,11 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 // -------------------------------------------------------------------
-// APECSS standalone example of acoustically-interacting microbubbles,
-// demonstrating a simple parallelization of APECSS.
+// APECSS standalone example of acoustically-interacting microbubbles
+// in a spherical cluster based on Maeda, K., & Colonius, T. (2019).
+// Bubble cloud dynamics in an ultrasound field. Journal of Fluid
+// Mechanics, 862, 1105‑1134
+// DOI : https://doi.org/10.1017/jfm.2018.968
 // -------------------------------------------------------------------
 
 #include <time.h>
