@@ -341,7 +341,7 @@ ax.plot(Bubbles[label_edge_back][:, 1]*fa, Bubbles[label_edge_back][:, 3]/Bubble
 for k in list(dic_radius_evolution.keys())[1:] :
     ax.plot(dic_radius_evolution[k][0]*fa, dic_radius_evolution[k][1]/dic_radius_evolution[k][1][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
 
-ax.legend(loc="upper right")
+ax.legend(loc="upper left", fontsize=15)
 savefig(fig, filename="sphericalclusterinteractions_radiievolution")
 
 ## Cluster evolution vizualisation ##################################################################################################################
