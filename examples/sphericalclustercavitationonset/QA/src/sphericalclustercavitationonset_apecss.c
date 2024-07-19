@@ -12,8 +12,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 // -------------------------------------------------------------------
-// APECSS standalone example of acoustically-interacting microbubbles,
-// demonstrating a simple parallelization of APECSS.
+// APECSS standalone example of acoustically-interacting microbubbles
+// in a spherical cluster with the goal to study cavitation onset
 // -------------------------------------------------------------------
 
 #include <time.h>
