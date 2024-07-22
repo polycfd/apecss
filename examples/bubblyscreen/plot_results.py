@@ -54,7 +54,7 @@ for intype in interaction_types :
                 for line in lines[2:] :
                     x = float(line.split(" ")[1])
                     y = float(line.split(" ")[2])
-                    r_amp = (float(line.split(" ")[6]) - float(line.split(" ")[5])) / float(line.split(" ")[4])
+                    r_amp = (float(line.split(" ")[6]) - float(line.split(" ")[5])) / (2 * float(line.split(" ")[4]))
 
                     i = int((y/D)) + 25
                     j = int((x/D)) + 25
@@ -114,10 +114,10 @@ for i in range(nrow) :
     
 ### First row : QA ###
 plt.figtext(0.5, 0.85, r"QA, $D/R_{0}$ = 400", fontsize=16.5, horizontalalignment="center")
-plot_oscillation_distribution(fig, axs, 0, 0, 51, "QA", 0.5, 400)
-plot_oscillation_distribution(fig, axs, 0, 1, 51, "QA", 0.9, 400)
+plot_oscillation_distribution(fig, axs, 0, 0, 51, "QA", 0.5, 400, order=4)
+plot_oscillation_distribution(fig, axs, 0, 1, 51, "QA", 0.9, 400, order=3)
 plot_oscillation_distribution(fig, axs, 0, 2, 51, "QA", 1.0, 400)
-plot_oscillation_distribution(fig, axs, 0, 3, 51, "QA", 1.5, 400)
+plot_oscillation_distribution(fig, axs, 0, 3, 51, "QA", 1.5, 400, order=4)
 
 ### Second row : IC ###
 plt.figtext(0.5, 0.5, r"IC, $D/R_{0}$ = 400", fontsize=16.5, horizontalalignment="center")

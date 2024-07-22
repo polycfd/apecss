@@ -35,7 +35,9 @@ APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, stru
 APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 int parallel_interactions_quasi_acoustic(struct APECSS_Bubble *Bubble[], struct APECSS_Parallel_Cluster *RankInfo);
 int parallel_interactions_proper_cutoffdistance(struct APECSS_Bubble *Bubbles[], struct APECSS_Parallel_Cluster *RankInfo);
-int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble);
+int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble, APECSS_FLOAT coeff);
+int apecss_emissions_new_prunelist(struct APECSS_Bubble *Bubble, APECSS_FLOAT coeff);
+int apecss_emissions_new_updatelinkedlist(struct APECSS_Bubble *Bubble, APECSS_FLOAT coeff);
 
 APECSS_FLOAT maxR;
 APECSS_FLOAT minR;
@@ -63,6 +65,7 @@ int main(int argc, char **args)
   double tEnd = 0.0;
   double fa = 0.0;
   double pa = 0.0;
+  double coeff_pruning = 1.0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   apecss_infoscreen();
@@ -90,6 +93,11 @@ int main(int argc, char **args)
     else if (strcmp("-amp", args[j]) == 0)
     {
       sscanf(args[j + 1], "%le", &pa);
+      j += 2;
+    }
+    else if (strcmp("-coeff", args[j]) == 0)
+    {
+      sscanf(args[j + 1], "%le", &coeff_pruning);
       j += 2;
     }
     else if (strcmp("-h", args[j]) == 0)
@@ -279,6 +287,14 @@ int main(int argc, char **args)
   // Update cut off distance for each bubble
   parallel_interactions_proper_cutoffdistance(Bubbles, RankInfo);
 
+  // Update pruning options
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+  {
+    Bubbles[i]->Emissions->pruneList = 1;
+    // Simple allocation to prevent the warning message with no pruning to pop up
+    Bubbles[i]->Emissions->prune_test = apecss_emissions_prune_no_node;
+  }
+
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   clock_t starttimebubble = clock();
@@ -338,17 +354,11 @@ int main(int argc, char **args)
     APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, (APECSS_FLOAT) tEnd - tSim);
     tSim += dtSim;
 
-    // See progress during computation
-    if (RankInfo->rank == 0)
-    {
-      printf("D:%le, f:%le, time:%e\n", bubble_bubble_dist, fa, tSim);
-    }
-
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
     {
       maxR = 0.0;
       minR = Bubbles[i]->R0;
-      apecss_bubble_new_solver_run(tSim, tEnd, Bubbles[i]);
+      apecss_bubble_new_solver_run(tSim, tEnd, Bubbles[i], (APECSS_FLOAT) coeff_pruning);
 
       if (maxR > max_radii[i])
       {
@@ -576,7 +586,7 @@ int parallel_interactions_proper_cutoffdistance(struct APECSS_Bubble *Bubbles[],
   return (0);
 }
 
-int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble)
+int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble, APECSS_FLOAT coeff)
 {
   while (Bubble->t < tend - 0.01 * Bubble->NumericsODE->dtMin)
   {
@@ -626,8 +636,8 @@ int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct AP
     Bubble->results_emissionsnodeminmax_identify(Bubble);
     Bubble->results_emissionsnode_alloc(Bubble);
 
-    // Acoustic emissions (if applicable)
-    Bubble->emissions_update(Bubble);
+    // Acoustic emissions with pruning (if applicable)
+    apecss_emissions_new_updatelinkedlist(Bubble, coeff);
 
     // Store results (if applicable)
     Bubble->results_rayleighplesset_store(Bubble);
@@ -642,6 +652,72 @@ int apecss_bubble_new_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct AP
     // Update progress screen in the terminal (if applicable)
     Bubble->progress_update(&(*Bubble).progress, Bubble->t - Bubble->tStart, Bubble->tEnd - Bubble->tStart);
   }
+
+  return (0);
+}
+
+int apecss_emissions_new_prunelist(struct APECSS_Bubble *Bubble, APECSS_FLOAT coeff)
+{
+  struct APECSS_EmissionNode *Current = Bubble->Emissions->LastNode;
+
+  APECSS_FLOAT inv_nBubbles = 1 / (APECSS_FLOAT) Bubble->Interaction->nBubbles;
+  APECSS_FLOAT pinfinity = Bubble->get_pressure_infinity(Bubble->t, Bubble);
+
+  APECSS_FLOAT pressure_treshold = coeff * pinfinity * inv_nBubbles;
+
+  while (Current != NULL)
+  {
+    if (APECSS_ABS(Current->p - pinfinity) < pressure_treshold)
+    {
+      // Delete the node if it satisfies the pruning condition
+      struct APECSS_EmissionNode *Obsolete = Current;
+      if ((Current->backward != NULL) && (Current->forward != NULL))
+      {
+        Current->backward->forward = Current->forward;
+        Current->forward->backward = Current->backward;
+        Current = Current->backward;
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else if ((Current->backward != NULL) && (Current->forward == NULL))
+      {
+        Current->backward->forward = NULL;
+        Bubble->Emissions->LastNode = Current->backward;
+        Current = Current->backward;
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else if ((Current->backward == NULL) && (Current->forward != NULL))
+      {
+        Current->forward->backward = NULL;
+        Bubble->Emissions->FirstNode = Current->forward;
+        Current = NULL;
+        Bubble->Emissions->nNodes -= 1;
+      }
+      else
+      {
+        Bubble->Emissions->FirstNode = NULL;
+        Bubble->Emissions->LastNode = NULL;
+        Bubble->Emissions->nNodes = 0;
+        Current = NULL;
+      }
+      free(Obsolete);
+      // apecss_emissions_deletenode(Bubble, Current);
+    }
+    else
+    {
+      // Move to the next node
+      Current = Current->backward;
+    }
+  }
+
+  return (0);
+}
+
+int apecss_emissions_new_updatelinkedlist(struct APECSS_Bubble *Bubble, APECSS_FLOAT coeff)
+{
+  if (Bubble->Emissions->nNodes) Bubble->Emissions->advance(Bubble);
+  apecss_emissions_addnode(Bubble);
+  if (Bubble->Emissions->LastNode->r > Bubble->Emissions->CutOffDistance) apecss_emissions_removenode(Bubble);
+  if (Bubble->Emissions->pruneList) apecss_emissions_new_prunelist(Bubble, coeff);
 
   return (0);
 }
