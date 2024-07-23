@@ -265,7 +265,7 @@ int main(int argc, char **args)
     for (register int n = 0; n < RankInfo->nBubbles_local; n++)
     {
       Bubbles[n]->R0 = Bubble_Radius[RankInfo->bubblerank[RankInfo->rank] + n];
-      Bubbles[n]->r_hc = Bubbles[n]->R0 / 8.54;
+      Bubbles[n]->R = Bubble_Radius[RankInfo->bubblerank[RankInfo->rank] + n];
     }
   }
 
@@ -356,20 +356,6 @@ int main(int argc, char **args)
 
   // Update cut off distance for each bubble
   parallel_interactions_proper_cutoffdistance(Bubbles, RankInfo);
-
-  // File to retrieve the locations of bubble centers
-  if (RankInfo->rank == 0)
-  {
-    FILE *file_loc;
-    file_loc = fopen("bubble_loc.txt", "w");
-    fprintf(file_loc, "#number x(m) y(m) z(m)\n");
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      fprintf(file_loc, "%d %e %e %e\n", i, Bubble_Center[i][0], Bubble_Center[i][1], Bubble_Center[i][2]);
-    }
-    fclose(file_loc);
-  }
-
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   clock_t starttimebubble = clock();
@@ -391,17 +377,38 @@ int main(int argc, char **args)
   // Allocate the pressure contribution array
   RankInfo->sumGU_rank = malloc(2 * RankInfo->nBubbles_global * sizeof(APECSS_FLOAT));
 
+  // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+  // Files to retrieve all valuable information for cavitation onset test case
+  // Bubbles locations
+  FILE *file_loc = fopen("bubble_loc.txt", "w");
+  fprintf(file_loc, "#number x(m) y(m) z(m)\n");
+  for (register int i = 0; i < RankInfo->nBubbles_global; i++)
+  {
+    fprintf(file_loc, "%d %e %e %e\n", i, RankInfo->bubbleglobal_x[i], RankInfo->bubbleglobal_y[i], RankInfo->bubbleglobal_z[i]);
+  }
+  fclose(file_loc);
+
+  // Radius and pressure evolution for each bubble during computation
+  FILE *file_onset;
+  char file_name[APECSS_STRINGLENGTH_SPRINTF_LONG];
+  sprintf(file_name, "onset_results_%d.txt", RankInfo->rank);
+  file_onset = fopen(file_name, "w");
+
+  fprintf(file_onset, "%d Bubbles p0(pa) %e png(Pa) %e cl_distrib %d\n", nBubbles, Liquid->pref, pa, cluster_distrib);
+  fprintf(file_onset, "Initial_radii(m)");
+  for (register int i = 0; i < RankInfo->nBubbles_global; i++)
+  {
+    fprintf(file_onset, " %e", RankInfo->bubbleglobal_R[i]);
+  }
+  fprintf(file_onset, "\n");
+  fprintf(file_onset, "#Time(s) R(m) Pt(Pa)\n");
+  // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
   /* Solve the bubble dynamics */
   while (tSim < (APECSS_FLOAT) tEnd)  // Interaction loop, corresponding to the time-intervals at which interactions are considered
   {
     APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, (APECSS_FLOAT) tEnd - tSim);
     tSim += dtSim;
-
-    // To follow computations progress
-    if (RankInfo->rank == 0)
-    {
-      printf("%e\n", tSim);
-    }
 
     for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
@@ -410,6 +417,20 @@ int main(int argc, char **args)
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
     parallel_interactions_quasi_acoustic(Bubbles, RankInfo);
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Retrieve data
+    fprintf(file_onset, "%e", tSim);
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    {
+      fprintf(file_onset, " %e", Bubbles[i]->R);
+    }
+    for (register int i = 0; i < RankInfo->nBubbles_local; i++)
+    {
+      fprintf(file_onset, " %e", Bubbles[i]->get_pressure_infinity(Bubbles[i]->t, Bubbles[i]));
+    }
+    fprintf(file_onset, "\n");
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
@@ -421,6 +442,8 @@ int main(int argc, char **args)
       Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
     }
   }
+
+  fclose(file_onset);
 
   /* Finalize the simulation*/
   for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_finalize(Bubbles[i]);
