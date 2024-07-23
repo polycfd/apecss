@@ -36,7 +36,7 @@ APECSS_FLOAT normal_distribution(double mu, double sigma)
   double u2 = (drand48());
 
   double mag = sigma * APECSS_SQRT(-2.0 * APECSS_LOG(u1));
-  double z1 = mag * cos(2 * APECSS_PI * u2) + mu;
+  double z1 = mag * APECSS_COS(2 * APECSS_PI * u2) + mu;
   return (APECSS_FLOAT) z1;
 }
 
@@ -397,21 +397,27 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
 {
   // Approximate numerical computation of p_infinity derivative
   APECSS_FLOAT T = 10.0e-06;
-  APECSS_FLOAT derivative = 0.0;
-  if ((t >= T) && (t <= 2 * T))
+  if (t < T)
   {
-    APECSS_FLOAT inv_T = 1 / T;
-    derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
-  }
-
-  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
-  if (delta_t > Bubble->dt)
-  {
-    APECSS_FLOAT inv_delta_t = 1 / delta_t;
-    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
+    return (0.0);
   }
   else
   {
-    return (derivative);
+    APECSS_FLOAT derivative = 0.0;
+    if (t < 2 * T)
+    {
+      APECSS_FLOAT inv_T = 1 / T;
+      derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
+    }
+    APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
+    if (delta_t > Bubble->dt)
+    {
+      APECSS_FLOAT inv_delta_t = 1 / delta_t;
+      return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
+    }
+    else
+    {
+      return (derivative);
+    }
   }
 }
