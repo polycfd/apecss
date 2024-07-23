@@ -29,12 +29,12 @@ cd QA/build
 cd ..
 
 f_list=(1.631e06 2.934e06 3.262e06 4.893e06)
-for f in "${f_list[@]}"
+c_list=(0.0005 0.005 0.05 0.001)
+for ((i=0; i<5; i++))
 do
-    mpiexec -n $ncore ./build/bubblyscreen_apecss -options run.apecss -freq $f -amp 100.0 -tend 35.0e-6 -coeff 0.05
+    mpiexec -n $ncore ./build/bubblyscreen_apecss -options run.apecss -freq ${f_list[$i]} -amp 100.0 -tend 35.0e-6 -coeff ${c_list[$i]}
     python3 gather_results.py
 done
-
 cd ..
 
 echo ""
