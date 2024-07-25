@@ -1,0 +1,47 @@
+import os
+
+# File designed to recover data for plotting results in cavitation onset case
+
+file = open("onset_results.txt", "r")
+lines = file.readlines()
+file.close()
+
+count = int(lines[0].split(" ")[0])
+png = float(lines[0].split(" ")[5])
+cl_distrib = int(lines[0].split(" ")[7])
+
+if cl_distrib == 0 :
+    # monodispersed spherical cluster
+    file_name = "mono_{}_{:.4E}.txt".format(count, png)
+
+else :
+    # polydispersed spherical cluster
+    file_name = "poly_{}_{:.4E}.txt".format(count, png)
+
+working_path = os.getcwd()
+results_path = os.path.join(working_path, "results")
+file_results = open(os.path.join(results_path, file_name), "w")
+
+for line in lines :
+    file_results.write(line)
+
+file_results.close()
+
+file_loc = open("bubble_loc.txt", "r")
+lines_loc = file_loc.readlines()
+file_loc.close()
+
+if cl_distrib == 0 :
+    # monodispersed spherical cluster
+    file_name_loc = "mono_{}_{:.4E}_loc.txt".format(count, png)
+
+else :
+    # polydispersed spherical cluster
+    file_name_loc = "poly_{}_{:.4E}_loc.txt".format(count, png)
+
+file_loc_results = open(os.path.join(results_path, file_name_loc), "w")
+
+for line in lines_loc :
+    file_loc_results.write(line)
+
+file_loc_results.close()
