@@ -27,10 +27,6 @@ INTERFACE
 SurfaceTensionCoeff 0.0728
 END
 
-RESULTS
-Bubble
-END
-
 ODESOLVER
 tolerance 1.0e-10
 END

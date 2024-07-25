@@ -204,7 +204,7 @@ int main(int argc, char **args)
     for (register int i = 0; i < nBubbles; i++)
     {
       Bubbles[i]->R0 = 10.0e-6;
-      Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
+      // Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
     }
   }
   else
@@ -216,13 +216,13 @@ int main(int argc, char **args)
     for (register int i = 0; i < nBubbles; i++)
     {
       APECSS_FLOAT radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      while (radius > 20 * radius_ref)
+      while ((radius > 20 * radius_ref) || (radius < 0.5 * radius_ref))
       {
-        // Small step to ensure no too big bubbles are generated (the distribution is conserved still)
+        // Small step to ensure no too big nor too small bubbles are generated (the distribution is conserved still)
         radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
       }
       Bubbles[i]->R0 = radius;
-      Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
+      // Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
     }
   }
 
@@ -322,6 +322,10 @@ int main(int argc, char **args)
     apecss_interactions_instantaneous(Bubbles);
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+    // printf("%e %e %e %e %e\n", tSim, Bubbles[0]->Liquid->get_pressurederivative_bubblewall_expl(Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]),
+    //        Bubbles[0]->get_pressurederivative_infinity(Bubbles[0]->t, Bubbles[0]), Bubbles[0]->Interaction->dp_neighbor,
+    //        Bubbles[0]->Interaction->last_p_1 - Bubbles[0]->Interaction->last_p_2);
+
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Retrieve data
     fprintf(file_onset, "%e", tSim);
@@ -336,14 +340,14 @@ int main(int argc, char **args)
     fprintf(file_onset, "\n");
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
-      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
+    // for (register int i = 0; i < nBubbles; i++)
+    // {
+    //   Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
+    //   Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
 
-      Bubbles[i]->Interaction->last_t_1 = tSim;
-      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
-    }
+    //   Bubbles[i]->Interaction->last_t_1 = tSim;
+    //   Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
+    // }
   }
 
   fclose(file_onset);
@@ -409,15 +413,16 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
       APECSS_FLOAT inv_T = 1 / T;
       derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
     }
-    APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
-    if (delta_t > Bubble->dt)
-    {
-      APECSS_FLOAT inv_delta_t = 1 / delta_t;
-      return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
-    }
-    else
-    {
-      return (derivative);
-    }
+    return (derivative);
+    // APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
+    // if ((delta_t > Bubble->dt) && (t > time_treshold))
+    // {
+    //   APECSS_FLOAT inv_delta_t = 1 / delta_t;
+    //   return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
+    // }
+    // else
+    // {
+    //   return (derivative);
+    // }
   }
 }
