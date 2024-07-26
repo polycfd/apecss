@@ -74,7 +74,7 @@ int apecss_interactions_instantaneous(struct APECSS_Bubble *Bubbles[])
 
         APECSS_FLOAT dp = Liquid->rhoref * 2.0 * Bubbles[j]->R * APECSS_POW2(Bubbles[j]->U) * (1 / interbubble_dist);
         dp += Liquid->rhoref * APECSS_POW2(Bubbles[j]->R) * Bubbles[j]->ode[0](Bubbles[j]->ODEsSol, Bubbles[j]->t, Bubbles[j]) * (1 / interbubble_dist);
-        dp += Liquid->rhoref * APECSS_POW4(Bubbles[j]->R) * APECSS_POW2(Bubbles[j]->U) * (1 / (2 * APECSS_POW4(interbubble_dist)));
+        dp += -Liquid->rhoref * APECSS_POW4(Bubbles[j]->R) * APECSS_POW2(Bubbles[j]->U) * (1 / (2 * APECSS_POW4(interbubble_dist)));
 
         // if ((i == 0) && (j == 1))
         //   printf(" %e %e %e", 2.0 * Bubbles[j]->R * APECSS_POW2(Bubbles[j]->U) * (1 / interbubble_dist),
