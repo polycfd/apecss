@@ -424,15 +424,41 @@ int main(int argc, char **args)
 
 APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->p0 -
-          Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * (t - Bubble->Interaction->location[0] / Bubble->Liquid->cref)) +
-          Bubble->Interaction->dp_neighbor);
+  // return (Bubble->p0 -
+  //         Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * (t - Bubble->Interaction->location[0] / Bubble->Liquid->cref)) +
+  //         Bubble->Interaction->dp_neighbor);
+  APECSS_FLOAT wavelength = Bubble->Liquid->cref / Bubble->Excitation->f;
+  APECSS_FLOAT wavefront = Bubble->Liquid->cref * t - 2.5e-03;
+  APECSS_FLOAT p_infty = Bubble->p0 + Bubble->Interaction->dp_neighbor;
+
+  if (Bubble->Interaction->location[0] > wavefront)
+  {
+    return (p_infty);
+  }
+  else if (Bubble->Interaction->location[0] < wavefront - wavelength)
+  {
+    return (p_infty);
+  }
+  else
+  {
+    return (p_infty + Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * (wavefront - Bubble->Interaction->location[0]) / wavelength));
+  }
 }
 
 APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT derivative = -2.0 * APECSS_PI * Bubble->Excitation->f * Bubble->Excitation->dp *
-                            APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * (t - Bubble->Interaction->location[0] / Bubble->Liquid->cref));
+  APECSS_FLOAT wavelength = Bubble->Liquid->cref / Bubble->Excitation->f;
+  APECSS_FLOAT wavefront = Bubble->Liquid->cref * t - 2.5e-03;
+  APECSS_FLOAT derivative = 0.0;
+  if ((Bubble->Interaction->location[0] > wavefront - wavelength) && (Bubble->Interaction->location[0] < wavefront))
+  {
+    APECSS_FLOAT inv_wavelength = 1 / wavelength;
+    derivative += 2.0 * APECSS_PI * inv_wavelength * Bubble->Excitation->dp *
+                  APECSS_COS(2.0 * APECSS_PI * inv_wavelength * (wavefront - Bubble->Interaction->location[0]));
+  }
+
+  // APECSS_FLOAT derivative = -2.0 * APECSS_PI * Bubble->Excitation->f * Bubble->Excitation->dp *
+  //                           APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * (t - Bubble->Interaction->location[0] / Bubble->Liquid->cref));
 
   APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
   if (delta_t > Bubble->dt)
