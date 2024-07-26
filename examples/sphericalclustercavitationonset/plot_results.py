@@ -15,7 +15,7 @@ cm = 1/2.54
 # File designed to plot the results for the cavitation onset test case with a spherical cluster
 
 ######### Step 1 : Retrieving data ##################################################################################################################
-interaction_types = ["IC"]
+interaction_types = ["NI", "IC"]
 cluster_types = ["mono", "poly"]
 
 dic_bubbles = {}
@@ -160,22 +160,41 @@ count = 2500
 png = -25325
 
 nrow = 1
-ncol = 2
+ncol = 3
 fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
 for i in range(ncol) :
     axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
     axs[i].set_ylabel(r"$<R> / R_{0}$ (-)", fontsize=15)
-    axs[i].set_xlim(xmin=10.0, xmax=60.0)
+    axs[i].set_xlim(xmin=10.0, xmax=150.0)
     axs[i].grid()
 
-axs[0].set_title(r"Incompressible interactions" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
-axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
 
 for k in dic_loc_distrib_global[count][png].keys() :
     index_list = dic_loc_distrib_global[count][png][k]
+
+    # No interaction
+    t_list = np.array(dic_bubbles["NI"]["mono"][count][png][0])
+
+    r_list_0 = np.array(dic_bubbles["NI"]["mono"][count][png][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["NI"]["mono"][count][png][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["NI"]["mono"][count][png][index + 1][1])
+        init_r = dic_bubbles["NI"]["mono"][count][png][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[0].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
     # Incompressible interactions
     t_list = np.array(dic_bubbles["IC"]["mono"][count][png][0])
@@ -193,11 +212,11 @@ for k in dic_loc_distrib_global[count][png].keys() :
 
     avg_radius = (1 / len(index_list)) * avg_radius
     
-    axs[0].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=r"$r/R_{C} \approx$" + " {:.1f}".format(k))
+    axs[1].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=r"$r/R_{C} \approx$" + " {:.1f}".format(k))
 
     # Quasi acoustic interactions
 
-axs[0].legend(bbox_to_anchor=(1.15, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
 fig.savefig("sphericalclustercavitationonset_mono_radiusevolution.pdf", bbox_inches='tight',pad_inches=0.35)
 
 ######### Averaged radius versus time evolution for polydispersed cluster #########################
@@ -206,16 +225,17 @@ count = 2500
 png = -25325
 
 nrow = 1
-ncol = 2
+ncol = 3
 fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
 for i in range(ncol) :
     axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
     axs[i].set_ylabel(r"$<R/R_{0}>$ (-)", fontsize=15)
-    axs[i].set_xlim(xmin=10.0, xmax=60.0)
+    axs[i].set_xlim(xmin=10.0, xmax=150.0)
     axs[i].grid()
 
-axs[0].set_title(r"Incompressible interactions" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
-axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 dic_color_q = {}
@@ -231,6 +251,27 @@ for i in range(n_quantiles) :
         dic_label_q[quantile] = "2nd-{}".format(quantile_name)
     elif i == 2 :
         dic_label_q[quantile] = "3rd-{}".format(quantile_name)
+
+# No interaction
+for q in list(dic_polydisperse["NI"][count][png].keys())[1:] :
+    index_list = dic_polydisperse["NI"][count][png][q]
+
+    t_list = np.array(dic_bubbles["NI"]["poly"][count][png][0])
+
+    r_list_0 = np.array(dic_bubbles["NI"]["poly"][count][png][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["NI"]["poly"][count][png][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["NI"]["poly"][count][png][index + 1][1])
+        init_r = dic_bubbles["NI"]["poly"][count][png][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[0].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle="solid", color=dic_color_q[q])
 
 # Incompressible interactions
 for q in list(dic_polydisperse["IC"][count][png].keys())[1:] :
@@ -251,7 +292,144 @@ for q in list(dic_polydisperse["IC"][count][png].keys())[1:] :
 
     avg_radius = (1 / len(index_list)) * avg_radius
     
-    axs[0].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle="solid", color=dic_color_q[q], label=dic_label_q[q])
+    axs[1].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle="solid", color=dic_color_q[q], label=dic_label_q[q])
 
-axs[0].legend(bbox_to_anchor=(1.1, 1.175), loc="center", fontsize=15, ncol=n_quantiles, frameon=False)
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=n_quantiles, frameon=False)
 fig.savefig("sphericalclustercavitationonset_poly_radiusevolution.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######### Averaged pressure infinity versus time evolution for monodispersed clusters #############
+
+count = 2500
+png = -25325
+p0 = 101.3e3
+
+nrow = 1
+ncol = 3
+fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
+for i in range(ncol) :
+    axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
+    axs[i].set_ylabel(r"$<p_{\infty}> / p_{0}$ (-)", fontsize=15)
+    axs[i].set_xlim(xmin=10.0, xmax=90.0)
+    axs[i].grid()
+
+axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+
+dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+
+for k in dic_loc_distrib_global[count][png].keys() :
+    index_list = dic_loc_distrib_global[count][png][k]
+
+    # No interaction
+    t_list = np.array(dic_bubbles["NI"]["mono"][count][png][0])
+
+    p_list_0 = np.array(dic_bubbles["NI"]["mono"][count][png][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["NI"]["mono"][count][png][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[0].plot(t_list*1.0e6, avg_pressure, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+    # Incompressible interactions
+    t_list = np.array(dic_bubbles["IC"]["mono"][count][png][0])
+
+    p_list_0 = np.array(dic_bubbles["IC"]["mono"][count][png][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["IC"]["mono"][count][png][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[1].plot(t_list*1.0e6, avg_pressure, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=r"$r/R_{C} \approx$" + " {:.1f}".format(k))
+
+    # Quasi acoustic interactions
+
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
+fig.savefig("sphericalclustercavitationonset_mono_pressureevolution.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######### Averaged pressure infinity versus time evolution for monodispersed clusters #############
+
+count = 2500
+png = -25325
+p0 = 101.3e3
+
+nrow = 1
+ncol = 3
+fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
+for i in range(ncol) :
+    axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
+    axs[i].set_ylabel(r"$<p_{\infty}>/p_{0}$ (-)", fontsize=15)
+    axs[i].set_xlim(xmin=10.0, xmax=90.0)
+    axs[i].grid()
+
+axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
+
+color_list = ["black", "magenta", "blue", "green", "red"]
+dic_color_q = {}
+dic_label_q = {}
+for i in range(n_quantiles) :
+    quantile = quantiles_list[i]
+    dic_color_q[quantile] = color_list[i]
+
+    dic_label_q[quantile] = "{}th-{}".format(i+1, quantile_name)
+    if i == 0 :
+        dic_label_q[quantile] = "1st-{}".format(quantile_name)
+    elif i == 1 :
+        dic_label_q[quantile] = "2nd-{}".format(quantile_name)
+    elif i == 2 :
+        dic_label_q[quantile] = "3rd-{}".format(quantile_name)
+
+# No interaction
+for q in list(dic_polydisperse["NI"][count][png].keys())[1:] :
+    index_list = dic_polydisperse["NI"][count][png][q]
+
+    t_list = np.array(dic_bubbles["NI"]["poly"][count][png][0])
+
+    p_list_0 = np.array(dic_bubbles["NI"]["poly"][count][png][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["NI"]["poly"][count][png][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[0].plot(t_list*1.0e6, avg_pressure, linewidth=1.5, linestyle="solid", color=dic_color_q[q])
+
+# Incompressible interactions
+for q in list(dic_polydisperse["IC"][count][png].keys())[1:] :
+    index_list = dic_polydisperse["IC"][count][png][q]
+
+    t_list = np.array(dic_bubbles["IC"]["poly"][count][png][0])
+
+    p_list_0 = np.array(dic_bubbles["IC"]["poly"][count][png][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["IC"]["poly"][count][png][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[1].plot(t_list*1.0e6, avg_pressure, linewidth=1.5, linestyle="solid", color=dic_color_q[q], label=dic_label_q[q])
+
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=n_quantiles, frameon=False)
+fig.savefig("sphericalclustercavitationonset_poly_pressureevolution.pdf", bbox_inches='tight',pad_inches=0.35)
