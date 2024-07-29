@@ -2,21 +2,21 @@ import os
 
 # File designed to recover data for plotting results in cavitation onset case
 
-file = open("onset_results.txt", "r")
+file = open("tension_results.txt", "r")
 lines = file.readlines()
 file.close()
 
 count = int(lines[0].split(" ")[0])
-png = float(lines[0].split(" ")[5])
+p1 = float(lines[0].split(" ")[5])
 cl_distrib = int(lines[0].split(" ")[7])
 
 if cl_distrib == 0 :
     # monodispersed spherical cluster
-    file_name = "mono_{}_{:.4E}.txt".format(count, png)
+    file_name = "mono_{}_{:.4E}.txt".format(count, p1)
 
 else :
     # polydispersed spherical cluster
-    file_name = "poly_{}_{:.4E}.txt".format(count, png)
+    file_name = "poly_{}_{:.4E}.txt".format(count, p1)
 
 working_path = os.getcwd()
 results_path = os.path.join(working_path, "results")
@@ -39,11 +39,11 @@ file_loc.close()
 
 if cl_distrib == 0 :
     # monodispersed spherical cluster
-    file_name_loc = "mono_{}_{:.4E}_loc.txt".format(count, png)
+    file_name_loc = "mono_{}_{:.4E}_loc.txt".format(count, p1)
 
 else :
     # polydispersed spherical cluster
-    file_name_loc = "poly_{}_{:.4E}_loc.txt".format(count, png)
+    file_name_loc = "poly_{}_{:.4E}_loc.txt".format(count, p1)
 
 file_loc_results = open(os.path.join(results_path, file_name_loc), "w")
 

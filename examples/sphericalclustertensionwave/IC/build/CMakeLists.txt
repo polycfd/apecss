@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project (sphericalclustercavitationonset_apecss)
+project (sphericalclustertensionwave_apecss)
 set(CMAKE_C_COMPILER /usr/bin/gcc)
 
 include_directories($ENV{APECSS_DIR}/include)
@@ -37,5 +37,5 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
    set(CMAKE_C_FLAGS_RELEASE "-Wall -Werror -O3")
 endif()
 
-add_executable(sphericalclustercavitationonset_apecss ${myfiles})
-target_link_libraries(sphericalclustercavitationonset_apecss ${mylibs})
+add_executable(sphericalclustertensionwave_apecss ${myfiles})
+target_link_libraries(sphericalclustertensionwave_apecss ${mylibs})

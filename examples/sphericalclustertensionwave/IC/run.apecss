@@ -7,7 +7,7 @@
 BUBBLE
 RPModel KM
 Emissions IC 300.0e-6
-PressureAmbient 0.1013e6
+PressureAmbient 1.0e5
 END
 
 GAS
@@ -17,7 +17,7 @@ PolytropicExponent 1.4
 END
 
 LIQUID
-ReferencePressure 0.1013e6
+ReferencePressure 1.0e5
 ReferenceDensity 1000.0
 ReferenceSoundSpeed 1500.0
 Viscosity 1.002e-3
@@ -27,6 +27,11 @@ INTERFACE
 SurfaceTensionCoeff 0.0728
 END
 
+RESULTS
+Bubble
+END
+
 ODESOLVER
 tolerance 1.0e-10
+MinTimeStep 1.0e-10
 END
