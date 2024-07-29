@@ -15,7 +15,7 @@ cm = 1/2.54
 # File designed to plot the results for the cavitation onset test case with a spherical cluster
 
 ######### Step 1 : Retrieving data ##################################################################################################################
-interaction_types = ["NI", "IC"]
+interaction_types = ["NI", "IC", "QA"]
 cluster_types = ["mono", "poly"]
 
 dic_bubbles = {}
@@ -165,7 +165,7 @@ fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
 for i in range(ncol) :
     axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
     axs[i].set_ylabel(r"$<R> / R_{0}$ (-)", fontsize=15)
-    axs[i].set_xlim(xmin=10.0, xmax=150.0)
+    axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
@@ -215,6 +215,23 @@ for k in dic_loc_distrib_global[count][png].keys() :
     axs[1].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=r"$r/R_{C} \approx$" + " {:.1f}".format(k))
 
     # Quasi acoustic interactions
+    t_list = np.array(dic_bubbles["QA"]["mono"][count][png][0])
+
+    r_list_0 = np.array(dic_bubbles["QA"]["mono"][count][png][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["QA"]["mono"][count][png][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["QA"]["mono"][count][png][index + 1][1])
+        init_r = dic_bubbles["QA"]["mono"][count][png][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[2].plot(t_list*1.0e6, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
 
 axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
 fig.savefig("sphericalclustercavitationonset_mono_radiusevolution.pdf", bbox_inches='tight',pad_inches=0.35)
@@ -230,7 +247,7 @@ fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
 for i in range(ncol) :
     axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
     axs[i].set_ylabel(r"$<R/R_{0}>$ (-)", fontsize=15)
-    axs[i].set_xlim(xmin=10.0, xmax=150.0)
+    axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
@@ -309,7 +326,7 @@ fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
 for i in range(ncol) :
     axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
     axs[i].set_ylabel(r"$<p_{\infty}> / p_{0}$ (-)", fontsize=15)
-    axs[i].set_xlim(xmin=10.0, xmax=90.0)
+    axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0}=10.0 \ \mu m$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)
@@ -355,6 +372,20 @@ for k in dic_loc_distrib_global[count][png].keys() :
     axs[1].plot(t_list*1.0e6, avg_pressure, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=r"$r/R_{C} \approx$" + " {:.1f}".format(k))
 
     # Quasi acoustic interactions
+    t_list = np.array(dic_bubbles["QA"]["mono"][count][png][0])
+
+    p_list_0 = np.array(dic_bubbles["QA"]["mono"][count][png][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["QA"]["mono"][count][png][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[2].plot(t_list*1.0e6, avg_pressure, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
 axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
 fig.savefig("sphericalclustercavitationonset_mono_pressureevolution.pdf", bbox_inches='tight',pad_inches=0.35)
@@ -371,7 +402,7 @@ fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
 for i in range(ncol) :
     axs[i].set_xlabel(r"t ($\mu$s)", fontsize=15)
     axs[i].set_ylabel(r"$<p_{\infty}>/p_{0}$ (-)", fontsize=15)
-    axs[i].set_xlim(xmin=10.0, xmax=90.0)
+    axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 2500$, $R_{0, ref}=10.0 \ \mu m$, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{ng} / p_{0} = -0.25$)", fontsize=15)

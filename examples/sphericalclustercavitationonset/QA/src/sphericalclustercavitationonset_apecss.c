@@ -241,7 +241,7 @@ int main(int argc, char **args)
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
     {
       Bubbles[i]->R0 = 10.0e-6;
-      Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
+      Bubbles[i]->R = Bubbles[i]->R0;
     }
   }
   else
@@ -254,9 +254,9 @@ int main(int argc, char **args)
     for (register int i = 0; i < nBubbles; i++)
     {
       APECSS_FLOAT radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      while (radius > 20 * radius_ref)
+      while ((radius > 20 * radius_ref) || (radius < 0.5 * radius_ref))
       {
-        // Small step to ensure no too big bubbles are generated (the distribution is conserved still)
+        // Small step to ensure no too big bubbles nor too small are generated (the distribution is conserved still)
         radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
       }
       Bubble_Radius[i] = radius;

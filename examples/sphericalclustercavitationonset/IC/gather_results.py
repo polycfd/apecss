@@ -22,8 +22,14 @@ working_path = os.getcwd()
 results_path = os.path.join(working_path, "results")
 file_results = open(os.path.join(results_path, file_name), "w")
 
-for line in lines :
-    file_results.write(line)
+# for line in lines :
+#     if "nan" not in line :
+#         file_results.write(line)
+
+index = 0
+while index < len(lines) and "nan" not in lines[index] :
+    file_results.write(lines[index])
+    index += 1
 
 file_results.close()
 
