@@ -82,5 +82,6 @@ Makefile
 
 # Results
 *.txt
+!CMakeLists.txt
 *.pdf
 *.png
