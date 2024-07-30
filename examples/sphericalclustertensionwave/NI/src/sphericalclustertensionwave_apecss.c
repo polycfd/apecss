@@ -376,7 +376,8 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
   APECSS_FLOAT tau = 1.75e-6;
   if (t < tau)
   {
-    return (-2.0 * (APECSS_PI / tau) * (Bubble->p0 - Bubble->Excitation->dp) * APECSS_COS(APECSS_PI * t / tau) * APECSS_SIN(APECSS_PI * t / tau));
+    APECSS_FLOAT inv_tau = 1 / tau;
+    return (-2.0 * APECSS_PI * inv_tau * (Bubble->p0 - Bubble->Excitation->dp) * APECSS_COS(APECSS_PI * t * inv_tau) * APECSS_SIN(APECSS_PI * t * inv_tau));
   }
   else
   {
