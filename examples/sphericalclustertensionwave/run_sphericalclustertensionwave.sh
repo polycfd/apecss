@@ -1,6 +1,6 @@
 ######### Parameters ################################################################################################################################
 
-ncores=10
+ncores=12
 nbubbles=250
 
 ######### No interaction computations ###############################################################################################################
@@ -34,7 +34,7 @@ cd ..
 python3 gather_results.py
 
 ######### Polydispersed system ####################################################################
-./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 60.0e-6 -cldistrib 1
+./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 150.0e-6 -cldistrib 1
 python3 gather_results.py
 
 cd ..
@@ -44,6 +44,24 @@ echo "Incompressible test cases passed"
 echo ""
 
 ######### Quasi acoustic computations ###############################################################################################################
+
+cd QA/build
+./compile.sh
+cd ..
+
+######### Monodispersed system ####################################################################
+mpiexec -n $ncores ./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 25.0e-06 -cldistrib 0
+python3 gather_results.py
+
+######### Polydispersed system ####################################################################
+mpiexec -n $ncores ./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 200.0e-06 -cldistrib 1
+python3 gather_results.py
+
+cd ..
+
+echo ""
+echo "Quasi acoustic test cases passed"
+echo ""
 
 ######### Plot results ##############################################################################################################################
 
@@ -67,17 +85,17 @@ do
 done
 cd ..
 
-# # # cd QA
-# # # rm -rf "bubble_loc.txt"
-# # # for ((c=0; c<$ncores; c++))
-# # # do
-# # #     rm -rf tension_results_$c.txt
-# # # done
-# # # for ((c=0; c<$nbubbles; c++))
-# # # do
-# # #     rm -rf Bubble_$c
-# # # done
-# # # cd ..
+cd QA
+rm -rf "bubble_loc.txt"
+for ((c=0; c<$ncores; c++))
+do
+    rm -rf tension_results_$c.txt
+done
+for ((c=0; c<$nbubbles; c++))
+do
+    rm -rf Bubble_$c
+done
+cd ..
 
 echo ""
 echo "Cleaning completed"
