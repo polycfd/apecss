@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from math import pi
 from matplotlib.patches import Circle
 
-fontsize = 12
+fontsize = 16.5
 
 plt.rcParams['font.family']='serif'
 plt.rcParams['font.serif']=['Times New Roman'] + plt.rcParams['font.serif']
@@ -106,25 +106,25 @@ ncol = 4
 fig, axs = plt.subplots(nrow,ncol,figsize=(55*cm, 27.5*cm))
 for i in range(nrow) :
     for j in range(ncol) :
-        axs[i,j].set_xlabel(r"x/D")
+        axs[i,j].set_xlabel(r"y/D")
         axs[i,j].set_xlim(xmin=-25.5,xmax=25.5)
-        axs[i,j].set_ylabel(r"y/D")
+        axs[i,j].set_ylabel(r"z/D")
         axs[i,j].set_ylim(ymin=-25.5,ymax=25.5)
         axs[i,j].set_aspect("equal")
     
 ### First row : QA ###
-plt.figtext(0.5, 0.85, r"QA, $D/R_{0}$ = 400", fontsize=16.5, horizontalalignment="center")
+plt.figtext(0.5, 0.875, r"QA, $D/R_{0}$ = 400", fontsize=20.0, horizontalalignment="center")
 plot_oscillation_distribution(fig, axs, 0, 0, 51, "QA", 0.5, 400, order=4)
 plot_oscillation_distribution(fig, axs, 0, 1, 51, "QA", 0.9, 400, order=3)
-plot_oscillation_distribution(fig, axs, 0, 2, 51, "QA", 1.0, 400)
+plot_oscillation_distribution(fig, axs, 0, 2, 51, "QA", 1.0, 400, order=2)
 plot_oscillation_distribution(fig, axs, 0, 3, 51, "QA", 1.5, 400, order=4)
 
 ### Second row : IC ###
-plt.figtext(0.5, 0.5, r"IC, $D/R_{0}$ = 400", fontsize=16.5, horizontalalignment="center")
+plt.figtext(0.5, 0.5, r"IC, $D/R_{0}$ = 400", fontsize=20.0, horizontalalignment="center")
 plot_oscillation_distribution(fig, axs, 1, 0, 51, "IC", 0.5, 400, order=4)
 plot_oscillation_distribution(fig, axs, 1, 1, 51, "IC", 0.9, 400, order=3)
 plot_oscillation_distribution(fig, axs, 1, 2, 51, "IC", 1.0, 400, order=3)
 plot_oscillation_distribution(fig, axs, 1, 3, 51, "IC", 1.5, 400, order=4, clear=True)
 
-fig.subplots_adjust(hspace=0.05*cm, wspace=0.65*cm)
+fig.subplots_adjust(hspace=0.01*cm, wspace=0.60*cm)
 fig.savefig("bubblyscreen_ComparisonQAIC.pdf", bbox_inches="tight",pad_inches=0.035)
