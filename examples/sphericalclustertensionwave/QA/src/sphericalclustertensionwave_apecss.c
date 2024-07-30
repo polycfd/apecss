@@ -70,12 +70,12 @@ int main(int argc, char **args)
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Set the case-dependent simulation parameters
-  const int nBubbles = 2500;  // Number of bubbles
-  APECSS_FLOAT bubble_bubble_dist = 100.0e-6;  // Bubble-bubble minimal distance
-  APECSS_FLOAT cluster_radius = 2.5e-3;  // Spherical cluster radius
+  const int nBubbles = 250;  // Number of bubbles
+  APECSS_FLOAT bubble_bubble_dist = 20.0e-6;  // Bubble-bubble minimal distance
+  APECSS_FLOAT cluster_radius = 232e-6;  // Spherical cluster radius
 
   // Interbubble time-step, defining the frequency with which the neighbor influence is updated
-  APECSS_FLOAT dt_interbubble = 1.0e-8;
+  APECSS_FLOAT dt_interbubble = 1.0e-9;
 
   // Initialize the simulation parameters given by the execution command
   double tEnd = 0.0;
@@ -240,7 +240,7 @@ int main(int argc, char **args)
     // Monodispersed cluster
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
     {
-      Bubbles[i]->R0 = 10.0e-6;
+      Bubbles[i]->R0 = 2.0e-6;
       Bubbles[i]->R = Bubbles[i]->R0;
     }
   }
@@ -249,12 +249,12 @@ int main(int argc, char **args)
     // Polydispersed cluster (radii distribution is following a log normal law)
     double mu = 0.0;
     double sigma = 0.7;
-    APECSS_FLOAT radius_ref = 10.0e-6;
+    APECSS_FLOAT radius_ref = 2.0e-6;
     APECSS_FLOAT Bubble_Radius[nBubbles];
     for (register int i = 0; i < nBubbles; i++)
     {
       APECSS_FLOAT radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      while ((radius > 20 * radius_ref) || (radius < 0.5 * radius_ref))
+      while (radius > 20 * radius_ref)
       {
         // Small step to ensure no too big bubbles nor too small are generated (the distribution is conserved still)
         radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
@@ -389,19 +389,19 @@ int main(int argc, char **args)
   fclose(file_loc);
 
   // Radius and pressure evolution for each bubble during computation
-  FILE *file_onset;
+  FILE *file_tension;
   char file_name[APECSS_STRINGLENGTH_SPRINTF_LONG];
-  sprintf(file_name, "onset_results_%d.txt", RankInfo->rank);
-  file_onset = fopen(file_name, "w");
+  sprintf(file_name, "tension_results_%d.txt", RankInfo->rank);
+  file_tension = fopen(file_name, "w");
 
-  fprintf(file_onset, "%d Bubbles p0(pa) %e png(Pa) %e cl_distrib %d\n", nBubbles, Liquid->pref, pa, cluster_distrib);
-  fprintf(file_onset, "Initial_radii(m)");
+  fprintf(file_tension, "%d Bubbles p0(pa) %e p1(Pa) %e cl_distrib %d\n", nBubbles, Liquid->pref, pa, cluster_distrib);
+  fprintf(file_tension, "Initial_radii(m)");
   for (register int i = 0; i < RankInfo->nBubbles_global; i++)
   {
-    fprintf(file_onset, " %e", RankInfo->bubbleglobal_R[i]);
+    fprintf(file_tension, " %e", RankInfo->bubbleglobal_R[i]);
   }
-  fprintf(file_onset, "\n");
-  fprintf(file_onset, "#Time(s) R(m) Pt(Pa)\n");
+  fprintf(file_tension, "\n");
+  fprintf(file_tension, "#Time(s) R(m) Pt(Pa)\n");
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Solve the bubble dynamics */
@@ -412,8 +412,6 @@ int main(int argc, char **args)
 
     for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
-    // for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
-
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
     parallel_interactions_quasi_acoustic(Bubbles, RankInfo);
@@ -421,16 +419,16 @@ int main(int argc, char **args)
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Retrieve data
-    fprintf(file_onset, "%e", tSim);
+    fprintf(file_tension, "%e", tSim);
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
     {
-      fprintf(file_onset, " %e", Bubbles[i]->R);
+      fprintf(file_tension, " %e", Bubbles[i]->R);
     }
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
     {
-      fprintf(file_onset, " %e", Bubbles[i]->get_pressure_infinity(Bubbles[i]->t, Bubbles[i]));
+      fprintf(file_tension, " %e", Bubbles[i]->get_pressure_infinity(Bubbles[i]->t, Bubbles[i]));
     }
-    fprintf(file_onset, "\n");
+    fprintf(file_tension, "\n");
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
     for (register int i = 0; i < RankInfo->nBubbles_local; i++)
@@ -443,7 +441,7 @@ int main(int argc, char **args)
     }
   }
 
-  fclose(file_onset);
+  fclose(file_tension);
 
   /* Finalize the simulation*/
   for (register int i = 0; i < RankInfo->nBubbles_local; i++) apecss_bubble_solver_finalize(Bubbles[i]);
@@ -490,48 +488,36 @@ int main(int argc, char **args)
 
 APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT T = 10.0e-06;
-  if (t < T)
+  APECSS_FLOAT tau = 1.75e-6;
+  if (t < tau)
   {
-    return (Bubble->p0 + Bubble->Interaction->dp_neighbor);
-  }
-  else if (t > 2 * T)
-  {
-    return (Bubble->Excitation->dp + Bubble->Interaction->dp_neighbor);
+    return (Bubble->p0 - (Bubble->p0 - Bubble->Excitation->dp) * APECSS_POW2(APECSS_SIN(APECSS_PI * t / tau)) + Bubble->Interaction->dp_neighbor);
   }
   else
   {
-    APECSS_FLOAT W = 0.5 * (1 - APECSS_COS((t + T) * APECSS_PI / T));
-    return (Bubble->p0 + W * (Bubble->Excitation->dp - Bubble->p0) + Bubble->Interaction->dp_neighbor);
+    return (Bubble->p0 + Bubble->Interaction->dp_neighbor);
   }
 }
 
 APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   // Approximate numerical computation of p_infinity derivative
-  APECSS_FLOAT T = 10.0e-06;
-  if (t < T)
+  APECSS_FLOAT tau = 1.75e-6;
+  APECSS_FLOAT derivative = 0.0;
+  if (t < tau)
   {
-    return (0.0);
+    APECSS_FLOAT inv_tau = 1 / tau;
+    derivative = -2.0 * APECSS_PI * inv_tau * (Bubble->p0 - Bubble->Excitation->dp) * APECSS_COS(APECSS_PI * t * inv_tau) * APECSS_SIN(APECSS_PI * t * inv_tau);
+  }
+  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
+  if (delta_t > Bubble->dt)
+  {
+    APECSS_FLOAT inv_delta_t = 1 / delta_t;
+    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
   }
   else
   {
-    APECSS_FLOAT derivative = 0.0;
-    if (t < 2 * T)
-    {
-      APECSS_FLOAT inv_T = 1 / T;
-      derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
-    }
-    APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
-    if (delta_t > Bubble->dt)
-    {
-      APECSS_FLOAT inv_delta_t = 1 / delta_t;
-      return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
-    }
-    else
-    {
-      return (derivative);
-    }
+    return (derivative);
   }
 }
 
