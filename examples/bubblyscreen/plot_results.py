@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from math import pi
 from matplotlib.patches import Circle
 
-fontsize = 16.5
+fontsize = 20.5
 
 plt.rcParams['font.family']='serif'
 plt.rcParams['font.serif']=['Times New Roman'] + plt.rcParams['font.serif']
@@ -82,11 +82,11 @@ def plot_oscillation_distribution(fig, axs, row, col, nbubbles_x, inttype,  rati
         axs[row, col].set_title(r"$\omega/\omega_{0}$ = " + "{:.1f}".format(ratio_w))
         axs[row, col].set_aspect("equal")
 
-    clb = fig.colorbar(cset, ax=axs[row, col], shrink=0.7)
+    clb = fig.colorbar(cset, ax=axs[row, col], pad=0.025, shrink=0.665)
     if order > 0 : 
-        clb.ax.set_title(r"$|r'| \times 10^{-order}$".replace("order", str(order)))
+        clb.ax.set_title(r"$|r'| \times 10^{-order}$".replace("order", str(order)), fontsize=fontsize+1.0)
     else :
-        clb.ax.set_title(r"$|r'|$")
+        clb.ax.set_title(r"$|r'|$", fontsize=fontsize+1.0)
     colors = cset.cmap(cset.norm(cset.get_array()))
     for i in range(nbubbles_x) :
         for j in range(nbubbles_x) :
@@ -113,18 +113,18 @@ for i in range(nrow) :
         axs[i,j].set_aspect("equal")
     
 ### First row : QA ###
-plt.figtext(0.5, 0.875, r"QA, $D/R_{0}$ = 400", fontsize=20.0, horizontalalignment="center")
+plt.figtext(0.5, 0.875, r"QA, $D/R_{0}$ = 400", fontsize=25.0, horizontalalignment="center")
 plot_oscillation_distribution(fig, axs, 0, 0, 51, "QA", 0.5, 400, order=4)
 plot_oscillation_distribution(fig, axs, 0, 1, 51, "QA", 0.9, 400, order=3)
 plot_oscillation_distribution(fig, axs, 0, 2, 51, "QA", 1.0, 400, order=2)
 plot_oscillation_distribution(fig, axs, 0, 3, 51, "QA", 1.5, 400, order=4)
 
 ### Second row : IC ###
-plt.figtext(0.5, 0.5, r"IC, $D/R_{0}$ = 400", fontsize=20.0, horizontalalignment="center")
+plt.figtext(0.5, 0.475, r"IC, $D/R_{0}$ = 400", fontsize=25.0, horizontalalignment="center")
 plot_oscillation_distribution(fig, axs, 1, 0, 51, "IC", 0.5, 400, order=4)
 plot_oscillation_distribution(fig, axs, 1, 1, 51, "IC", 0.9, 400, order=3)
 plot_oscillation_distribution(fig, axs, 1, 2, 51, "IC", 1.0, 400, order=3)
 plot_oscillation_distribution(fig, axs, 1, 3, 51, "IC", 1.5, 400, order=4, clear=True)
 
-fig.subplots_adjust(hspace=0.01*cm, wspace=0.60*cm)
+fig.subplots_adjust(hspace=0.01*cm, wspace=0.95*cm)
 fig.savefig("bubblyscreen_ComparisonQAIC.pdf", bbox_inches="tight",pad_inches=0.035)

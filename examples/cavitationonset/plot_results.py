@@ -92,9 +92,9 @@ fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
 plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
 
 axs[0].set_title("Pressure time history (" + r"$T$ = " + "{:.1f} ".format(T*1.0e06) + r"$\mu$s)")
-axs[0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$p_{\infty}$/$p_{0}$ (-)", fontsize=27.5)
+axs[0].set_ylabel(r"$p_{\infty}$/$p_{0}$ [-]", fontsize=27.5)
 axs[0].grid()
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][1]) * 1.0e6
@@ -102,9 +102,9 @@ p_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][3]) / P0
 axs[0].plot(t_list, p_list, color="black", linewidth=2.5)
 
 axs[1].set_title("Evolution of radius without interaction")
-axs[1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
-axs[1].set_ylabel(r"$R$ ($\mu$m)", fontsize=27.5)
+axs[1].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
 axs[1].grid()
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][1]) * 1.0e6
@@ -130,9 +130,9 @@ plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
 png_list = [-17221, -17725.5, -18353.2, -18770.3]
 
 ax.set_title("Cavitation inception of a single bubble \n depending on " + r"$p_{ng}$/$p_{0}$ ($R_{0}$ = 2 $\mu$m)")
-ax.set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+ax.set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 ax.set_xlim(xmin=10.0, xmax=60.0)
-ax.set_ylabel(r"$R$ ($\mu$m)", fontsize=27.5)
+ax.set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
 ax.set_ylim(ymin=0.0, ymax=14.0)
 ax.grid()
 
@@ -160,9 +160,9 @@ plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 dist_list = [10, 12, 12.1, 12.5, 15, 20]
 
 axs[0].set_title(r"Incompressible interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25)")
-axs[0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$R$ ($\mu$m)", fontsize=27.5)
+axs[0].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
 axs[0].set_ylim(ymin=-5.0, ymax=80.0)
 axs[0].grid()
 
@@ -194,9 +194,9 @@ axs[0].text(25.0, -2.5, r"10", color="blue")
 dist_list = [10, 11.9, 12, 15, 20]
 
 axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25)")
-axs[1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
-# axs[1].set_ylabel(r"$R$ ($\mu$m)")
+# axs[1].set_ylabel(r"$R$ [$\mu$m]")
 axs[1].set_ylim(ymin=-5.0, ymax=80.0)
 axs[1].grid()
 
@@ -237,9 +237,9 @@ plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 png_list = [-25325, -27351, -27958.8, -29377]
 
 axs[0].set_title(r"Incompressible interactions" + "\n" +r"($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
-axs[0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$R_{1}$ ($\mu$m)", fontsize=27.5)
+axs[0].set_ylabel(r"$R_{1}$ [$\mu$m]", fontsize=27.5)
 axs[0].set_ylim(ymin=0.0, ymax=40.0)
 axs[0].grid()
 
@@ -259,9 +259,9 @@ axs[0].text(23.0, 0.5, r"-0.25", color="blue")
 png_list = [-25325, -27351, -27958.8, -27654.9, -29377]
 
 axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
-axs[1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
-# axs[1].set_ylabel(r"$R$ ($\mu$m)")
+# axs[1].set_ylabel(r"$R$ [$\mu$m]")
 axs[1].set_ylim(ymin=0.0, ymax=40.0)
 axs[1].grid()
 
@@ -303,11 +303,11 @@ for i in range(2) :
 axs[0, 0].set_title(r"Incompressible interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
 axs[0, 1].set_title(r"Quasi acoustic interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
 
-axs[1, 0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
-axs[1, 1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[1, 0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
+axs[1, 1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 
-axs[0, 0].set_ylabel(r"$R_{1}$ ($\mu$m)", fontsize=27.5)
-axs[1, 0].set_ylabel(r"$P_{1, \infty}$/$P_{0}$ (-)", fontsize=27.5)
+axs[0, 0].set_ylabel(r"$R_{1}$ [$\mu$m]", fontsize=27.5)
+axs[1, 0].set_ylabel(r"$P_{1, \infty}$/$P_{0}$ [-]", fontsize=27.5)
 axs[1, 0].set_ylim(ymin=-0.255, ymax=0.0)
 axs[1, 1].set_ylim(ymin=-0.255, ymax=0.0)
 
