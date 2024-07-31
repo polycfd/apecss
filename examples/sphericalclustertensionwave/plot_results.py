@@ -214,7 +214,7 @@ for cluster in cluster_types :
             if min_dist_bubble < min_dist :
                 min_dist = min_dist_bubble
             
-        print("{} cluster with N={} bubbles, minimum distance between bubbles equal {:.2f} microns".format(cluster, count, min_dist*1.0e6))
+        print("{} cluster with N={} bubbles, minimum distance between bubbles equals {:.2f} microns".format(cluster, count, min_dist*1.0e6))
 
 fig, ax = plt.subplots(1, 1, figsize=(17.5*cm, 12.5*cm))
 ax.set_xlabel(r"$<R> / R_{0,ref}$ [-]", fontsize=15)
@@ -224,7 +224,7 @@ for count in list(dic_bubbles["NI"]["poly"].keys()) :
     init_r_list = []
     for i in range(count) :
         init_r_list.append(dic_bubbles["NI"]["poly"][count][p1][i][0] / r_ref)
-    print("poly cluster with N={} bubbles, minimum initial radius equal {:.2E} m".format(count, np.min(init_r_list) * r_ref))
+    print("poly cluster with N={} bubbles, minimum initial radius equals {:.2E} m".format(count, np.min(init_r_list) * r_ref))
     count, bins, ignored = ax.hist(init_r_list, 100, density=True, align='mid', label="{} bubbles".format(count))
 
 x = np.linspace(min(bins), max(bins), 10000)
@@ -315,6 +315,91 @@ for k in dic_loc_distrib_global[count][p1].keys() :
 
 axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
 fig.savefig("sphericalclustertensionwave_mono_radiusevolution.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######### Averaged radius versus time evolution for monodispersed cluster (article) ###############
+count = 250
+p1 = -3.0e4
+t_i = r_ref * sqrt(rho_l / (p0 - p1))
+
+nrow = 1
+ncol = 3
+fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
+for i in range(ncol) :
+    axs[i].set_xlabel(r"$ t / t_{i}$ [-]", fontsize=27.5)
+    if i == 0 : axs[i].set_ylabel(r"$<R> / R_{0}$ [-]", fontsize=27.5)
+    axs[i].set_xlim(xmin=0.0, xmax=80.0)
+    axs[i].tick_params(axis="both", labelsize=25)
+    axs[i].grid()
+
+plt.subplots_adjust(wspace=0.35*cm)
+
+axs[0].set_title(r"No interaction", fontsize=27.5)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+
+dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+
+for k in dic_loc_distrib_global[count][p1].keys() :
+    index_list = dic_loc_distrib_global[count][p1][k]
+
+    # No interaction
+    t_list = (1/t_i) * np.array(dic_bubbles["NI"]["mono"][count][p1][0])
+
+    r_list_0 = np.array(dic_bubbles["NI"]["mono"][count][p1][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["NI"]["mono"][count][p1][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["NI"]["mono"][count][p1][index + 1][1])
+        init_r = dic_bubbles["NI"]["mono"][count][p1][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[0].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+    # Incompressible interactions
+    t_list = (1/t_i) * np.array(dic_bubbles["IC"]["mono"][count][p1][0])
+
+    r_list_0 = np.array(dic_bubbles["IC"]["mono"][count][p1][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["IC"]["mono"][count][p1][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["IC"]["mono"][count][p1][index + 1][1])
+        init_r = dic_bubbles["IC"]["mono"][count][p1][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[1].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
+
+    # Quasi acoustic interactions
+    t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
+
+    r_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["QA"]["mono"][count][p1][index + 1][1])
+        init_r = dic_bubbles["QA"]["mono"][count][p1][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[2].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=26.5, ncol=3, frameon=False)
+fig.savefig("sphericalclustertensionwave_mono_radiusevolution_article.pdf", bbox_inches='tight',pad_inches=0.35)
 
 ######### Averaged radius versus time evolution for polydispersed cluster #########################
 
@@ -415,6 +500,13 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
     zm.plot(t_list, avg_radius, linewidth=1.5, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
 
 # Quasi acoustic interactions
+axs[2].set_xlim(xmin=-10.0,xmax=1000.0)
+axs[2].set_ylim(ymin=0.925,ymax=1.25)
+
+zm = axs[2].inset_axes([0.25, 0.5, 0.7, 0.45])
+zm.grid()
+zm.set_xlim(xmax=250.0)
+
 for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
     index_list = dic_polydisperse["QA"][count][p1][q]
 
@@ -435,8 +527,146 @@ for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
     
     axs[2].plot(t_list, avg_radius, linewidth=1.5, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
 
+    zm.plot(t_list, avg_radius, linewidth=1.5, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
 axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=n_quantiles, frameon=False)
 fig.savefig("sphericalclustertensionwave_poly_radiusevolution.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######### Averaged radius versus time evolution for polydispersed cluster (article) ###############
+
+count = 250
+p1 = -3.0e4
+t_i = r_ref * sqrt(rho_l / (p0 - p1))
+
+nrow = 1
+ncol = 3
+fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
+for i in range(ncol) :
+    axs[i].set_xlabel(r"$ t / t_{i}$ [-]", fontsize=27.5)
+    if i == 0 : axs[i].set_ylabel(r"$<R/R_{0}>$ [-]", fontsize=27.5)
+    # axs[i].set_xlim(xmin=10.0, xmax=60.0)
+    axs[i].tick_params(axis="both", labelsize=25)
+    axs[i].grid()
+plt.subplots_adjust(wspace=0.35*cm)
+
+axs[0].set_title(r"No interaction", fontsize=27.5)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+
+color_list = ["black", "magenta", "blue", "green", "red"]
+# linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
+linestyle_list = ["solid" for i in range(5)]
+dic_color_q = {}
+dic_linestyle_q = {}
+dic_label_q = {}
+for i in range(n_quantiles) :
+    quantile = quantiles_list[i]
+    dic_color_q[quantile] = color_list[i]
+    dic_linestyle_q[quantile] = linestyle_list[i]
+
+    dic_label_q[quantile] = "{}th-{}".format(i+1, quantile_name)
+    if i == 0 :
+        dic_label_q[quantile] = "1st-{}".format(quantile_name)
+    elif i == 1 :
+        dic_label_q[quantile] = "2nd-{}".format(quantile_name)
+    elif i == 2 :
+        dic_label_q[quantile] = "3rd-{}".format(quantile_name)
+
+# No interaction
+axs[0].set_xlim(xmin=0.0,xmax=250.0)
+axs[0].set_ylim(ymin=0.95,ymax=1.6)
+
+zm = axs[0].inset_axes([0.25, 0.25, 0.7, 0.7])
+zm.grid()
+zm.set_xlim(xmin=0.0, xmax=50.0)
+zm.tick_params(axis="both", labelsize=25)
+
+for q in list(dic_polydisperse["NI"][count][p1].keys())[1:] :
+    index_list = dic_polydisperse["NI"][count][p1][q]
+
+    t_list = (1/t_i) * np.array(dic_bubbles["NI"]["poly"][count][p1][0])
+
+    r_list_0 = np.array(dic_bubbles["NI"]["poly"][count][p1][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["NI"]["poly"][count][p1][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["NI"]["poly"][count][p1][index + 1][1])
+        init_r = dic_bubbles["NI"]["poly"][count][p1][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[0].plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+    
+    zm.plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
+# Incompressible interactions
+axs[1].set_xlim(xmin=-10.0,xmax=800.0)
+axs[1].set_ylim(ymin=0.925,ymax=1.25)
+
+zm = axs[1].inset_axes([0.25, 0.5, 0.7, 0.45])
+zm.grid()
+zm.set_xlim(xmax=200.0)
+zm.tick_params(axis="both", labelsize=25)
+
+for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
+    index_list = dic_polydisperse["IC"][count][p1][q]
+
+    t_list = (1/t_i) * np.array(dic_bubbles["IC"]["poly"][count][p1][0])
+
+    r_list_0 = np.array(dic_bubbles["IC"]["poly"][count][p1][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["IC"]["poly"][count][p1][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["IC"]["poly"][count][p1][index + 1][1])
+        init_r = dic_bubbles["IC"]["poly"][count][p1][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[1].plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q], label=dic_label_q[q])
+
+    zm.plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
+# Quasi acoustic interactions
+axs[2].set_xlim(xmin=-10.0,xmax=1000.0)
+axs[2].set_ylim(ymin=0.925,ymax=1.25)
+
+zm = axs[2].inset_axes([0.25, 0.5, 0.7, 0.45])
+zm.grid()
+zm.set_xlim(xmax=250.0)
+zm.tick_params(axis="both", labelsize=25)
+
+for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
+    index_list = dic_polydisperse["QA"][count][p1][q]
+
+    t_list = (1/t_i) * np.array(dic_bubbles["QA"]["poly"][count][p1][0])
+
+    r_list_0 = np.array(dic_bubbles["QA"]["poly"][count][p1][index_list[0] + 1][1])
+    init_r_0 = dic_bubbles["QA"]["poly"][count][p1][index_list[0] + 1][0]
+    avg_radius = r_list_0 / init_r_0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        r_list = np.array(dic_bubbles["QA"]["poly"][count][p1][index + 1][1])
+        init_r = dic_bubbles["QA"]["poly"][count][p1][index + 1][0]
+        avg_radius = avg_radius + np.array(r_list) / init_r
+
+    avg_radius = (1 / len(index_list)) * avg_radius
+    
+    axs[2].plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
+    zm.plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=26.5, ncol=n_quantiles, frameon=False)
+fig.savefig("sphericalclustertensionwave_poly_radiusevolution_article.pdf", bbox_inches='tight',pad_inches=0.35)
 
 ######### Averaged radius versus time for polydispersed cluster based on location #################
 count = 250
