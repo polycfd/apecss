@@ -6,7 +6,7 @@ import matplotlib.colors as mcolors
 plt.rcParams['font.family']='serif'
 plt.rcParams['font.serif']=['Times New Roman'] + plt.rcParams['font.serif']
 plt.rcParams['mathtext.fontset']='stix'
-plt.rcParams['font.size']=12.5
+plt.rcParams['font.size']=25
 
 color_names = list(mcolors.XKCD_COLORS)
 
@@ -92,30 +92,30 @@ fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
 plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
 
 axs[0].set_title("Pressure time history (" + r"$T$ = " + "{:.1f} ".format(T*1.0e06) + r"$\mu$s)")
-axs[0].set_xlabel(r"t ($\mu$s)")
+axs[0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$p_{\infty}$/$p_{0}$ (-)")
+axs[0].set_ylabel(r"$p_{\infty}$/$p_{0}$ (-)", fontsize=27.5)
 axs[0].grid()
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][1]) * 1.0e6
 p_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][3]) / P0
-axs[0].plot(t_list, p_list, color="black")
+axs[0].plot(t_list, p_list, color="black", linewidth=2.5)
 
 axs[1].set_title("Evolution of radius without interaction")
-axs[1].set_xlabel(r"t ($\mu$s)")
+axs[1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
-axs[1].set_ylabel(r"$R$ ($\mu$m)")
+axs[1].set_ylabel(r"$R$ ($\mu$m)", fontsize=27.5)
 axs[1].grid()
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][1]) * 1.0e6
 r_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][2]) * 1.0e6
-axs[1].plot(t_list, r_list, color="blue", label=r"$R_{1,0}$ = 2.0 $\mu$m")
+axs[1].plot(t_list, r_list, color="blue", label=r"$R_{1,0}$ = 2.0 $\mu$m", linewidth=2.5)
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][1][1]) * 1.0e6
 r_list = np.array(dic_2_bubbles["NI"][-25325][15.0][1][2]) * 1.0e6
-axs[1].plot(t_list, r_list, color="magenta", label=r"$R_{2,0}$ = 20.0 $\mu$m")
+axs[1].plot(t_list, r_list, color="magenta", linestyle="dashed", label=r"$R_{2,0}$ = 20.0 $\mu$m", linewidth=2.5)
 
-axs[1].legend(loc="upper left")
+axs[1].legend(loc="upper left", frameon=False)
 
 fig.savefig("cavitationonset_pressurehistory_radiusevolutionNI.pdf", bbox_inches='tight',pad_inches=0.35)
 
@@ -129,10 +129,10 @@ plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
 
 png_list = [-17221, -17725.5, -18353.2, -18770.3]
 
-ax.set_title("Cavitation inception of a single bubble depending on " + r"$p_{ng}$/$p_{0}$ ($R_{0}$ = 2 $\mu$m)")
-ax.set_xlabel(r"t ($\mu$s)")
+ax.set_title("Cavitation inception of a single bubble \n depending on " + r"$p_{ng}$/$p_{0}$ ($R_{0}$ = 2 $\mu$m)")
+ax.set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 ax.set_xlim(xmin=10.0, xmax=60.0)
-ax.set_ylabel(r"$R$ ($\mu$m)")
+ax.set_ylabel(r"$R$ ($\mu$m)", fontsize=27.5)
 ax.set_ylim(ymin=0.0, ymax=14.0)
 ax.grid()
 
@@ -140,12 +140,12 @@ for png in png_list :
     t_list = np.array(dic_2_bubbles["NI"][png][15.0][0][1]) * 1.0e6
     r_list = np.array(dic_2_bubbles["NI"][png][15.0][0][2]) * 1.0e6
 
-    ax.plot(t_list, r_list, color="blue")
+    ax.plot(t_list, r_list, color="blue", linewidth=2.5)
 
-ax.text(25.0, 3.50, r"$-0.17$")
+ax.text(25.0, 3.00, r"$-0.17$")
 ax.text(31.0, 6.25, r"$-0.175$")
 ax.text(28.0, 9.00, r"$-0.176$")
-ax.text(22.5, 13.0, r"$-0.18$")
+ax.text(21.0, 13.0, r"$-0.18$")
 
 fig.savefig("cavitationonset_singlebubble.pdf", bbox_inches='tight',pad_inches=0.35)
 
@@ -155,74 +155,74 @@ nrow = 1
 ncol = 2
 
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
-plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
+plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
 dist_list = [10, 12, 12.1, 12.5, 15, 20]
 
-axs[0].set_title(r"Incompressible interactions ($p_{ng}$/$p_{0}$ = -0.25)")
-axs[0].set_xlabel(r"t ($\mu$s)")
+axs[0].set_title(r"Incompressible interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25)")
+axs[0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$R$ ($\mu$m)")
-axs[0].set_ylim(ymin=0.0, ymax=80.0)
+axs[0].set_ylabel(r"$R$ ($\mu$m)", fontsize=27.5)
+axs[0].set_ylim(ymin=-5.0, ymax=80.0)
 axs[0].grid()
 
 for dist in dist_list :
     t_list = np.array(dic_2_bubbles["IC"][-25325][dist][0][1]) * 1.0e6
     r_list = np.array(dic_2_bubbles["IC"][-25325][dist][0][2]) * 1.0e6
 
-    axs[0].plot(t_list, r_list, color="blue")
+    axs[0].plot(t_list, r_list, color="blue", linewidth=2.5)
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][1]) * 1.0e6
 r_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][2]) * 1.0e6
-axs[0].plot(t_list, r_list, color="blue")
+axs[0].plot(t_list, r_list, color="blue", linewidth=2.5)
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][1][1]) * 1.0e6
 r_list = np.array(dic_2_bubbles["NI"][-25325][15.0][1][2]) * 1.0e6
-axs[0].plot(t_list, r_list, color="magenta")
+axs[0].plot(t_list, r_list, color="magenta", linestyle="dashed", linewidth=2.5)
 
-axs[0].text(0.5, 5.0, r"$R_{1,0}$ = 2.0 $\mu$m", color="blue")
-axs[0].text(0.5, 25.0, r"$R_{2,0}$ = 20.0 $\mu$m", color="magenta")
+axs[0].text(0.5, 5.0, r"$R_{1,0}$", color="blue")
+axs[0].text(0.5, 25.0, r"$R_{2,0}$", color="magenta")
 
-axs[0].text(38.0, 75.0, r"$\infty$", color="blue")
-axs[0].text(45.0, 75.0, r"20", color="blue")
-axs[0].text(50.0, 75.0, r"15", color="blue")
-axs[0].text(55.0, 55.0, r"12.5", color="blue")
+axs[0].text(36.5, 73.5, r"$\infty$", color="blue")
+axs[0].text(42.5, 73.5, r"20", color="blue")
+axs[0].text(54.0, 73.5, r"15", color="blue")
+axs[0].text(50.0, 54.0, r"12.5", color="blue")
 axs[0].text(45.0, 15.0, r"12.1", color="blue")
-axs[0].text(35.0, 7.0, r"12", color="blue")
-axs[0].text(25.0, 0.5, r"10", color="blue")
+axs[0].text(37.0, 6.5, r"12", color="blue")
+axs[0].text(25.0, -2.5, r"10", color="blue")
 
 dist_list = [10, 11.9, 12, 15, 20]
 
-axs[1].set_title(r"Quasi acoustic interactions ($p_{ng}$/$p_{0}$ = -0.25)")
-axs[1].set_xlabel(r"t ($\mu$s)")
+axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25)")
+axs[1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
-axs[1].set_ylabel(r"$R$ ($\mu$m)")
-axs[1].set_ylim(ymin=0.0, ymax=80.0)
+# axs[1].set_ylabel(r"$R$ ($\mu$m)")
+axs[1].set_ylim(ymin=-5.0, ymax=80.0)
 axs[1].grid()
 
 for dist in dist_list :
     t_list = np.array(dic_2_bubbles["QA"][-25325][dist][0][1]) * 1.0e6
     r_list = np.array(dic_2_bubbles["QA"][-25325][dist][0][2]) * 1.0e6
 
-    axs[1].plot(t_list, r_list, color="blue")
+    axs[1].plot(t_list, r_list, color="blue", linewidth=2.5)
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][1]) * 1.0e6
 r_list = np.array(dic_2_bubbles["NI"][-25325][15.0][0][2]) * 1.0e6
-axs[1].plot(t_list, r_list, color="blue")
+axs[1].plot(t_list, r_list, color="blue", linewidth=2.5)
 
 t_list = np.array(dic_2_bubbles["NI"][-25325][15.0][1][1]) * 1.0e6
 r_list = np.array(dic_2_bubbles["NI"][-25325][15.0][1][2]) * 1.0e6
-axs[1].plot(t_list, r_list, color="magenta")
+axs[1].plot(t_list, r_list, color="magenta", linestyle="dashed", linewidth=2.5)
 
-axs[1].text(0.5, 5.0, r"$R_{1,0}$ = 2.0 $\mu$m", color="blue")
-axs[1].text(0.5, 25.0, r"$R_{2,0}$ = 20.0 $\mu$m", color="magenta")
+axs[1].text(0.5, 5.0, r"$R_{1,0}$", color="blue")
+axs[1].text(0.5, 25.0, r"$R_{2,0}$", color="magenta")
 
-axs[1].text(38.0, 75.0, r"$\infty$", color="blue")
-axs[1].text(45.0, 75.0, r"20", color="blue")
-axs[1].text(50.0, 75.0, r"15", color="blue")
-axs[1].text(51.0, 35.0, r"12", color="blue")
+axs[1].text(36.5, 73.5, r"$\infty$", color="blue")
+axs[1].text(42.5, 73.5, r"20", color="blue")
+axs[1].text(54.0, 73.5, r"15", color="blue")
+axs[1].text(51.0, 36.0, r"12", color="blue")
 axs[1].text(40.0, 10.0, r"11.9", color="blue")
-axs[1].text(25.0, 0.5, r"10", color="blue")
+axs[1].text(25.0, -2.5, r"10", color="blue")
 
 fig.savefig("cavitationonset_varyingdistance.pdf", bbox_inches='tight',pad_inches=0.35)
 
@@ -232,14 +232,14 @@ nrow = 1
 ncol = 2
 
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
-plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
+plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
 png_list = [-25325, -27351, -27958.8, -29377]
 
-axs[0].set_title(r"Incompressible interactions ($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
-axs[0].set_xlabel(r"t ($\mu$s)")
+axs[0].set_title(r"Incompressible interactions" + "\n" +r"($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
+axs[0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$R$ ($\mu$m)")
+axs[0].set_ylabel(r"$R_{1}$ ($\mu$m)", fontsize=27.5)
 axs[0].set_ylim(ymin=0.0, ymax=40.0)
 axs[0].grid()
 
@@ -247,21 +247,21 @@ for png in png_list :
     t_list = np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6
     r_list = np.array(dic_2_bubbles["IC"][png][10.0][0][2]) * 1.0e6
 
-    axs[0].plot(t_list, r_list, color="blue")
+    axs[0].plot(t_list, r_list, color="blue", linewidth=2.5)
 
-axs[0].text(0.5, 3.0, r"$R_{1,0}$ = 2.0 $\mu$m", color="blue")
+axs[0].text(0.5, 3.0, r"$R_{1,0}$", color="blue")
 
-axs[0].text(36.0, 37.5, r"-0.29", color="blue")
+axs[0].text(32.0, 37.5, r"-0.29", color="blue")
 axs[0].text(45.0, 25.5, r"-0.276", color="blue")
 axs[0].text(30.0, 8.0, r"-0.27", color="blue")
-axs[0].text(25.0, 1.0, r"-0.25", color="blue")
+axs[0].text(23.0, 0.5, r"-0.25", color="blue")
 
 png_list = [-25325, -27351, -27958.8, -27654.9, -29377]
 
-axs[1].set_title(r"Quasi acoustic interactions ($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
-axs[1].set_xlabel(r"t ($\mu$s)")
+axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
+axs[1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
-axs[1].set_ylabel(r"$R$ ($\mu$m)")
+# axs[1].set_ylabel(r"$R$ ($\mu$m)")
 axs[1].set_ylim(ymin=0.0, ymax=40.0)
 axs[1].grid()
 
@@ -269,15 +269,15 @@ for png in png_list :
     t_list = np.array(dic_2_bubbles["QA"][png][10.0][0][1]) * 1.0e6
     r_list = np.array(dic_2_bubbles["QA"][png][10.0][0][2]) * 1.0e6
 
-    axs[1].plot(t_list, r_list, color="blue")
+    axs[1].plot(t_list, r_list, color="blue", linewidth=2.5)
 
-axs[1].text(0.5, 3.0, r"$R_{1,0}$ = 2.0 $\mu$m", color="blue")
+axs[1].text(0.5, 3.0, r"$R_{1,0}$", color="blue")
 
-axs[1].text(34.5, 37.5, r"-0.29", color="blue")
+axs[1].text(30.5, 37.5, r"-0.29", color="blue")
 axs[1].text(48.5, 37.5, r"-0.276", color="blue")
-axs[1].text(54.0, 31.0, r"-0.273", color="blue")
+axs[1].text(50.0, 28.0, r"-0.273", color="blue")
 axs[1].text(36.5, 8.0, r"-0.27", color="blue")
-axs[1].text(25.0, 1.0, r"-0.25", color="blue")
+axs[1].text(25.0, 0.5, r"-0.25", color="blue")
 
 fig.savefig("cavitationonset_varyingpressure.pdf", bbox_inches='tight',pad_inches=0.35)
 
@@ -287,25 +287,27 @@ nrow = 2
 ncol = 2
 
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)), sharex=True)
-plt.subplots_adjust(wspace=0.25*cm, hspace=0.25*cm)
+plt.subplots_adjust(wspace=0.35*cm, hspace=0.25*cm)
 
 dic_color = {1 : "black", 2 : "red", 3 : "magenta", 4 : "blue", 8 : "green"}
 nbubble_list = [1, 2, 3, 4, 8]
 dic_shape = {1 : "single bubble", 2 : "Line of 2 bubbles", 3 : "3 bubbles-regular triangle", 4 : "4 bubbles-regular tetragon", 8 : "8 bubbles-regular hexaedron"}
+dic_linestyle = {1 : "solid", 2 : "dashed", 3 : "-.", 4 : "dotted", 8 : "dashdot"}
+dic_marker = {1 : "*", 2 : "s", 3 : "X", 4 : "^", 8 : "D"}
 
 for i in range(2) :
     for j in range(2) :
         axs[i, j].grid()
         axs[i, j].set_xlim(xmin=10.0, xmax=60.0)
 
-axs[0, 0].set_title(r"Incompressible interactions ($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
-axs[0, 1].set_title(r"Quasi acoustic interactions ($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
+axs[0, 0].set_title(r"Incompressible interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
+axs[0, 1].set_title(r"Quasi acoustic interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
 
-axs[1, 0].set_xlabel(r"t ($\mu$s)")
-axs[1, 1].set_xlabel(r"t ($\mu$s)")
+axs[1, 0].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
+axs[1, 1].set_xlabel(r"t ($\mu$s)", fontsize=27.5)
 
-axs[0, 0].set_ylabel(r"$R_{1}$ ($\mu$m)")
-axs[1, 0].set_ylabel(r"$P_{1, \infty}$/$P_{0}$ (-)")
+axs[0, 0].set_ylabel(r"$R_{1}$ ($\mu$m)", fontsize=27.5)
+axs[1, 0].set_ylabel(r"$P_{1, \infty}$/$P_{0}$ (-)", fontsize=27.5)
 axs[1, 0].set_ylim(ymin=-0.255, ymax=0.0)
 axs[1, 1].set_ylim(ymin=-0.255, ymax=0.0)
 
@@ -314,16 +316,16 @@ for nbubble in nbubble_list :
     r_list = np.array(dic_n_bubbles["IC"][nbubble][0][2]) * 1.0e6
     p_list = np.array(dic_n_bubbles["IC"][nbubble][0][3]) / P0
 
-    axs[0, 0].plot(t_list, r_list, color=dic_color[nbubble], label=dic_shape[nbubble])
-    axs[1, 0].plot(t_list, p_list, color=dic_color[nbubble])
+    axs[0, 0].plot(t_list, r_list, color=dic_color[nbubble], label=dic_shape[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=10.0, linewidth=2.5)
+    axs[1, 0].plot(t_list, p_list, color=dic_color[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=10.0, linewidth=2.5)
 
     t_list = np.array(dic_n_bubbles["QA"][nbubble][0][1]) * 1.0e6
     r_list = np.array(dic_n_bubbles["QA"][nbubble][0][2]) * 1.0e6
     p_list = np.array(dic_n_bubbles["QA"][nbubble][0][3]) / P0
 
-    axs[0, 1].plot(t_list, r_list, color=dic_color[nbubble])
-    axs[1, 1].plot(t_list, p_list, color=dic_color[nbubble])
+    axs[0, 1].plot(t_list, r_list, color=dic_color[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=10.0, linewidth=2.5)
+    axs[1, 1].plot(t_list, p_list, color=dic_color[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=12.5, linewidth=2.5)
 
-axs[0, 0].legend(loc="upper left")
+axs[0, 0].legend(bbox_to_anchor=(1.1, 1.175), loc="lower center", ncol=2, frameon=False)
 
 fig.savefig("cavitationonset_monodispersedclusters.pdf", bbox_inches='tight',pad_inches=0.35)
