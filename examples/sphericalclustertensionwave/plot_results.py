@@ -635,12 +635,12 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
     zm.plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
 
 # Quasi acoustic interactions
-axs[2].set_xlim(xmin=-10.0,xmax=1000.0)
+axs[2].set_xlim(xmin=-10.0,xmax=800.0)
 axs[2].set_ylim(ymin=0.925,ymax=1.25)
 
 zm = axs[2].inset_axes([0.25, 0.5, 0.7, 0.45])
 zm.grid()
-zm.set_xlim(xmax=250.0)
+zm.set_xlim(xmax=200.0)
 zm.tick_params(axis="both", labelsize=25)
 
 for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
@@ -830,6 +830,106 @@ for k in dic_loc_distrib_global[count][p1].keys() :
 axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=3, frameon=False)
 fig.savefig("sphericalclustertensionwave_mono_pressureevolution.pdf", bbox_inches='tight',pad_inches=0.35)
 
+######### Averaged pressure infinity versus time evolution for monodispersed clusters (article) ###
+
+count = 250
+p1 = -3.0e4
+p0 = 1.0e5
+t_i = r_ref * sqrt(rho_l / (p0 - p1))
+
+nrow = 1
+ncol = 3
+fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
+for i in range(ncol) :
+    axs[i].set_xlabel(r"$ t / t_{i}$ [-]", fontsize=27.5)
+    if i == 0 : axs[i].set_ylabel(r"$<p_{\infty}> / p_{0}$ [-]", fontsize=27.5)
+    axs[i].set_xlim(xmin=0.0, xmax=80.0)
+    axs[i].tick_params(axis="both", labelsize=25)
+    axs[i].grid()
+
+plt.subplots_adjust(wspace=0.35*cm)
+
+axs[0].set_title(r"No interaction", fontsize=27.5)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+
+dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+
+zm_IC = axs[1].inset_axes([0.35, 0.35, 0.60, 0.60])
+zm_IC.grid()
+zm_IC.set_xlim(xmin=0.0,xmax=20.0)
+zm_IC.set_ylim(ymin=-0.5,ymax=2.0)
+zm_IC.set_yticks([-0.267, 0.0, 1.0, 2.0])
+zm_IC.set_yticklabels([r"$p_{\mathrm{C}}$", 0, 1, 2])
+zm_IC.tick_params(axis="both", labelsize=25)
+
+zm_QA = axs[2].inset_axes([0.30, 0.4, 0.65, 0.55])
+zm_QA.grid()
+zm_QA.set_xlim(xmin=0.0,xmax=20.0)
+zm_QA.set_ylim(ymin=-0.5,ymax=2.0)
+zm_QA.set_yticks([-0.267, 0.0, 1.0, 2.0])
+zm_QA.set_yticklabels([r"$p_{\mathrm{C}}$", 0, 1, 2])
+zm_QA.tick_params(axis="both", labelsize=25)
+
+for k in dic_loc_distrib_global[count][p1].keys() :
+    index_list = dic_loc_distrib_global[count][p1][k]
+
+    # No interaction
+    t_list = (1/t_i) * np.array(dic_bubbles["NI"]["mono"][count][p1][0])
+
+    p_list_0 = np.array(dic_bubbles["NI"]["mono"][count][p1][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["NI"]["mono"][count][p1][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[0].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+    # Incompressible interactions
+    t_list = (1/t_i) * np.array(dic_bubbles["IC"]["mono"][count][p1][0])
+
+    p_list_0 = np.array(dic_bubbles["IC"]["mono"][count][p1][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["IC"]["mono"][count][p1][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[1].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
+
+    zm_IC.plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+    # Quasi acoustic interactions
+    t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
+
+    p_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["QA"]["mono"][count][p1][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[2].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+    zm_QA.plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
+
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=26.5, ncol=3, frameon=False)
+fig.savefig("sphericalclustertensionwave_mono_pressureevolution_article.pdf", bbox_inches='tight',pad_inches=0.35)
+
 ######### Averaged pressure infinity versus time evolution for polydispersed clusters #############
 
 count = 250
@@ -924,3 +1024,101 @@ for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
 
 axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=15, ncol=n_quantiles, frameon=False)
 fig.savefig("sphericalclustertensionwave_poly_pressureevolution.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######### Averaged pressure infinity versus time evolution for polydispersed clusters (article) ###
+
+count = 250
+p1 = -3.0e4
+p0 = 1.0e5
+t_i = r_ref * sqrt(rho_l / (p0 - p1))
+
+nrow = 1
+ncol = 3
+fig, axs = plt.subplots(nrow,ncol,figsize=(ncol*17.5*cm, nrow*12.5*cm))
+for i in range(ncol) :
+    axs[i].set_xlabel(r"$ t / t_{i}$ [-]", fontsize=27.5)
+    if i == 0 : axs[i].set_ylabel(r"$<p_{\infty}>/p_{0}$ [-]", fontsize=27.5)
+    # axs[i].set_xlim(xmin=10.0, xmax=60.0)
+    axs[i].tick_params(axis="both", labelsize=25)
+    axs[i].grid()
+
+plt.subplots_adjust(wspace=0.35*cm)
+
+axs[0].set_title(r"No interaction", fontsize=27.5)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+
+color_list = ["black", "magenta", "blue", "green", "red"]
+dic_color_q = {}
+dic_label_q = {}
+for i in range(n_quantiles) :
+    quantile = quantiles_list[i]
+    dic_color_q[quantile] = color_list[i]
+
+    dic_label_q[quantile] = "{}th-{}".format(i+1, quantile_name)
+    if i == 0 :
+        dic_label_q[quantile] = "1st-{}".format(quantile_name)
+    elif i == 1 :
+        dic_label_q[quantile] = "2nd-{}".format(quantile_name)
+    elif i == 2 :
+        dic_label_q[quantile] = "3rd-{}".format(quantile_name)
+
+# No interaction
+for q in list(dic_polydisperse["NI"][count][p1].keys())[1:] :
+    index_list = dic_polydisperse["NI"][count][p1][q]
+
+    t_list = (1/t_i) * np.array(dic_bubbles["NI"]["poly"][count][p1][0])
+
+    p_list_0 = np.array(dic_bubbles["NI"]["poly"][count][p1][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["NI"]["poly"][count][p1][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[0].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
+# Incompressible interactions
+for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
+    index_list = dic_polydisperse["IC"][count][p1][q]
+
+    t_list = (1/t_i) * np.array(dic_bubbles["IC"]["poly"][count][p1][0])
+
+    p_list_0 = np.array(dic_bubbles["IC"]["poly"][count][p1][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["IC"]["poly"][count][p1][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[1].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q], label=dic_label_q[q])
+
+# Quasi acoustic interactions
+for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
+    index_list = dic_polydisperse["QA"][count][p1][q]
+
+    t_list = (1/t_i) * np.array(dic_bubbles["QA"]["poly"][count][p1][0])
+
+    p_list_0 = np.array(dic_bubbles["QA"]["poly"][count][p1][index_list[0] + 1][2])
+    avg_pressure = p_list_0 / p0
+
+    for i in range(1, len(index_list)) :
+        index = index_list[i]
+
+        p_list = np.array(dic_bubbles["QA"]["poly"][count][p1][index + 1][2])
+        avg_pressure = avg_pressure + np.array(p_list) / p0
+
+    avg_pressure = (1 / len(index_list)) * avg_pressure
+    
+    axs[2].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
+
+axs[1].legend(bbox_to_anchor=(0.5, 1.175), loc="center", fontsize=26.5, ncol=n_quantiles, frameon=False)
+fig.savefig("sphericalclustertensionwave_poly_pressureevolution_article.pdf", bbox_inches='tight',pad_inches=0.35)
