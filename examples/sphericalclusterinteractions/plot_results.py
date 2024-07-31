@@ -8,7 +8,7 @@ from scipy.interpolate import interp1d
 plt.rcParams['font.family']='serif'
 plt.rcParams['font.serif']=['Times New Roman'] + plt.rcParams['font.serif']
 plt.rcParams['mathtext.fontset']='stix'
-plt.rcParams['font.size']=10
+plt.rcParams['font.size']=25
 
 color_names = list(mcolors.XKCD_COLORS)
 
@@ -48,6 +48,8 @@ for i in range(count):
         R_c = R_b
 
 file_loc.close()
+
+print("Data retrieved\n")
 
 ######### Step 1 : Functions ########################################################################################################################
 
@@ -274,6 +276,7 @@ dic_radii = {0.0 : [], 0.5 : [], 1.0 : []}
 interval_size = 0.20e-03
 
 cluster_radius = 2.5e-03
+interval_size = cluster_radius / 10
 fa = 50e03
 
 max_radius_to_center = 0.0
@@ -290,14 +293,18 @@ for i in range(count) :
     if radius_to_center > max_radius_to_center :
         max_radius_to_center = radius_to_center
 
+print("Repartition of bubbles done\n")
+
 dic_color_key = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_style_key = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_label_key = {1.0 : "{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(1.0),
+                 0.5 : "{:.1f}".format(0.5 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (average)".format(0.5 + interval_size/cluster_radius),
+                 0.0 : "{:.1f}".format(0.0) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (average)".format(interval_size/cluster_radius)}
 
-fig = plt.figure(figsize=(20*cm, 15*cm))
+fig = plt.figure(figsize=(20*cm, 12.5*cm))
 ax = fig.add_subplot(1, 1, 1)
-ax.set_xlabel(r"$t^{*}$", fontsize=15)
-ax.set_ylabel(r"$<R>/R_{0}$", fontsize=15)
-ax.set_title("Spherical cluster with " + r"$N=$" + "{} bubbles".format(count), fontsize=15)
+ax.set_xlabel(r"$t^{*}$", fontsize=27.5)
+ax.set_ylabel(r"$R/R_{0}$", fontsize=27.5)
 ax.grid()
 
 dic_radius_evolution = {1.0 : [], 0.5 : [], 0.0 : []}
@@ -305,6 +312,7 @@ dic_radius_evolution = {1.0 : [], 0.5 : [], 0.0 : []}
 for k in list(dic_radii.keys()) :
     index_list = dic_radii[k]
     for i in range(len(index_list)) :
+        print("{}, {}".format(k, i))
         index = index_list[i]
         t_uni, r_uni = _sample(Bubbles[index][:, 1], Bubbles[index][:, 3], 8, False)
         if i == 0 :
@@ -314,6 +322,8 @@ for k in list(dic_radii.keys()) :
         if i == len(index_list) - 1 :
             dic_radius_evolution[k].append(np.array(t_uni))
     dic_radius_evolution[k].append(avg_radii / len(index_list))
+
+print("Sampling and averaging completed")
 
 label_edge_front = 0
 label_edge_back = 0
@@ -329,23 +339,27 @@ for index in dic_radii[1.0] :
 #     index_list = dic_radii[k]
 #     if len(index_list) > 1 :
 #         for i in index_list[1:] :
-#             ax.plot(Bubbles[i][:, 1]*fa, Bubbles[i][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5)
-#         ax.plot(Bubbles[index_list[0]][:, 1]*fa, Bubbles[index_list[0]][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
+#             ax.plot(Bubbles[i][:, 1]*fa, Bubbles[i][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=3.0)
+#         ax.plot(Bubbles[index_list[0]][:, 1]*fa, Bubbles[index_list[0]][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=3.0, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
 #     else :
 #         for i in index_list :
-#             ax.plot(Bubbles[i][:, 1]*fa, Bubbles[i][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
+#             ax.plot(Bubbles[i][:, 1]*fa, Bubbles[i][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=3.0, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
 
-ax.plot(Bubbles[label_edge_front][:, 1]*fa, Bubbles[label_edge_front][:, 3]/Bubbles[label_edge_front][:, 3][0], linestyle="solid", color="black", linewidth=1.5, label=r"$r/R_{c} \approx 1.0$ (front)")
-ax.plot(Bubbles[label_edge_back][:, 1]*fa, Bubbles[label_edge_back][:, 3]/Bubbles[label_edge_back][:, 3][0], linestyle="solid", color="grey", linewidth=1.5, label=r"$r/R_{c} \approx 1.0$ (back)") 
+ax.plot(Bubbles[label_edge_front][:, 1]*fa, Bubbles[label_edge_front][:, 3]/Bubbles[label_edge_front][:, 3][0], linestyle="solid", color="black", 
+        marker="*", markersize=7.5, markevery=2500, linewidth=3.0, label="{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (one bubble, front)".format(1.0))
+ax.plot(Bubbles[label_edge_back][:, 1]*fa, Bubbles[label_edge_back][:, 3]/Bubbles[label_edge_back][:, 3][0], linestyle="solid", color="grey",
+        marker="D", markersize=7.5, markevery=2500, linewidth=3.0, label="{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (one bubble, back)".format(1.0)) 
 
 for k in list(dic_radius_evolution.keys())[1:] :
-    ax.plot(dic_radius_evolution[k][0]*fa, dic_radius_evolution[k][1]/dic_radius_evolution[k][1][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=1.5, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
+    ax.plot(dic_radius_evolution[k][0]*fa, dic_radius_evolution[k][1]/dic_radius_evolution[k][1][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=3.0, label=dic_label_key[k])
 
-ax.legend(loc="upper left", fontsize=15)
+ax.legend(bbox_to_anchor=(1.005, 0.75),loc="upper left", ncol=1, fontsize=26.5, frameon=False)
 savefig(fig, filename="sphericalclusterinteractions_radiievolution")
 
+print("Radius evolution plotted")
+
 ## Cluster evolution vizualisation ##################################################################################################################
-plt.rcParams['font.size']=15
+plt.rcParams['font.size']=27.5
 
 fig = plt.figure(figsize=(4*15*cm,15*cm))
 plt.subplots_adjust(wspace=0, hspace=0)
@@ -359,7 +373,7 @@ ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
 ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
-t_star = 0.75
+t_star = 0.5
 ax = fig.add_subplot(1, 4, 2, projection='3d')
 plot_cluster(ax, Bubbles, Bubbles_loc, t=t_star/fa, figtitle="", grid="False", radius_vis="False")
 ax.view_init(elev=90, azim=-90)
@@ -377,7 +391,7 @@ ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
 ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
-t_star = 1.25
+t_star = 1.5
 ax = fig.add_subplot(1, 4, 4, projection='3d')
 plot_cluster(ax, Bubbles, Bubbles_loc, t=t_star/fa, figtitle="", grid="False", radius_vis="False")
 ax.view_init(elev=90, azim=-90)
@@ -388,3 +402,5 @@ ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
 
 # plot_cluster(fig, Bubbles, Bubbles_loc)
 savefig(fig, filename="sphericalclusterinteractions_clusterevolution", format="png")
+
+print("Cluster temporal evolution plotted\n")
