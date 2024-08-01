@@ -301,9 +301,10 @@ dic_label_key = {1.0 : "{:.1f}".format(1.0 - interval_size/cluster_radius) + r" 
                  0.5 : "{:.1f}".format(0.5 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (average)".format(0.5 + interval_size/cluster_radius),
                  0.0 : "{:.1f}".format(0.0) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (average)".format(interval_size/cluster_radius)}
 
-fig = plt.figure(figsize=(20*cm, 12.5*cm))
+fig = plt.figure(figsize=(37*cm, 17.5*cm))
 ax = fig.add_subplot(1, 1, 1)
 ax.set_xlabel(r"$t^{*}$", fontsize=27.5)
+ax.set_xlim(xmin=0.0, xmax=1.5)
 ax.set_ylabel(r"$R/R_{0}$", fontsize=27.5)
 ax.grid()
 
@@ -346,14 +347,14 @@ for index in dic_radii[1.0] :
 #             ax.plot(Bubbles[i][:, 1]*fa, Bubbles[i][:, 3]/Bubbles[i][:, 3][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=3.0, label=r"$r/R_{c} \approx$"+"{:.1f}".format(k))
 
 ax.plot(Bubbles[label_edge_front][:, 1]*fa, Bubbles[label_edge_front][:, 3]/Bubbles[label_edge_front][:, 3][0], linestyle="solid", color="black", 
-        marker="*", markersize=7.5, markevery=2500, linewidth=3.0, label="{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (one bubble, front)".format(1.0))
+        marker="*", markersize=11.5, markevery=2500, linewidth=3.0, label="{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (one bubble, front)".format(1.0))
 ax.plot(Bubbles[label_edge_back][:, 1]*fa, Bubbles[label_edge_back][:, 3]/Bubbles[label_edge_back][:, 3][0], linestyle="solid", color="grey",
-        marker="D", markersize=7.5, markevery=2500, linewidth=3.0, label="{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (one bubble, back)".format(1.0)) 
+        marker="D", markersize=11.5, markevery=2500, linewidth=3.0, label="{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f} (one bubble, back)".format(1.0)) 
 
 for k in list(dic_radius_evolution.keys())[1:] :
     ax.plot(dic_radius_evolution[k][0]*fa, dic_radius_evolution[k][1]/dic_radius_evolution[k][1][0], linestyle=dic_style_key[k], color=dic_color_key[k], linewidth=3.0, label=dic_label_key[k])
 
-ax.legend(bbox_to_anchor=(1.005, 0.75),loc="upper left", ncol=1, fontsize=26.5, frameon=False)
+ax.legend(bbox_to_anchor=(0.5, 1.175),loc="center", ncol=2, fontsize=26.5, frameon=False)
 savefig(fig, filename="sphericalclusterinteractions_radiievolution")
 
 print("Radius evolution plotted")
@@ -371,7 +372,7 @@ ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
 
 t_star = 0.5
 ax = fig.add_subplot(1, 4, 2, projection='3d')
@@ -380,7 +381,7 @@ ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
 
 t_star = 1.0
 ax = fig.add_subplot(1, 4, 3, projection='3d')
@@ -389,7 +390,7 @@ ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
 
 t_star = 1.5
 ax = fig.add_subplot(1, 4, 4, projection='3d')
@@ -398,7 +399,7 @@ ax.view_init(elev=90, azim=-90)
 ax.set_aspect('equal')
 ax.set_box_aspect(None, zoom=1.5)
 ax.set_axis_off()
-ax.set_title(r"$t^{*}$ = " + "{:.2f}".format(t_star))
+ax.set_title(r"$t^{*}$ = " + "{:.1f}".format(t_star))
 
 # plot_cluster(fig, Bubbles, Bubbles_loc)
 savefig(fig, filename="sphericalclusterinteractions_clusterevolution", format="png")
