@@ -250,7 +250,7 @@ for i in range(ncol) :
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -294,7 +294,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
     
     axs[1].plot(t_list, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][1])
@@ -335,7 +335,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -379,7 +379,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
     
     axs[1].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][1])
@@ -418,7 +418,7 @@ for i in range(ncol) :
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 # linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
@@ -499,7 +499,7 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
 
     zm.plot(t_list, avg_radius, linewidth=1.5, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
 
-# Quasi acoustic interactions
+# Quasi-acoustic interactions
 axs[2].set_xlim(xmin=-10.0,xmax=1000.0)
 axs[2].set_ylim(ymin=0.925,ymax=1.25)
 
@@ -551,7 +551,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 # linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
@@ -634,7 +634,7 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
 
     zm.plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
 
-# Quasi acoustic interactions
+# Quasi-acoustic interactions
 axs[2].set_xlim(xmin=-10.0,xmax=800.0)
 axs[2].set_ylim(ymin=0.925,ymax=1.25)
 
@@ -684,7 +684,7 @@ for i in range(ncol) :
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -731,7 +731,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
     
     axs[1].plot(t_list, avg_radius, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["poly"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["QA"]["poly"][count][p1][index_list[0] + 1][1])
@@ -771,7 +771,7 @@ for i in range(ncol) :
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -811,7 +811,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
     
     axs[1].plot(t_list, avg_pressure, linewidth=1.5, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     p_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][2])
@@ -851,7 +851,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -909,7 +909,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
 
     zm_IC.plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     p_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][2])
@@ -948,7 +948,7 @@ for i in range(ncol) :
 
 axs[0].set_title(r"No interaction" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 dic_color_q = {}
@@ -1003,7 +1003,7 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
     
     axs[1].plot(t_list, avg_pressure, linewidth=1.5, linestyle=dic_linestyle_q[q], color=dic_color_q[q], label=dic_label_q[q])
 
-# Quasi acoustic interactions
+# Quasi-acoustic interactions
 for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
     index_list = dic_polydisperse["QA"][count][p1][q]
 
@@ -1046,7 +1046,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 dic_color_q = {}
@@ -1101,7 +1101,7 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
     
     axs[1].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q], label=dic_label_q[q])
 
-# Quasi acoustic interactions
+# Quasi-acoustic interactions
 for q in list(dic_polydisperse["QA"][count][p1].keys())[1:] :
     index_list = dic_polydisperse["QA"][count][p1][q]
 
@@ -1144,7 +1144,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -1188,7 +1188,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
     
     axs[1].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][1])
@@ -1232,7 +1232,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
@@ -1290,7 +1290,7 @@ for k in dic_loc_distrib_global[count][p1].keys() :
 
     zm_IC.plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
-    # Quasi acoustic interactions
+    # Quasi-acoustic interactions
     t_list = (1/t_i) * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     p_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][2])
@@ -1331,7 +1331,7 @@ plt.subplots_adjust(wspace=0.35*cm)
 
 axs[0].set_title(r"No interaction", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi acoustic interactions", fontsize=27.5)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 # linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
@@ -1414,7 +1414,7 @@ for q in list(dic_polydisperse["IC"][count][p1].keys())[1:] :
 
     zm.plot(t_list, avg_radius, linewidth=2.0, linestyle=dic_linestyle_q[q], color=dic_color_q[q])
 
-# Quasi acoustic interactions
+# Quasi-acoustic interactions
 axs[2].set_xlim(xmin=-10.0,xmax=800.0)
 axs[2].set_ylim(ymin=0.925,ymax=1.50)
 

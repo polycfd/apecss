@@ -159,7 +159,7 @@ plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
 dist_list = [10, 12, 12.1, 12.5, 15, 20]
 
-axs[0].set_title(r"Incompressible interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25)")
+axs[0].set_title(r"Incompressible interactions")
 axs[0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
 axs[0].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
@@ -193,7 +193,7 @@ axs[0].text(25.0, -2.5, r"10", color="blue")
 
 dist_list = [10, 11.9, 12, 15, 20]
 
-axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25)")
+axs[1].set_title(r"Quasi-acoustic interactions")
 axs[1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
 # axs[1].set_ylabel(r"$R$ [$\mu$m]")
@@ -236,7 +236,7 @@ plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
 png_list = [-25325, -27351, -27958.8, -29377]
 
-axs[0].set_title(r"Incompressible interactions" + "\n" +r"($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
+axs[0].set_title(r"Incompressible interactions")
 axs[0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
 axs[0].set_ylabel(r"$R_{1}$ [$\mu$m]", fontsize=27.5)
@@ -258,7 +258,7 @@ axs[0].text(23.0, 0.5, r"-0.25", color="blue")
 
 png_list = [-25325, -27351, -27958.8, -27654.9, -29377]
 
-axs[1].set_title(r"Quasi acoustic interactions" + "\n" +r"($\Delta x_{12}$ = 10[$R_{1,0}$ + $R_{2,0}$])")
+axs[1].set_title(r"Quasi-acoustic interactions")
 axs[1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
 # axs[1].set_ylabel(r"$R$ [$\mu$m]")
@@ -300,8 +300,8 @@ for i in range(2) :
         axs[i, j].grid()
         axs[i, j].set_xlim(xmin=10.0, xmax=60.0)
 
-axs[0, 0].set_title(r"Incompressible interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
-axs[0, 1].set_title(r"Quasi acoustic interactions" + "\n" +r"($p_{ng}$/$p_{0}$ = -0.25, $\Delta x_{12}$ = 20$R_{1,0}$)")
+axs[0, 0].set_title(r"Incompressible interactions")
+axs[0, 1].set_title(r"Quasi-acoustic interactions")
 
 axs[1, 0].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
 axs[1, 1].set_xlabel(r"t [$\mu$s]", fontsize=27.5)
@@ -326,6 +326,6 @@ for nbubble in nbubble_list :
     axs[0, 1].plot(t_list, r_list, color=dic_color[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=10.0, linewidth=2.5)
     axs[1, 1].plot(t_list, p_list, color=dic_color[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=12.5, linewidth=2.5)
 
-axs[0, 0].legend(bbox_to_anchor=(1.1, 1.175), loc="lower center", ncol=2, frameon=False)
+axs[0, 0].legend(bbox_to_anchor=(1.1, 1.05), loc="lower center", ncol=2, frameon=False)
 
 fig.savefig("cavitationonset_monodispersedclusters.pdf", bbox_inches='tight',pad_inches=0.35)
