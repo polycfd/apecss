@@ -23,12 +23,16 @@ excitation_w = [0.5, 0.9, 1.0, 1.5]
 ratio_D_R0 = [400]
 
 dic_bubbly_screen = {}
+dic_radii = {}
 for intype in interaction_types :
     dic_bubbly_screen[intype] = {}
+    dic_radii[intype] = {}
     for w in excitation_w :
         dic_bubbly_screen[intype][w] = {}
+        dic_radii[intype][w] = {}
         for r in ratio_D_R0 :
             dic_bubbly_screen[intype][w][r] = np.zeros((51,51),dtype=float)
+            dic_radii[intype][w][r] = [[] for i in range(51*51 + 1)]
 
 for intype in interaction_types :
     path = os.path.join(os.getcwd(), intype)
@@ -60,6 +64,33 @@ for intype in interaction_types :
                     j = int((x/D)) + 25
 
                     dic_bubbly_screen[intype][w][ratio][i][j] = r_amp
+        
+        if "_radii" in file :
+            print(file)
+            data = open(os.path.join(path, file), "r")
+            lines = data.readlines()
+            data.close()
+
+            firstline = lines[0].split(" ")
+            w0 = float(firstline[1])
+            fa = float(firstline[3])
+            pa = float(firstline[5])
+            ratio = int(float(firstline[7]))
+
+            R0 = float(lines[2].split(" ")[1])
+            D = ratio * R0
+
+            w = float("{:.1f}".format(2 * pi * fa / w0))
+
+            if pa == 10**2 :
+                for i in range(2, len(lines), 25) :
+                    line = lines[i]
+                    t = float(line.split(" ")[0])
+                    dic_radii[intype][w][ratio][0].append(t)
+
+                    for i in range(51*51) :
+                        r = (float(line.split(" ")[i + 1]) - R0) / R0
+                        dic_radii[intype][w][ratio][i + 1].append(r)
 
 ######### Functions #################################################################################################################################
 
@@ -128,3 +159,23 @@ plot_oscillation_distribution(fig, axs, 1, 3, 51, "IC", 1.5, 400, order=4, clear
 
 fig.subplots_adjust(hspace=0.01*cm, wspace=0.95*cm)
 fig.savefig("bubblyscreen_ComparisonQAIC.pdf", bbox_inches="tight",pad_inches=0.035)
+
+######### D/R0 = 400 : Radius evolution ###########################################################
+
+fig, ax = plt.subplots(1, 1, figsize=(27.5*cm, 12.5*cm))
+ax.set_xlabel(r"t [$\mu$s]")
+ax.set_xlim(xmin=0.0, xmax=60.0)
+ax.set_ylabel(r"$\left(R(t) - R_{0} \right) / R_{0}$ [-]")
+ax.set_yscale("log")
+ax.set_ylim(ymin=10**(-4), ymax=5.0e-2)
+
+### QA ###
+ax.plot(np.array(dic_radii["QA"][1.0][400][0])*1.0e6, np.array(dic_radii["QA"][1.0][400][1301]), linewidth=2.0, color="black", linestyle="dashed", label="QA")
+# ax.plot(np.array(dic_radii["QA"][1.0][400][0])*1.0e6, np.array(dic_radii["QA"][1.0][400][1]), linewidth=1.5, marker="s", markersize=5.0, markevery=1500, color="black", linestyle="dashed", label="QA, corner")
+
+### IC ###
+ax.plot(np.array(dic_radii["IC"][1.0][400][0])*1.0e6, np.array(dic_radii["IC"][1.0][400][1301]), linewidth=2.0, color="red", linestyle="solid", label="IC")
+# ax.plot(np.array(dic_radii["IC"][1.0][400][0])*1.0e6, np.array(dic_radii["IC"][1.0][400][1]), linewidth=1.5, marker="s", markersize=5.0, markevery=1500, color="red", linestyle="solid", label="IC, corner")
+
+ax.legend(bbox_to_anchor=(0.5, 1.05), loc="center", frameon=False, ncol=2)
+fig.savefig("bubblyscreen_radiievolution.pdf", bbox_inches="tight",pad_inches=0.035)
