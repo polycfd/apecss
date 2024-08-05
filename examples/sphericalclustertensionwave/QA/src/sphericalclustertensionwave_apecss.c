@@ -128,6 +128,11 @@ int main(int argc, char **args)
       ++j;
     }
   }
+  // /* Adapt dt_interbubble for polydispersed cluster */
+  // if (cluster_distrib != 0)
+  // {
+  //   dt_interbubble = 2.5e-10;
+  // }
 
   /* Allocate structure for parallel data */
   struct APECSS_Parallel_Cluster *RankInfo = (struct APECSS_Parallel_Cluster *) malloc(sizeof(struct APECSS_Parallel_Cluster));
@@ -488,7 +493,7 @@ int main(int argc, char **args)
 
 APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  APECSS_FLOAT tau = 1.75e-6;
+  APECSS_FLOAT tau = 1.41e-6;
   if (t < tau)
   {
     return (Bubble->p0 - (Bubble->p0 - Bubble->Excitation->dp) * APECSS_POW2(APECSS_SIN(APECSS_PI * t / tau)) + Bubble->Interaction->dp_neighbor);
@@ -502,7 +507,7 @@ APECSS_FLOAT parallel_interactions_bubble_pressure_infinity(APECSS_FLOAT t, stru
 APECSS_FLOAT parallel_interactions_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   // Approximate numerical computation of p_infinity derivative
-  APECSS_FLOAT tau = 1.75e-6;
+  APECSS_FLOAT tau = 1.41e-6;
   APECSS_FLOAT derivative = 0.0;
   if (t < tau)
   {

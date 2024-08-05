@@ -1,10 +1,10 @@
 nbubbles=2500
-ncores=15
+ncores=20
 
 cd build
 ./compile.sh
 cd ..
-mpiexec -n $ncores ./build/sphericalclustercavitationonset_apecss -options run.apecss -amp -25325 -tend 5.0e-06 -cldistrib 0
+mpiexec -n $ncores ./build/sphericalclustercavitationonset_apecss -options run.apecss -amp -25325 -tend 60.0e-06 -cldistrib 1
 python3 gather_results.py
 
 # rm -rf bubble_loc.txt

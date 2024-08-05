@@ -3,6 +3,9 @@
 ncores=12
 nbubbles=250
 
+pressure=-3.0e4
+pressure_bis=-1.0e5
+
 ######### No interaction computations ###############################################################################################################
 
 cd NI/build
@@ -10,11 +13,11 @@ cd NI/build
 cd ..
 
 ######### Monodispersed system ####################################################################
-./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 15.0e-6 -cldistrib 0
+./build/sphericalclustertensionwave_apecss -options run.apecss -amp $pressure_bis -tend 15.0e-6 -cldistrib 0
 python3 gather_results.py
 
 # ######### Polydispersed system ####################################################################
-./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 50.0e-6 -cldistrib 1
+./build/sphericalclustertensionwave_apecss -options run.apecss -amp $pressure_bis -tend 50.0e-6 -cldistrib 1
 python3 gather_results.py
 
 cd ..
@@ -30,11 +33,11 @@ cd IC/build
 cd ..
 
 ######### Monodispersed system ####################################################################
-./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 15.0e-6 -cldistrib 0
+./build/sphericalclustertensionwave_apecss -options run.apecss -amp $pressure_bis -tend 15.0e-6 -cldistrib 0
 python3 gather_results.py
 
 ######### Polydispersed system ####################################################################
-./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 150.0e-6 -cldistrib 1
+./build/sphericalclustertensionwave_apecss -options run.apecss -amp $pressure_bis -tend 150.0e-6 -cldistrib 1
 python3 gather_results.py
 
 cd ..
@@ -50,11 +53,11 @@ cd QA/build
 cd ..
 
 ######### Monodispersed system ####################################################################
-mpiexec -n $ncores ./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 25.0e-06 -cldistrib 0
+mpiexec -n $ncores ./build/sphericalclustertensionwave_apecss -options run.apecss -amp $pressure_bis -tend 25.0e-06 -cldistrib 0
 python3 gather_results.py
 
 ######### Polydispersed system ####################################################################
-mpiexec -n $ncores ./build/sphericalclustertensionwave_apecss -options run.apecss -amp -3.0e4 -tend 200.0e-06 -cldistrib 1
+mpiexec -n $ncores ./build/sphericalclustertensionwave_apecss -options run.apecss -amp $pressure_bis -tend 200.0e-06 -cldistrib 1
 python3 gather_results.py
 
 cd ..
