@@ -24,15 +24,20 @@ ratio_D_R0 = [400]
 
 dic_bubbly_screen = {}
 dic_radii = {}
+dic_radii_index = {}
+index = 1301
 for intype in interaction_types :
     dic_bubbly_screen[intype] = {}
     dic_radii[intype] = {}
+    dic_radii_index[intype] = {}
     for w in excitation_w :
         dic_bubbly_screen[intype][w] = {}
         dic_radii[intype][w] = {}
+        dic_radii_index[intype][w] = {}
         for r in ratio_D_R0 :
             dic_bubbly_screen[intype][w][r] = np.zeros((51,51),dtype=float)
             dic_radii[intype][w][r] = [[] for i in range(51*51 + 1)]
+            dic_radii_index[intype][w][r] = [[], []]
 
 for intype in interaction_types :
     path = os.path.join(os.getcwd(), intype)
@@ -83,14 +88,22 @@ for intype in interaction_types :
             w = float("{:.1f}".format(2 * pi * fa / w0))
 
             if pa == 10**2 :
-                for i in range(2, len(lines), 25) :
+                # for i in range(2, len(lines), 25) :
+                #     line = lines[i]
+                #     t = float(line.split(" ")[0])
+                #     dic_radii[intype][w][ratio][0].append(t)
+
+                #     for i in range(51*51) :
+                #         r = (float(line.split(" ")[i + 1]) - R0) / R0
+                #         dic_radii[intype][w][ratio][i + 1].append(r)
+                
+                for i in range(2, len(lines)) :
                     line = lines[i]
                     t = float(line.split(" ")[0])
-                    dic_radii[intype][w][ratio][0].append(t)
-
-                    for i in range(51*51) :
-                        r = (float(line.split(" ")[i + 1]) - R0) / R0
-                        dic_radii[intype][w][ratio][i + 1].append(r)
+                    dic_radii_index[intype][w][ratio][0].append(t)
+                    # r = (float(line.split(" ")[index]) - R0) / R0
+                    r = float(line.split(" ")[index])
+                    dic_radii_index[intype][w][ratio][1].append(r)
 
 ######### Functions #################################################################################################################################
 
@@ -121,12 +134,54 @@ def plot_oscillation_distribution(fig, axs, row, col, nbubbles_x, inttype,  rati
     colors = cset.cmap(cset.norm(cset.get_array()))
     for i in range(nbubbles_x) :
         for j in range(nbubbles_x) :
-            index = nbubbles_x * i + j
-            index_color = colors[index]
+            # index = nbubbles_x * i + j
+            index_color = colors[j][i]
             x = j - space
             y = i - space
             circle = Circle((x, y), 0.4, facecolor=(index_color[0], index_color[1], index_color[2]))
             axs[row, col].add_patch(circle)
+
+def identify_oscillation_amplitude(t_list, r_list) :
+    # t_list and r_list must be 1D-arrays
+    # Determine the evolution of the oscillation amplitude by decomposing the entry signal
+    r_mean = np.mean(r_list)
+    r_mmean_list = r_list - r_mean
+
+    index = 0
+    index_positive_list = []
+    while index < len(t_list) :
+        if r_mmean_list[index] > 0 :
+            index_positive_list.append(index)
+        index += 1
+    
+    periods_index = []
+    list_index = 1
+    periods_index.append([index_positive_list[0]])
+    while list_index < len(index_positive_list) :
+        if index_positive_list[list_index] - index_positive_list[list_index - 1] > 1 :
+            # A step larger than one in index means a new period has been reached
+            periods_index[-1].append(index_positive_list[list_index] - 1)
+            periods_index.append([index_positive_list[list_index]])
+        list_index += 1
+    
+    if len(periods_index[-1]) == 1 :
+        periods_index = periods_index[:len(periods_index)-1]
+    
+    t_amp_list = []
+    r_amp_list = []
+    for i in range(len(periods_index)) :
+        start_index = periods_index[i][0]
+        stop_index = periods_index[i][1]
+
+        mean_index = int(0.5 * (start_index + stop_index))
+        t_amp_list.append(t_list[mean_index])
+        
+        r_slice_list = r_list[start_index : stop_index + 1]
+        r_max = np.max(r_slice_list)
+        r_min = np.min(r_slice_list)
+        r_amp_list.append(0.5 * (r_max - r_min))
+    
+    return t_amp_list, r_amp_list
 
 ######### Step 2 : Plot results #####################################################################################################################
 
@@ -163,18 +218,24 @@ fig.savefig("bubblyscreen_ComparisonQAIC.pdf", bbox_inches="tight",pad_inches=0.
 ######### D/R0 = 400 : Radius evolution ###########################################################
 
 fig, ax = plt.subplots(1, 1, figsize=(27.5*cm, 12.5*cm))
-ax.set_xlabel(r"t [$\mu$s]")
+ax.set_xlabel(r"$t$ [$\mu$s]")
 ax.set_xlim(xmin=0.0, xmax=60.0)
-ax.set_ylabel(r"$\left(R(t) - R_{0} \right) / R_{0}$ [-]")
+ax.set_ylabel(r"$|r'|$ [-]")
 ax.set_yscale("log")
 ax.set_ylim(ymin=10**(-4), ymax=5.0e-2)
 
 ### QA ###
-ax.plot(np.array(dic_radii["QA"][1.0][400][0])*1.0e6, np.array(dic_radii["QA"][1.0][400][1301]), linewidth=2.0, color="black", linestyle="dashed", label="QA")
+t_list, r_list = identify_oscillation_amplitude(np.array(dic_radii_index["QA"][1.0][400][0]), np.array(dic_radii_index["QA"][1.0][400][1]))
+ax.plot(np.array(t_list)*1.0e6, np.array(r_list)/R0, linewidth=2.0, color="black", linestyle="dashed", label="QA")
+# ax.plot(np.array(dic_radii_index["QA"][1.0][400][0])*1.0e6, np.array(dic_radii_index["QA"][1.0][400][1]), linewidth=2.0, color="black", linestyle="dashed", label="QA")
+# ax.plot(np.array(dic_radii["QA"][1.0][400][0])*1.0e6, np.array(dic_radii["QA"][1.0][400][1301]), linewidth=2.0, color="black", linestyle="dashed", label="QA")
 # ax.plot(np.array(dic_radii["QA"][1.0][400][0])*1.0e6, np.array(dic_radii["QA"][1.0][400][1]), linewidth=1.5, marker="s", markersize=5.0, markevery=1500, color="black", linestyle="dashed", label="QA, corner")
 
 ### IC ###
-ax.plot(np.array(dic_radii["IC"][1.0][400][0])*1.0e6, np.array(dic_radii["IC"][1.0][400][1301]), linewidth=2.0, color="red", linestyle="solid", label="IC")
+t_list, r_list = identify_oscillation_amplitude(np.array(dic_radii_index["IC"][1.0][400][0]), np.array(dic_radii_index["IC"][1.0][400][1]))
+ax.plot(np.array(t_list)*1.0e6, np.array(r_list)/R0, linewidth=2.0, color="red", linestyle="solid", label="IC")
+# ax.plot(np.array(dic_radii_index["IC"][1.0][400][0])*1.0e6, np.array(dic_radii_index["IC"][1.0][400][1]), linewidth=2.0, color="red", linestyle="solid", label="IC")
+# ax.plot(np.array(dic_radii["IC"][1.0][400][0])*1.0e6, np.array(dic_radii["IC"][1.0][400][1301]), linewidth=2.0, color="red", linestyle="solid", label="IC")
 # ax.plot(np.array(dic_radii["IC"][1.0][400][0])*1.0e6, np.array(dic_radii["IC"][1.0][400][1]), linewidth=1.5, marker="s", markersize=5.0, markevery=1500, color="red", linestyle="solid", label="IC, corner")
 
 ax.legend(bbox_to_anchor=(0.5, 1.05), loc="center", frameon=False, ncol=2)
