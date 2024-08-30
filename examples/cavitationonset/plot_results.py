@@ -345,7 +345,7 @@ for png in png_list :
     
     diff_p = np.array(p_list_new) - np.array(dic_2_bubbles["IC"][png][10.0][0][3]) / P0
 
-    secyax.plot(np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6, diff_p, color="blue", linewidth=2.5, linestyle="dotted", label=r"$\Delta p_{\infty, 1}$ (QA - IC)")
+    secyax.plot(np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6, diff_p, color="blue", linewidth=2.5, linestyle="dotted", label=r"$\Delta p_{\infty, 1} / p_{0}$ (QA - IC)")
 
 axs.set_xticks([20, t_IC, t_QA, 40])
 axs.set_xticklabels([20, r"$t_{\mathrm{IC}}$", r"$t_{\mathrm{QA}}$", 40])
@@ -407,3 +407,37 @@ for nbubble in nbubble_list :
 axs[0, 0].legend(bbox_to_anchor=(1.1, 1.05), loc="lower center", ncol=2, frameon=False)
 
 fig.savefig("cavitationonset_monodispersedclusters.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######### Exhibiting differences ##################################################################
+
+nrow = 1
+ncol = 2
+
+fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)), sharex=True)
+plt.subplots_adjust(wspace=0.85*cm, hspace=0.25*cm)
+
+for i in range(2) :
+    axs[i].grid()
+    axs[i].set_xlim(xmin=10.0, xmax=60.0)
+
+axs[0].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
+axs[1].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
+
+axs[0].set_ylabel(r"$R_{\mathrm{QA}} - R_{\mathrm{IC}}$ [$\mu$m]", fontsize=27.5)
+axs[1].set_ylabel(r"$(p_{\infty, \mathrm{QA}} - p_{\infty, \mathrm{IC}})$/$p_{0}$", fontsize=27.5)
+
+for nbubble in nbubble_list :
+    t_list_IC = np.array(dic_n_bubbles["IC"][nbubble][0][1]) * 1.0e6
+    r_list_IC = np.array(dic_n_bubbles["IC"][nbubble][0][2]) * 1.0e6
+    p_list_IC = np.array(dic_n_bubbles["IC"][nbubble][0][3]) / P0
+
+    t_list_QA = np.array(dic_n_bubbles["QA"][nbubble][0][1]) * 1.0e6
+    r_list_QA = np.array(dic_n_bubbles["QA"][nbubble][0][2]) * 1.0e6
+    p_list_QA = np.array(dic_n_bubbles["QA"][nbubble][0][3]) / P0
+
+    axs[0].plot(t_list_IC, r_list_QA - r_list_IC, color=dic_color[nbubble], label=dic_shape[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=10.0, linewidth=2.5)
+    axs[1].plot(t_list_IC, p_list_QA - p_list_IC, color=dic_color[nbubble], marker=dic_marker[nbubble], markevery=600, markersize=10.0, linewidth=2.5)
+
+axs[0].legend(bbox_to_anchor=(1.1, 0.95), loc="lower center", ncol=2, frameon=False)
+
+fig.savefig("cavitationonset_monodispersedclusters_differences.pdf", bbox_inches='tight',pad_inches=0.35)
