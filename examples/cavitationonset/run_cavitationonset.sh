@@ -53,7 +53,7 @@ do
 done
 
 ######### Cavitation inception with interactions with varying pressure between 2 bubbles ##########
-png_list=(-25325 -27351 -27958.8 -29377)
+png_list=(-25325 -27351 -27654.9 -27958.8 -29377)
 for png in "${png_list[@]}"
 do
     ./build/cavitationonset_apecss -options run.apecss -amp $png -tend 60.0e-6 -nbb 2 -cldistrib 0 -clsize 10 -inttype 1
