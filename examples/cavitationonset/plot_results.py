@@ -326,7 +326,7 @@ png_list = [-27654.9]
 
 axs.set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs.set_ylabel(r"$p_{\infty, 1} / p_{0}$", fontsize=27.5)
-axs.set_xlim(xmin=0.0, xmax=60.0)
+axs.set_xlim(xmin=10.0, xmax=60.0)
 axs.grid()
 
 secyax = axs.twinx()
@@ -335,36 +335,39 @@ secyax.spines["right"].set_color("blue")
 secyax.tick_params("y", colors="blue")
 secyax.spines["right"].set_edgecolor("blue")
 secyax.set_ylabel(r"$(p_{\infty, 1, \mathrm{QA}} - p_{\infty, 1, \mathrm{IC}}) / p_{0}$", fontsize=27.5)
+secyax.grid(linestyle="dashed")
+
+sec_bis_yaxis = axs.twinx()
+sec_bis_yaxis.set_yticks([])
 
 for png in png_list :
-    t_list = np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6
-    p_list = np.array(dic_2_bubbles["IC"][png][10.0][0][3]) / P0
+    t_list_IC = np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6
+    p_list_IC = np.array(dic_2_bubbles["IC"][png][10.0][0][3]) / P0
 
-    axs.plot(t_list, p_list, color="red", linewidth=2.5, label="IC")
+    t_list_QA = np.array(dic_2_bubbles["QA"][png][10.0][0][1]) * 1.0e6
+    p_list_QA = np.array(dic_2_bubbles["QA"][png][10.0][0][3]) / P0
 
-    t_IC = t_list[dic_2_bubbles["IC"][png][10.0][0][2].index(np.max(dic_2_bubbles["IC"][png][10.0][0][2]))]
+    p_list_QA_new = []
+    for i in range(0, len(p_list_QA), 10) :
+        p_list_QA_new.append(p_list_QA[i])
 
-    t_list = np.array(dic_2_bubbles["QA"][png][10.0][0][1]) * 1.0e6
-    p_list = np.array(dic_2_bubbles["QA"][png][10.0][0][3]) / P0
+    diff_p = np.array(p_list_QA_new) - p_list_IC
 
-    axs.plot(t_list, p_list, color="black", linewidth=2.5, linestyle="dashed", label="QA")
+    axs.plot(t_list_IC, p_list_IC, color="red", linewidth=3.0, linestyle="solid", label="IC")
+    axs.plot(t_list_QA, p_list_QA, color="black", linewidth=3.0, linestyle="dashed", label="QA")
+    secyax.plot(t_list_IC, diff_p, color="blue", linewidth=3.0, linestyle="dotted", label=r"$\Delta p_{\infty, 1} / p_{0}$ (QA - IC)")
+    sec_bis_yaxis.plot(t_list_IC, p_list_IC, color="red", linewidth=3.0, linestyle="solid", label="IC")
+    sec_bis_yaxis.plot(t_list_QA, p_list_QA, color="black", linewidth=3.0, linestyle="dashed", label="QA")
 
-    t_QA = t_list[dic_2_bubbles["QA"][png][10.0][0][2].index(np.max(dic_2_bubbles["QA"][png][10.0][0][2]))]
-
-    p_list_new = []
-    for i in range(0, len(p_list), 10) :
-        p_list_new.append(p_list[i])
-    
-    diff_p = np.array(p_list_new) - np.array(dic_2_bubbles["IC"][png][10.0][0][3]) / P0
-
-    secyax.plot(np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6, diff_p, color="blue", linewidth=2.5, linestyle="dotted", label=r"$\Delta p_{\infty, 1} / p_{0}$ (QA - IC)")
+    t_IC = t_list_IC[dic_2_bubbles["IC"][png][10.0][0][2].index(np.max(dic_2_bubbles["IC"][png][10.0][0][2]))]
+    t_QA = t_list_QA[dic_2_bubbles["QA"][png][10.0][0][2].index(np.max(dic_2_bubbles["QA"][png][10.0][0][2]))]
 
 axs.set_xticks([20, t_IC, t_QA, 40])
 axs.set_xticklabels([20, r"$t_{\mathrm{IC}}$", r"$t_{\mathrm{QA}}$", 40])
-# axs.set_xlim(xmin=10.0, xmax=35.0)
-secyax.set_ylim(ymin=-0.002, ymax=0.002)
+secyax.set_ylim(ymin=-0.005, ymax=0.005)
+secyax.set_yticks([-0.005, 0.0, 0.005])
 
-axs.legend(bbox_to_anchor=(0.5, 1.15), loc="center", ncol=2, frameon=False)
+sec_bis_yaxis.legend(bbox_to_anchor=(0.5, 1.15), loc="center", ncol=2, frameon=False)
 secyax.legend(bbox_to_anchor=(0.5, 1.05), loc="center", ncol=1, frameon=False)
 
 fig.savefig("cavitationonset_varyingpressure_pressure.pdf", bbox_inches='tight',pad_inches=0.35)
