@@ -65,6 +65,10 @@ for inttype in inttype_list :
             init_radius = float(second_line[i+1])
             # list format : for each bubble, [R0, t_list, R_list, Pt_list]
             dic_data.append([init_radius, [], [], []])
+            if (inttype == "IC") :
+                dic_data[-1].append([])
+                dic_data[-1].append([])
+                dic_data[-1].append([])
         
         for line in lines[3:] :
             data = line.split(" ")
@@ -75,6 +79,13 @@ for inttype in inttype_list :
                 dic_data[i][1].append(t)
                 dic_data[i][2].append(r)
                 dic_data[i][3].append(pt)
+                if (inttype == "IC") :
+                    a = float(data[1 + 2 * count + i])
+                    dp = float(data[1 + 3 * count + i])
+                    u = float(data[1 + 4 * count + i])
+                    dic_data[i][4].append(a)
+                    dic_data[i][5].append(dp)
+                    dic_data[i][6].append(u)
 
 ######### Functions ###############################################################################
 
@@ -94,6 +105,7 @@ def identify_end_time_index(inttype, png, dist) :
 
 T = 10.0e-06
 P0 = 0.1013e06
+rho = 1000.0
 
 ######### Pressure time history & radius evolution without interaction ############################
 
@@ -310,7 +322,7 @@ ncol = 1
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
 plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
-png_list = [-27351]
+png_list = [-27654.9]
 
 axs.set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs.set_ylabel(r"$p_{\infty, 1} / p_{0}$", fontsize=27.5)
@@ -349,13 +361,97 @@ for png in png_list :
 
 axs.set_xticks([20, t_IC, t_QA, 40])
 axs.set_xticklabels([20, r"$t_{\mathrm{IC}}$", r"$t_{\mathrm{QA}}$", 40])
-axs.set_xlim(xmin=10.0, xmax=35.0)
+# axs.set_xlim(xmin=10.0, xmax=35.0)
 secyax.set_ylim(ymin=-0.002, ymax=0.002)
 
 axs.legend(bbox_to_anchor=(0.5, 1.15), loc="center", ncol=2, frameon=False)
 secyax.legend(bbox_to_anchor=(0.5, 1.05), loc="center", ncol=1, frameon=False)
 
 fig.savefig("cavitationonset_varyingpressure_pressure.pdf", bbox_inches='tight',pad_inches=0.35)
+
+#### Test #####
+
+nrow = 6
+ncol = 1
+
+fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)), sharex=True)
+plt.subplots_adjust(wspace=0.35*cm, hspace=0.25*cm)
+
+png_list = [-27654.9]
+
+axs[0].set_ylabel(r"$R / R_{0}$")
+axs[1].set_ylabel(r"$p_{\infty} / p_{0}$")
+axs[2].set_ylabel(r"$\rho R^{2} \ddot{R} / \Delta x_{12} p_{0}$")
+axs[3].set_ylabel(r"$2 \rho \dot{R}^{2} R / \Delta x_{12} p_{0}$")
+axs[4].set_ylabel(r"$\rho R^{4} \dot{R}^{2} / 2 \Delta x_{12}^{4} p_{0}$")
+axs[5].set_ylabel(r"$\Delta p / p_{0}$")
+axs[5].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
+
+# axs[2].set_yscale("log")
+
+for i in range(nrow) :
+    axs[i].grid()
+    axs[i].set_xlim(xmin=55.0, xmax=60.0)
+
+axs[1].set_ylim(ymin=-0.4, ymax=0.15)
+
+for png in png_list :
+    dist = 10.0
+    delta_x = dist * (dic_2_bubbles["IC"][png][dist][0][0] + dic_2_bubbles["IC"][png][dist][1][0])
+    # first bubble
+    r0 = dic_2_bubbles["IC"][png][dist][0][0]
+
+    t_list = np.array(dic_2_bubbles["IC"][png][dist][0][1]) * 1.0e6
+    r_list = np.array(dic_2_bubbles["IC"][png][dist][0][2]) / r0
+    p_list = np.array(dic_2_bubbles["IC"][png][dist][0][3]) / P0
+    a_list = np.array(dic_2_bubbles["IC"][png][dist][0][4])
+    dp_list = np.array(dic_2_bubbles["IC"][png][dist][0][5]) / P0
+    u_list = np.array(dic_2_bubbles["IC"][png][dist][0][6])
+
+    t_collapse = t_list[dic_2_bubbles["IC"][png][dist][0][2].index(np.min(dic_2_bubbles["IC"][png][dist][0][2]))]
+
+    dp_bis_list = rho * np.multiply(np.multiply(r_list * r0, r_list * r0), a_list) / (delta_x * P0)
+    dp_bis_bis_list = 2 * rho * np.multiply(np.multiply(u_list, u_list), r_list * r0) / (delta_x * P0)
+
+    r_4_list = np.multiply(np.multiply(r_list * r0, r_list * r0), np.multiply(r_list * r0, r_list * r0))
+    dp_bis_bis_bis_list = rho * np.multiply(r_4_list, np.multiply(u_list, u_list)) / (2 * (delta_x**4) * P0)
+
+    axs[0].plot(t_list, r_list, linewidth=2.5, linestyle="solid", color="blue", label=r"$R_{0} = 2.0 \ \mu\mathrm{m}$")
+    axs[1].plot(t_list, p_list, linewidth=2.5, linestyle="solid", color="blue")
+    axs[2].plot(t_list, dp_bis_list, linewidth=2.5, linestyle="solid", color="blue")
+    axs[3].plot(t_list, dp_bis_bis_list, linewidth=2.5, linestyle="solid", color="blue")
+    axs[4].plot(t_list, dp_bis_bis_bis_list, linewidth=2.5, linestyle="solid", color="blue")
+    axs[5].plot(t_list, dp_list, linewidth=2.5, linestyle="solid", color="blue")
+
+    # second bubbles
+    r0 = dic_2_bubbles["IC"][png][dist][1][0]
+    t_list = np.array(dic_2_bubbles["IC"][png][dist][1][1]) * 1.0e6
+    r_list = np.array(dic_2_bubbles["IC"][png][dist][1][2]) / r0
+    p_list = np.array(dic_2_bubbles["IC"][png][dist][1][3]) / P0
+    a_list = np.array(dic_2_bubbles["IC"][png][dist][1][4])
+    dp_list = np.array(dic_2_bubbles["IC"][png][dist][1][5]) / P0
+    u_list = np.array(dic_2_bubbles["IC"][png][dist][1][6])
+
+    dp_bis_list = rho * np.multiply(np.multiply(r_list * r0, r_list * r0), a_list) / (delta_x * P0)
+    dp_bis_bis_list = 2 * rho * np.multiply(np.multiply(u_list, u_list), r_list * r0) / (delta_x * P0)
+
+    r_4_list = np.multiply(np.multiply(r_list * r0, r_list * r0), np.multiply(r_list * r0, r_list * r0))
+    dp_bis_bis_bis_list = rho * np.multiply(r_4_list, np.multiply(u_list, u_list)) / (2 * (delta_x**4) * P0)
+
+    axs[0].plot(t_list, r_list, linewidth=2.5, linestyle="dashed", color="magenta", label=r"$R_{0} = 20.0 \ \mu\mathrm{m}$")
+    axs[1].plot(t_list, p_list, linewidth=2.5, linestyle="dashed", color="magenta")
+    axs[2].plot(t_list, dp_bis_list, linewidth=2.5, linestyle="dashed", color="magenta")
+    axs[3].plot(t_list, dp_bis_bis_list, linewidth=2.5, linestyle="dashed", color="magenta")
+    axs[4].plot(t_list, dp_bis_bis_bis_list, linewidth=2.5, linestyle="dashed", color="magenta")
+    axs[5].plot(t_list, dp_list, linewidth=2.5, linestyle="dashed", color="magenta")
+
+    axs[5].plot(t_list, dp_bis_list + dp_bis_bis_list - dp_bis_bis_bis_list, linewidth=2.0, linestyle="dotted", color="red")
+
+    axs[0].legend(bbox_to_anchor=(0.5, 1.05), loc="center", ncol=2, frameon=False)
+    axs[5].set_xticks([55.0, t_collapse, 60.0])
+    axs[5].set_xticklabels([55.0, r"$t_{\mathrm{collapse}}$", 60.0])
+
+fig.savefig("cavitationonset_varyingpressure_pressure_understanding.pdf", bbox_inches='tight',pad_inches=0.35)
 
 ######### Cavitation inception with monodispersed simple distributions ############################
 

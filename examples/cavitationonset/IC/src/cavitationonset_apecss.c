@@ -400,6 +400,14 @@ int main(int argc, char **args)
     {
       fprintf(file_ida2009, " %e", Bubbles[i]->ode[0](Bubbles[i]->ODEsSol, Bubbles[i]->t, Bubbles[i]));
     }
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      fprintf(file_ida2009, " %e", Bubbles[i]->Interaction->dp_neighbor);
+    }
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      fprintf(file_ida2009, " %e", Bubbles[i]->U);
+    }
     fprintf(file_ida2009, "\n");
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
