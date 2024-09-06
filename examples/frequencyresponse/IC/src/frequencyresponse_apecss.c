@@ -25,6 +25,8 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
 APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode_simplified(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 int apecss_new_bubble_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble);
 
+APECSS_FLOAT APECSS_TAN(APECSS_FLOAT x) { return APECSS_SIN(x) / APECSS_COS(x); }
+
 APECSS_FLOAT maxR;
 
 int main(int argc, char **args)
@@ -220,7 +222,7 @@ int main(int argc, char **args)
       Bubbles[i]->R0 = 1.5e-6;
   }
 
-  // Define center location for each bubble (only x is important for this test case)
+  // Define center location for each bubble
   for (register int i = 0; i < nBubbles; i++)
   {
     if (0 == i)
@@ -238,14 +240,15 @@ int main(int argc, char **args)
     else if (2 == i)
     {
       Bubbles[i]->Interaction->location[0] = 0.5 * bubble_bubble_dist;
-      Bubbles[i]->Interaction->location[1] = 0.0;
+      Bubbles[i]->Interaction->location[1] = -APECSS_SIN(APECSS_PI / 3) * bubble_bubble_dist;
       Bubbles[i]->Interaction->location[2] = 0.0;
     }
     else if (3 == i)
     {
       Bubbles[i]->Interaction->location[0] = 0.5 * bubble_bubble_dist;
-      Bubbles[i]->Interaction->location[1] = 0.0;
-      Bubbles[i]->Interaction->location[2] = 0.0;
+      Bubbles[i]->Interaction->location[1] = -APECSS_TAN(APECSS_PI / 6) * 0.5 * bubble_bubble_dist;
+      Bubbles[i]->Interaction->location[2] = APECSS_SQRT(APECSS_POW2(bubble_bubble_dist) - APECSS_POW2(0.5 * bubble_bubble_dist) -
+                                                         APECSS_POW2(APECSS_TAN(APECSS_PI / 6) * 0.5 * bubble_bubble_dist));
     }
   }
 
@@ -289,6 +292,11 @@ int main(int argc, char **args)
         max_bubble[i] = maxR;
       }
     }
+
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // Update the contribution of the neighbor bubbles
+    apecss_interactions_instantaneous(Bubbles);
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   }
 
   /* Retrieve results */
@@ -332,7 +340,8 @@ int main(int argc, char **args)
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   APECSS_FLOAT x = Bubble->Interaction->location[0];
-  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * (t - x / Bubble->Liquid->cref)));
+  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * (t - x / Bubble->Liquid->cref)) +
+          Bubble->Interaction->dp_neighbor);
 }
 
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
