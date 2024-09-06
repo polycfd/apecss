@@ -11,7 +11,7 @@ PressureAmbient 1.0e5
 END
 
 GAS
-EoS HC
+EoS IG
 ReferenceDensity 1.2
 PolytropicExponent 1.4
 END

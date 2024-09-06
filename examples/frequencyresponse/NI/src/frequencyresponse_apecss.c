@@ -22,12 +22,10 @@
 // Declaration of additional case-dependent functions
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode_simplified(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
+int apecss_new_bubble_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble);
 
-// Declaration of the structure holding the interaction variables of each bubble
-struct Interaction
-{
-  APECSS_FLOAT dp_neighbor;
-};
+APECSS_FLOAT maxR;
 
 int main(int argc, char **args)
 {
@@ -35,8 +33,8 @@ int main(int argc, char **args)
 
   // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
   // Set the case-dependent simulation parameters
-  const int nBubbles = 2;  // Number of bubbles
-  APECSS_FLOAT bubble_bubble_dist = 200.0e-6;  // Bubble-bubble distance
+  int nBubbles = 3;  // Number of bubbles
+  APECSS_FLOAT bubble_bubble_dist = 5.0e-6;  // Bubble-bubble distance
 
   // Interbubble time-step, defining the frequency with which the neighbor influence is updated
   APECSS_FLOAT dt_interbubble = 1.0e-8;
@@ -45,6 +43,9 @@ int main(int argc, char **args)
   double tEnd = 0.0;
   double fa = 0.0;
   double pa = 0.0;
+  double dist = 5.0e-6;
+  double dt_inter = 1.0e-8;
+  int ode = 0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   apecss_infoscreen();
@@ -57,6 +58,11 @@ int main(int argc, char **args)
     if (strcmp("-options", args[j]) == 0)
     {
       sprintf(OptionsDir, "%s", args[j + 1]);
+      j += 2;
+    }
+    else if (strcmp("-nb", args[j]) == 0)
+    {
+      sscanf(args[j + 1], "%d", &nBubbles);
       j += 2;
     }
     else if (strcmp("-tend", args[j]) == 0)
@@ -74,6 +80,21 @@ int main(int argc, char **args)
       sscanf(args[j + 1], "%le", &pa);
       j += 2;
     }
+    else if (strcmp("-dist", args[j]) == 0)
+    {
+      sscanf(args[j + 1], "%le", &dist);
+      j += 2;
+    }
+    else if (strcmp("-dt_inter", args[j]) == 0)
+    {
+      sscanf(args[j + 1], "%le", &dt_inter);
+      j += 2;
+    }
+    else if (strcmp("-ode", args[j]) == 0)
+    {
+      sscanf(args[j + 1], "%d", &ode);
+      j += 2;
+    }
     else if (strcmp("-h", args[j]) == 0)
     {
       apecss_helpscreen();
@@ -87,6 +108,17 @@ int main(int argc, char **args)
     }
   }
 
+  /* Properly update parameters with commandline options */
+  bubble_bubble_dist = (APECSS_FLOAT) dist;
+  dt_interbubble = (APECSS_FLOAT) dt_inter;
+  tEnd = 30 / fa;
+
+  /* Check if the number of bubbles is right */
+  if ((nBubbles != 3) && (nBubbles != 4))
+  {
+    nBubbles = 3;
+  }
+
   /* Allocate and initialize Bubble structure */
   struct APECSS_Bubble *Bubbles[nBubbles];
   for (register int i = 0; i < nBubbles; i++) Bubbles[i] = (struct APECSS_Bubble *) malloc(nBubbles * sizeof(struct APECSS_Bubble));
@@ -95,18 +127,6 @@ int main(int argc, char **args)
   /* Set default options and read the options for the bubble */
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_setdefaultoptions(Bubbles[i]);
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_readoptions(Bubbles[i], OptionsDir);
-
-  // // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  // // Allocate and set bubble-associated variables for the interaction
-  // for (register int i = 0; i < nBubbles; i++)
-  // {
-  //   struct Interaction *interaction_data = (struct Interaction *) malloc(sizeof(struct Interaction));
-  //   interaction_data->dp_neighbor = 0.0;  // Pressure excerted by the neighbor bubbles
-
-  //   // Hook interaction-structure to the void data pointer
-  //   Bubbles[i]->user_data = interaction_data;
-  // }
-  // // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   /* Allocate the structures for the fluid properties and ODE solver parameters */
   struct APECSS_Gas *Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
@@ -167,6 +187,12 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->get_pressure_infinity = interaction_bubble_pressure_infinity;
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->get_pressurederivative_infinity = interaction_bubble_pressurederivative_infinity;
 
+  // Update the Keller-Miksis ODE
+  if (ode == 1)
+  {
+    for (register int i = 0; i < nBubbles; i++) Bubbles[i]->ode[0] = apecss_rp_kellermiksisvelocity_ode_simplified;
+  }
+
   // Initialize interaction structure
   for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction = (struct APECSS_Interaction *) malloc(sizeof(struct APECSS_Interaction));
 
@@ -185,14 +211,16 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++)
   {
     if (0 == i)
-      Bubbles[i]->R0 = 5.0e-6;
+      Bubbles[i]->R0 = 1.0e-6;
     else if (1 == i)
-      Bubbles[i]->R0 = 10.0e-6;
-
-    Bubbles[i]->r_hc = Bubbles[i]->R0 / 8.54;
+      Bubbles[i]->R0 = 0.8e-6;
+    else if (2 == i)
+      Bubbles[i]->R0 = 0.5e-6;
+    else if (3 == i)
+      Bubbles[i]->R0 = 1.5e-6;
   }
 
-  // Define center location for each bubble
+  // Define center location for each bubble (only x is important for this test case)
   for (register int i = 0; i < nBubbles; i++)
   {
     if (0 == i)
@@ -207,7 +235,27 @@ int main(int argc, char **args)
       Bubbles[i]->Interaction->location[1] = 0.0;
       Bubbles[i]->Interaction->location[2] = 0.0;
     }
+    else if (2 == i)
+    {
+      Bubbles[i]->Interaction->location[0] = 0.5 * bubble_bubble_dist;
+      Bubbles[i]->Interaction->location[1] = 0.0;
+      Bubbles[i]->Interaction->location[2] = 0.0;
+    }
+    else if (3 == i)
+    {
+      Bubbles[i]->Interaction->location[0] = 0.5 * bubble_bubble_dist;
+      Bubbles[i]->Interaction->location[1] = 0.0;
+      Bubbles[i]->Interaction->location[2] = 0.0;
+    }
   }
+
+  // Create array to gather maximum radius value for each bubble
+  APECSS_FLOAT max_bubble[nBubbles];
+  for (register int i = 0; i < nBubbles; i++)
+  {
+    max_bubble[i] = Bubbles[i]->R0;
+  }
+
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   clock_t starttimebubble = clock();
@@ -232,24 +280,27 @@ int main(int argc, char **args)
     APECSS_FLOAT dtSim = APECSS_MIN(dt_interbubble, (APECSS_FLOAT) tEnd - tSim);
     tSim += dtSim;
 
-    for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
-
-    // for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
-
-    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // Update the contribution of the neighbor bubble
-    apecss_interactions_instantaneous(Bubbles);
-    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
     for (register int i = 0; i < nBubbles; i++)
     {
-      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
-      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
-
-      Bubbles[i]->Interaction->last_t_1 = tSim;
-      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
+      maxR = Bubbles[i]->R0;
+      apecss_new_bubble_solver_run(tSim, (APECSS_FLOAT) tEnd, Bubbles[i]);
+      if (maxR > max_bubble[i])
+      {
+        max_bubble[i] = maxR;
+      }
     }
   }
+
+  /* Retrieve results */
+  FILE *file_max_radius;
+  file_max_radius = fopen("max_radius.txt", "a");
+  fprintf(file_max_radius, "nb %d f(Hz) %e p(Pa) %e dist %e ODE %d R0(m);Rmax(m)", nBubbles, fa, pa, dist, ode);
+  for (register int i = 0; i < nBubbles; i++)
+  {
+    fprintf(file_max_radius, " %e;%e", Bubbles[i]->R0, max_bubble[i]);
+  }
+  fprintf(file_max_radius, "\n");
+  fclose(file_max_radius);
 
   /* Finalize the simulation*/
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_finalize(Bubbles[i]);
@@ -280,20 +331,91 @@ int main(int argc, char **args)
 
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
-  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * t) + Bubble->Interaction->dp_neighbor);
+  APECSS_FLOAT x = Bubble->Interaction->location[0];
+  return (Bubble->p0 - Bubble->Excitation->dp * APECSS_SIN(2.0 * APECSS_PI * Bubble->Excitation->f * (t - x / Bubble->Liquid->cref)));
 }
 
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   // Approximate numerical computation of p_infinity derivative
-  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
-  APECSS_FLOAT derivative = -Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * t);
-  if (delta_t > Bubble->dt)
+  APECSS_FLOAT x = Bubble->Interaction->location[0];
+  APECSS_FLOAT derivative =
+      -Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * (t - x / Bubble->Liquid->cref));
+  return (derivative);
+}
+
+APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode_simplified(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
+{
+  /** Simplified model for comparison with Haghi **/
+  APECSS_FLOAT inv_c = 1.0 / Bubble->Liquid->cref;
+  APECSS_FLOAT inv_rho = 1.0 / Bubble->Liquid->rhoref;
+
+  APECSS_FLOAT rhs = ((Bubble->Liquid->get_pressure_bubblewall(Sol, t, Bubble) - Bubble->get_pressure_infinity(t, Bubble)) * inv_rho -
+                      1.5 * (1.0 - (Sol[0] * APECSS_ONETHIRD * inv_c)) * APECSS_POW2(Sol[0])) /
+                     Sol[1];
+
+  return (rhs / (1.0 - Sol[0] * inv_c));
+}
+
+int apecss_new_bubble_solver_run(APECSS_FLOAT tend, APECSS_FLOAT tEnd, struct APECSS_Bubble *Bubble)
+{
+  while (Bubble->t < tend - 0.01 * Bubble->NumericsODE->dtMin)
   {
-    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) / (Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2)));
+    // Store the previous solution for sub-iterations
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSolOld[i] = Bubble->ODEsSol[i];
+
+    // Check what comes next: the end of the solver run or, if applicable, a time instance to output the emissions
+    APECSS_FLOAT next_event_time = Bubble->results_emissionstime_check(tend, Bubble);
+
+    // Set the time-step for the ODEs
+    apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+
+    // Solve the ODEs
+    Bubble->err = apecss_odesolver(Bubble);
+
+    // Perform sub-iterations on the control of the time-step when err > tol
+    register int subiter = 0;
+    while ((Bubble->err > Bubble->NumericsODE->tol) && (subiter < Bubble->NumericsODE->maxSubIter))
+    {
+      ++subiter;
+      // Rewind the solution
+      for (register int i = 0; i < Bubble->nODEs; i++) Bubble->ODEsSol[i] = Bubble->ODEsSolOld[i];
+      // Set the time-step for the ODEs
+      apecss_odesolver_settimestep(Bubble->NumericsODE, Bubble->err, next_event_time - Bubble->t, &(*Bubble).dt);
+      // Solve the ODEs again
+      Bubble->err = apecss_odesolver(Bubble);
+    }
+    Bubble->nSubIter += subiter;
+
+    // Set new values
+    ++(Bubble->dtNumber);
+    Bubble->t += Bubble->dt;
+    Bubble->U = Bubble->ODEsSol[0];
+    Bubble->R = Bubble->ODEsSol[1];
+
+    // Detect max value of radius
+    if (Bubble->t > tEnd - 10 / Bubble->Excitation->f) maxR = APECSS_MAX(maxR, Bubble->R);
+
+    // Update allocation of the results (if necessary)
+    Bubble->results_emissionsnodeminmax_identify(Bubble);
+    Bubble->results_emissionsnode_alloc(Bubble);
+
+    // Acoustic emissions (if applicable)
+    Bubble->emissions_update(Bubble);
+
+    // Store results (if applicable)
+    Bubble->results_rayleighplesset_store(Bubble);
+    Bubble->results_emissionsspace_store(Bubble);
+
+    // Write one-off results (if applicable)
+    Bubble->results_emissionstime_write(Bubble);
+
+    // Update the last-step solution of the RK54 scheme
+    for (register int i = 0; i < Bubble->nODEs; i++) Bubble->kLast[i] = Bubble->k7[i];
+
+    // Update progress screen in the terminal (if applicable)
+    Bubble->progress_update(&(*Bubble).progress, Bubble->t - Bubble->tStart, Bubble->tEnd - Bubble->tStart);
   }
-  else
-  {
-    return (derivative);
-  }
+
+  return (0);
 }
