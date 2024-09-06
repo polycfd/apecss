@@ -16,8 +16,12 @@ cm = 1/2.54
 
 #### Original paper results #####################
 paper_results_NI = {}
+paper_results_IC_3 = {}
+paper_results_IC_4 = {}
 
 working_path = os.getcwd()
+
+# No interactions (NI)
 paper_path = os.path.join(working_path, "articleresults")
 paper_path = os.path.join(paper_path, "NI")
 
@@ -37,6 +41,50 @@ for file in os.listdir(paper_path) :
         r_list.append(float(line[1].replace(",", ".")))
     
     paper_results_NI[r_init] = [f_list, r_list]
+
+# Incompressible interactions (IC) with 3 bubbles
+paper_path = os.path.join(working_path, "articleresults")
+paper_path = os.path.join(paper_path, "IC")
+paper_path = os.path.join(paper_path, "3MBs")
+
+for file in os.listdir(paper_path) :
+    file_path = os.path.join(paper_path, file)
+
+    text = open(file_path, "r")
+    lines = text.readlines()
+    text.close()
+
+    r_init = float(lines[1].split(" : ")[-1])
+    f_list = []
+    r_list = []
+    for i in range(3, len(lines)) :
+        line = lines[i].split(" ")
+        f_list.append(float(line[0].replace(",", ".")))
+        r_list.append(float(line[1].replace(",", ".")))
+    
+    paper_results_IC_3[r_init] = [f_list, r_list]
+
+# Incompressible interactions (IC) with 4 bubbles
+paper_path = os.path.join(working_path, "articleresults")
+paper_path = os.path.join(paper_path, "IC")
+paper_path = os.path.join(paper_path, "4MBs")
+
+for file in os.listdir(paper_path) :
+    file_path = os.path.join(paper_path, file)
+
+    text = open(file_path, "r")
+    lines = text.readlines()
+    text.close()
+
+    r_init = float(lines[1].split(" : ")[-1])
+    f_list = []
+    r_list = []
+    for i in range(3, len(lines)) :
+        line = lines[i].split(" ")
+        f_list.append(float(line[0].replace(",", ".")))
+        r_list.append(float(line[1].replace(",", ".")))
+    
+    paper_results_IC_4[r_init] = [f_list, r_list]
 
 #### Computation results ########################
 # Key distribution : Inttype->ODE->nBubbles->pressure->distance
@@ -100,7 +148,7 @@ for i in range(n_col) :
     axs[i].set_xlim(xmin=0.5, xmax=10.0)
     axs[i].grid()
 axs[0].set_ylabel(r"$R_{\mathrm{max}}/R_{0}$")
-fig.subplots_adjust(hspace=0.0, wspace=0.1*cm)
+fig.subplots_adjust(hspace=0.0, wspace=0.05*cm)
 
 axs[0].set_title(r"full Keller-Miksis ODE")
 axs[1].set_title(r"partial Keller-Miksis ODE")
@@ -127,5 +175,59 @@ axs[0].legend(loc="upper right", frameon=False)
 fig.savefig("frequencyresponse_comparison_NI.pdf", bbox_inches='tight',pad_inches=0.35)
 
 #### Incompressible interactions ####
+n_row = 2
+n_col = 2
+
+fig, axs = plt.subplots(n_row, n_col, figsize=(n_col*25.0*cm, n_row*12.5*cm), sharey=True, sharex=True)
+for i in range(n_row) :
+    for j in range(n_col) :
+        axs[i, j].grid()
+        if i == 1 :
+            axs[i, j].set_xlabel(r"$f$ [MHz]")
+            axs[i, j].set_xlim(xmin=0.5, xmax=10.0)
+        if j == 0 :
+            axs[i, j].set_ylabel(r"$R_{\mathrm{max}}/R_{0}$")
+fig.subplots_adjust(hspace=0.1*cm, wspace=0.05*cm)
+
+axs[0, 0].set_title(r"full Keller-Miksis ODE")
+axs[0, 1].set_title(r"partial Keller-Miksis ODE")
+
+# 3 MBs
+data_list = dic_results["IC"][0][3][1.2e5][5e-6]
+axs[0, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
+
+data_list = dic_results["IC"][1][3][1.2e5][5e-6]
+axs[0, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[0, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[0, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+
+# 4 MBs
+data_list = dic_results["IC"][0][4][1.2e5][5e-6]
+axs[1, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
+axs[1, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
+axs[1, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
+axs[1, 0].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.5$ $\mu$m")
+
+data_list = dic_results["IC"][1][4][1.2e5][5e-6]
+axs[1, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
+axs[1, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
+axs[1, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
+axs[1, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.5$ $\mu$m")
+
+for j in range(n_col) :
+    axs[0, j].plot(paper_results_IC_3[1.0][0], paper_results_IC_3[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
+    axs[0, j].plot(paper_results_IC_3[0.8][0], paper_results_IC_3[0.8][1], color="magenta", linewidth=2.5, linestyle="dashed")
+    axs[0, j].plot(paper_results_IC_3[0.5][0], paper_results_IC_3[0.5][1], color="red", linewidth=2.5, linestyle="dashed")
+
+    axs[1, j].plot(paper_results_IC_4[1.0][0], paper_results_IC_4[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
+    axs[1, j].plot(paper_results_IC_4[0.8][0], paper_results_IC_4[0.8][1], color="magenta", linewidth=2.5, linestyle="dashed")
+    axs[1, j].plot(paper_results_IC_4[0.5][0], paper_results_IC_4[0.5][1], color="red", linewidth=2.5, linestyle="dashed")
+    axs[1, j].plot(paper_results_IC_4[1.5][0], paper_results_IC_4[1.5][1], color="black", linewidth=2.5, linestyle="dashed")
+
+axs[0, 0].legend(loc="upper right", frameon=False)
+axs[1, 0].legend(loc="upper right", frameon=False)
+fig.savefig("frequencyresponse_comparison_IC.pdf", bbox_inches='tight',pad_inches=0.35)
 
 ######### Step 3 : Article plots ##################################################################
