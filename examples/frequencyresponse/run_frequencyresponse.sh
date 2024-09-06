@@ -58,6 +58,36 @@ rm -rf max_radius.txt
 
 cd ..
 
+######################## Quasi-acoustic interactions (QA) #########################################
+
+cd QA/build
+./compile.sh
+cd ..
+
+for ((f=500000;f<=10000000;f+=3000))
+do
+    ./build/frequencyresponse_apecss -options run.apecss -nb 3 -freq $f -amp 120e3 -dt_inter 1e-9
+done
+python3 gather_results.py
+rm -rf max_radius.txt
+
+for ((f=500000;f<1900000;f+=3000))
+do
+    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 1e-9
+done
+for ((f=1900000;f<2900000;f+=3000))
+do
+    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 5.0e-10
+done
+for ((f=2900000;f<=10000000;f+=3000))
+do
+    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 1e-9
+done
+python3 gather_results.py
+rm -rf max_radius.txt
+
+cd ..
+
 ######################## Cleaning #################################################################
 
 cd NI
@@ -68,6 +98,13 @@ done
 cd ..
 
 cd IC
+for ((c=0;c<=4;c++))
+do
+    rm -rf Bubble_$c
+done
+cd ..
+
+cd QA
 for ((c=0;c<=4;c++))
 do
     rm -rf Bubble_$c

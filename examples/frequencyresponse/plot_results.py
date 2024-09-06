@@ -231,3 +231,85 @@ axs[1, 0].legend(loc="upper right", frameon=False)
 fig.savefig("frequencyresponse_comparison_IC.pdf", bbox_inches='tight',pad_inches=0.35)
 
 ######### Step 3 : Article plots ##################################################################
+
+######## Reproduction of Haghi's results #################################
+n_row = 3
+n_col = 2
+
+fig, axs = plt.subplots(n_row, n_col, figsize=(n_col*25.0*cm, n_row*12.5*cm), sharey=True, sharex=True)
+for i in range(n_row) :
+    for j in range(n_col) :
+        axs[i, j].grid()
+        if i == 2 :
+            axs[i, j].set_xlabel(r"$f$ [MHz]")
+            axs[i, j].set_xlim(xmin=0.5, xmax=10.0)
+        if j == 0 :
+            axs[i, j].set_ylabel(r"$R_{\mathrm{max}}/R_{0}$")
+fig.subplots_adjust(hspace=0.1*cm, wspace=0.05*cm)
+
+axs[0, 0].set_title(r"(a) 3MBs")
+axs[0, 1].set_title(r"(b) 4MBs")
+
+# 3 MBs
+data_list = dic_results["NI"][0][4][1.2e5][5e-6]
+axs[0, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
+axs[0, 0].text(3.0, 2.25,r"No interactions")
+
+data_list = dic_results["IC"][0][3][1.2e5][5e-6]
+axs[1, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[1, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[1, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[1, 0].text(3.0, 2.25,r"Incompressible interactions")
+
+data_list = dic_results["QA"][0][3][1.2e5][5e-6]
+axs[2, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[2, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[2, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[2, 0].text(3.0, 2.25,r"Quasi-acoustic interactions")
+
+# 4 MBs
+data_list = dic_results["NI"][0][4][1.2e5][5e-6]
+axs[0, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
+axs[0, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
+axs[0, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
+axs[0, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.5$ $\mu$m")
+axs[0, 1].text(3.0, 2.25,r"No interactions")
+
+data_list = dic_results["IC"][0][4][1.2e5][5e-6]
+axs[1, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[1, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[1, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[1, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
+axs[1, 1].text(3.0, 2.25,r"Incompressible interactions")
+
+data_list = dic_results["QA"][0][4][1.2e5][5e-6]
+axs[2, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[2, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[2, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[2, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
+axs[2, 1].text(3.0, 2.25,r"Quasi-acoustic interactions")
+
+# Reference values
+axs[0, 0].plot(paper_results_NI[1.0][0], paper_results_NI[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
+axs[0, 0].plot(paper_results_NI[0.8][0], paper_results_NI[0.8][1], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[0, 0].plot(paper_results_NI[0.5][0], paper_results_NI[0.5][1], color="red", linewidth=2.5, linestyle="dashed")
+
+axs[0, 1].plot(paper_results_NI[1.0][0], paper_results_NI[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
+axs[0, 1].plot(paper_results_NI[0.8][0], paper_results_NI[0.8][1], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[0, 1].plot(paper_results_NI[0.5][0], paper_results_NI[0.5][1], color="red", linewidth=2.5, linestyle="dashed")
+axs[0, 1].plot(paper_results_NI[1.5][0], paper_results_NI[1.5][1], color="black", linewidth=2.5, linestyle="dashed")
+
+axs[1, 0].plot(paper_results_IC_3[1.0][0], paper_results_IC_3[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
+axs[1, 0].plot(paper_results_IC_3[0.8][0], paper_results_IC_3[0.8][1], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[1, 0].plot(paper_results_IC_3[0.5][0], paper_results_IC_3[0.5][1], color="red", linewidth=2.5, linestyle="dashed")
+
+axs[1, 1].plot(paper_results_IC_4[1.0][0], paper_results_IC_4[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
+axs[1, 1].plot(paper_results_IC_4[0.8][0], paper_results_IC_4[0.8][1], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[1, 1].plot(paper_results_IC_4[0.5][0], paper_results_IC_4[0.5][1], color="red", linewidth=2.5, linestyle="dashed")
+axs[1, 1].plot(paper_results_IC_4[1.5][0], paper_results_IC_4[1.5][1], color="black", linewidth=2.5, linestyle="dashed")
+
+axs[0, 0].legend(loc="upper right", frameon=False)
+axs[0, 1].legend(loc="upper right", frameon=False)
+fig.savefig("frequencyresponse.pdf", bbox_inches='tight',pad_inches=0.35)
