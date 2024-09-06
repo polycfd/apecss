@@ -6,7 +6,7 @@
 
 BUBBLE
 RPModel KM
-Emissions IC 300.0e-6
+Emissions QA 60.0e-6
 PressureAmbient 1.0e5
 END
 

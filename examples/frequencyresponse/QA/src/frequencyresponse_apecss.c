@@ -293,24 +293,19 @@ int main(int argc, char **args)
       }
     }
 
-    // printf("%e", tSim);
-    // for (register int i = 0; i < nBubbles; i++)
-    // {
-    //   printf(" %e %e", Bubbles[0]->Interaction->dp_neighbor, Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]));
-    // }
-    // printf("\n");
-
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubbles
-    apecss_interactions_instantaneous(Bubbles);
+    apecss_interactions_quasi_acoustic(Bubbles);
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    // printf("%e", tSim);
-    // for (register int i = 0; i < nBubbles; i++)
-    // {
-    //   printf(" %e %e", Bubbles[0]->Interaction->dp_neighbor, Bubbles[0]->ode[0](Bubbles[0]->ODEsSol, Bubbles[0]->t, Bubbles[0]));
-    // }
-    // printf("\n");
+    for (register int i = 0; i < nBubbles; i++)
+    {
+      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
+      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
+
+      Bubbles[i]->Interaction->last_t_1 = tSim;
+      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
+    }
   }
 
   /* Retrieve results */
@@ -361,10 +356,18 @@ APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   // Approximate numerical computation of p_infinity derivative
+  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
   APECSS_FLOAT x = Bubble->Interaction->location[0];
   APECSS_FLOAT derivative =
       -Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * (t - x / Bubble->Liquid->cref));
-  return (derivative);
+  if (delta_t > Bubble->dt)
+  {
+    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) / (Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2)));
+  }
+  else
+  {
+    return (derivative);
+  }
 }
 
 APECSS_FLOAT apecss_rp_kellermiksisvelocity_ode_simplified(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
