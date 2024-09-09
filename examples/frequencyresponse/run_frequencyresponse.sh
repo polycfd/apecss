@@ -15,7 +15,7 @@ rm -rf max_radius.txt
 
 for ((f=500000;f<=10000000;f+=3000))
 do
-    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -ode 1
+    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -ode 1 -dt_inter 5.0e-10
 done
 python3 gather_results.py
 rm -rf max_radius.txt
@@ -37,7 +37,7 @@ rm -rf max_radius.txt
 
 for ((f=500000;f<=10000000;f+=3000))
 do
-    ./build/frequencyresponse_apecss -options run.apecss -nb 3 -freq $f -amp 120e3 -ode 1 -dt_inter 1e-9
+    ./build/frequencyresponse_apecss -options run.apecss -nb 3 -freq $f -amp 120e3 -ode 1 -dt_inter 5.0e-10
 done
 python3 gather_results.py
 rm -rf max_radius.txt
@@ -51,7 +51,7 @@ rm -rf max_radius.txt
 
 for ((f=500000;f<=10000000;f+=3000))
 do
-    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -ode 1 -dt_inter 1e-9
+    ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -ode 1 -dt_inter 5.0e-10
 done
 python3 gather_results.py
 rm -rf max_radius.txt
