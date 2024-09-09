@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ######### Graphical parameters ####################################################################
-fontsize = 25
+fontsize = 27.5
 
 plt.rcParams['font.family']='serif'
 plt.rcParams['font.serif']=['Times New Roman'] + plt.rcParams['font.serif']
@@ -255,19 +255,19 @@ data_list = dic_results["NI"][0][4][1.2e5][5e-6]
 axs[0, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
 axs[0, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
 axs[0, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
-axs[0, 0].text(3.0, 2.25,r"No interactions")
+axs[0, 0].text(2.75, 2.25,r"No interactions")
 
 data_list = dic_results["IC"][0][3][1.2e5][5e-6]
 axs[1, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
 axs[1, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
 axs[1, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
-axs[1, 0].text(3.0, 2.25,r"Incompressible interactions")
+axs[1, 0].text(2.75, 2.25,r"Incompressible interactions")
 
 data_list = dic_results["QA"][0][3][1.2e5][5e-6]
 axs[2, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
 axs[2, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
 axs[2, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
-axs[2, 0].text(3.0, 2.25,r"Quasi-acoustic interactions")
+axs[2, 0].text(2.75, 2.25,r"Quasi-acoustic interactions")
 
 # 4 MBs
 data_list = dic_results["NI"][0][4][1.2e5][5e-6]
@@ -275,21 +275,21 @@ axs[0, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_li
 axs[0, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
 axs[0, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
 axs[0, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.5$ $\mu$m")
-axs[0, 1].text(3.0, 2.25,r"No interactions")
+axs[0, 1].text(2.75, 2.25,r"No interactions")
 
 data_list = dic_results["IC"][0][4][1.2e5][5e-6]
 axs[1, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
 axs[1, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
 axs[1, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
 axs[1, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
-axs[1, 1].text(3.0, 2.25,r"Incompressible interactions")
+axs[1, 1].text(2.75, 2.25,r"Incompressible interactions")
 
 data_list = dic_results["QA"][0][4][1.2e5][5e-6]
 axs[2, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
 axs[2, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
 axs[2, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
 axs[2, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
-axs[2, 1].text(3.0, 2.25,r"Quasi-acoustic interactions")
+axs[2, 1].text(2.75, 2.25,r"Quasi-acoustic interactions")
 
 # Reference values
 axs[0, 0].plot(paper_results_NI[1.0][0], paper_results_NI[1.0][1], color="blue", linewidth=2.5, linestyle="dashed")
