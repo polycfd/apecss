@@ -56,6 +56,18 @@ done
 python3 gather_results.py
 rm -rf max_radius.txt
 
+# Distance study
+dist_list=(10e-6 25e-6 50e-6)
+for dist in "${dist_list[@]}"
+do
+    for ((f=500000;f<=10000000;f+=3000))
+    do
+        ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 1e-9 -dist $dist
+    done
+    python3 gather_results.py
+    rm -rf max_radius.txt
+done
+
 cd ..
 
 ######################## Quasi-acoustic interactions (QA) #########################################
@@ -85,6 +97,26 @@ do
 done
 python3 gather_results.py
 rm -rf max_radius.txt
+
+# Distance study
+dist_list=(10e-6 25e-6 50e-6)
+for dist in "${dist_list[@]}"
+do
+    for ((f=500000;f<1900000;f+=3000))
+    do
+        ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 1e-9 -dist $dist
+    done
+    for ((f=1900000;f<2900000;f+=3000))
+    do
+        ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 5.0e-10 -dist $dist
+    done
+    for ((f=2900000;f<=10000000;f+=3000))
+    do
+        ./build/frequencyresponse_apecss -options run.apecss -nb 4 -freq $f -amp 120e3 -dt_inter 1e-9 -dist $dist
+    done
+    python3 gather_results.py
+    rm -rf max_radius.txt
+done
 
 cd ..
 

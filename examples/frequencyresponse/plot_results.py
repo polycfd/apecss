@@ -313,3 +313,78 @@ axs[1, 1].plot(paper_results_IC_4[1.5][0], paper_results_IC_4[1.5][1], color="bl
 axs[0, 0].legend(loc="upper right", frameon=False)
 axs[0, 1].legend(loc="upper right", frameon=False)
 fig.savefig("frequencyresponse.pdf", bbox_inches='tight',pad_inches=0.35)
+
+######## Interaction distance study ######################################
+n_row = 2
+n_col = 2
+
+fig, axs = plt.subplots(n_row, n_col, figsize=(n_col*25.0*cm, n_row*12.5*cm), sharey=True, sharex=True)
+for i in range(n_row) :
+    for j in range(n_col) :
+        axs[i, j].grid()
+        if i == 1 :
+            axs[i, j].set_xlabel(r"$f$ [MHz]")
+            axs[i, j].set_xlim(xmin=0.5, xmax=8.0)
+        if j == 0 :
+            axs[i, j].set_ylabel(r"$R_{\mathrm{max}}/R_{0}$")
+fig.subplots_adjust(hspace=0.35*cm, wspace=0.05*cm)
+
+axs[0, 0].set_title(r"4MBs interacting at $d = 5$ $\mu$m")
+axs[0, 1].set_title(r"4MBs interacting at $d = 10$ $\mu$m")
+axs[1, 0].set_title(r"4MBs interacting at $d = 25$ $\mu$m")
+axs[1, 1].set_title(r"4MBs interacting at $d = 50$ $\mu$m")
+
+# 5 microns
+data_list = dic_results["QA"][0][4][1.2e5][5e-6]
+axs[0, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.0$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.8$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid", label=r"$R_{0}=0.5$ $\mu$m")
+axs[0, 0].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid", label=r"$R_{0}=1.5$ $\mu$m")
+
+data_list = dic_results["IC"][0][4][1.2e5][5e-6]
+axs[0, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="dashed")
+axs[0, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[0, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="dashed")
+axs[0, 0].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="dashed")
+
+# 10 microns
+data_list = dic_results["QA"][0][4][1.2e5][10e-6]
+axs[0, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[0, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[0, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[0, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
+
+data_list = dic_results["IC"][0][4][1.2e5][10e-6]
+axs[0, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="dashed")
+axs[0, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[0, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="dashed")
+axs[0, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="dashed")
+
+# 25 microns
+data_list = dic_results["QA"][0][4][1.2e5][25e-6]
+axs[1, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[1, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[1, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[1, 0].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
+
+data_list = dic_results["IC"][0][4][1.2e5][25e-6]
+axs[1, 0].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="dashed")
+axs[1, 0].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[1, 0].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="dashed")
+axs[1, 0].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="dashed")
+
+# 50 microns
+data_list = dic_results["QA"][0][4][1.2e5][50e-6]
+axs[1, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="solid")
+axs[1, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="solid")
+axs[1, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="solid")
+axs[1, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="solid")
+
+data_list = dic_results["IC"][0][4][1.2e5][50e-6]
+axs[1, 1].plot(np.array(data_list[0][1])*1e-6, np.array(data_list[0][2])/data_list[0][0], color="blue", linewidth=2.5, linestyle="dashed")
+axs[1, 1].plot(np.array(data_list[1][1])*1e-6, np.array(data_list[1][2])/data_list[1][0], color="magenta", linewidth=2.5, linestyle="dashed")
+axs[1, 1].plot(np.array(data_list[2][1])*1e-6, np.array(data_list[2][2])/data_list[2][0], color="red", linewidth=2.5, linestyle="dashed")
+axs[1, 1].plot(np.array(data_list[3][1])*1e-6, np.array(data_list[3][2])/data_list[3][0], color="black", linewidth=2.5, linestyle="dashed")
+
+axs[0, 0].legend(loc="upper right", frameon=False)
+fig.savefig("frequencyresponse_distancestudy.pdf", bbox_inches='tight',pad_inches=0.35)
