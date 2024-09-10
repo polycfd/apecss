@@ -348,7 +348,7 @@ for png in png_list :
     p_list_QA = np.array(dic_2_bubbles["QA"][png][10.0][0][3]) / P0
 
     p_list_QA_new = []
-    for i in range(0, len(p_list_QA), 10) :
+    for i in range(9, len(p_list_QA), 10) :
         p_list_QA_new.append(p_list_QA[i])
 
     diff_p = np.array(p_list_QA_new) - p_list_IC
