@@ -65,7 +65,7 @@ for inttype in inttype_list :
             init_radius = float(second_line[i+1])
             # list format : for each bubble, [R0, t_list, R_list, Pt_list]
             dic_data.append([init_radius, [], [], []])
-            if (inttype == "IC") :
+            if (inttype == "IC" or inttype == "QA") :
                 dic_data[-1].append([])
                 dic_data[-1].append([])
                 dic_data[-1].append([])
@@ -79,7 +79,7 @@ for inttype in inttype_list :
                 dic_data[i][1].append(t)
                 dic_data[i][2].append(r)
                 dic_data[i][3].append(pt)
-                if (inttype == "IC") :
+                if (inttype == "IC" or inttype == "QA") :
                     a = float(data[1 + 2 * count + i])
                     dp = float(data[1 + 3 * count + i])
                     u = float(data[1 + 4 * count + i])
@@ -457,6 +457,89 @@ for png in png_list :
     axs[5].set_xticklabels([55.0, r"$t_{\mathrm{collapse}}$", 60.0])
 
 fig.savefig("cavitationonset_varyingpressure_pressure_understanding.pdf", bbox_inches='tight',pad_inches=0.35)
+
+#### Test bis ####
+
+png = -27351
+dist = 10.0
+
+nrow = 2
+ncol = 2
+
+fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*25*cm, nrow*12.5*cm)), sharex=True)
+plt.subplots_adjust(wspace=0.35*cm, hspace=0.25*cm)
+
+fig.suptitle(r"$p_{ng}/p_{0}=$" + "{:.3f}, ".format(png/P0) + r"$\Delta x_{12}=$" + "{:.1f}".format(dist) + r"($R_{1,0} + R_{2,0}$)")
+axs[0, 0].set_title("Incompressible interactions")
+axs[0, 1].set_title("Quasi-acoustic interactions")
+
+for i in range(nrow) :
+    for j in range(ncol) :
+        axs[i, j].grid()
+
+axs[1, 0].set_xlabel(r"$t$ [$\mu$s]")
+axs[1, 1].set_xlabel(r"$t$ [$\mu$s]")
+
+axs[0, 0].set_ylabel(r"$R/R_{0}$")
+axs[1, 0].set_ylabel(r"$p_{\infty} / p_{0}$")
+
+axs[1, 0].set_xlim(xmin=30.0, xmax=50.0)
+axs[0, 0].set_ylim(ymin=0.0, ymax=10.0)
+axs[0, 1].set_ylim(ymin=0.0, ymax=10.0)
+axs[1, 0].set_ylim(ymin=-0.3, ymax=0.0)
+axs[1, 1].set_ylim(ymin=-0.3, ymax=0.0)
+
+# IC
+r0 = dic_2_bubbles["IC"][png][dist][0][0]
+t_list = np.array(dic_2_bubbles["IC"][png][dist][0][1]) * 1.0e6
+r_list = np.array(dic_2_bubbles["IC"][png][dist][0][2]) / r0
+p_list = np.array(dic_2_bubbles["IC"][png][dist][0][3]) / P0
+dp_list = dic_2_bubbles["IC"][png][dist][0][5]
+
+t_deltap_min_IC = t_list[dp_list.index(np.min(dp_list[int(33.5e2):int(35e2)]))]
+
+axs[0, 0].plot(t_list, r_list, color="blue", linewidth=2.5, label=r"$R_{0}=2.0$ $\mu$m")
+axs[1, 0].plot(t_list, p_list, color="blue", linewidth=2.5)
+
+r0 = dic_2_bubbles["IC"][png][dist][1][0]
+t_list = np.array(dic_2_bubbles["IC"][png][dist][1][1]) * 1.0e6
+r_list = np.array(dic_2_bubbles["IC"][png][dist][1][2]) / r0
+p_list = np.array(dic_2_bubbles["IC"][png][dist][1][3]) / P0
+dp_list = dic_2_bubbles["IC"][png][dist][1][5]
+
+t_delta_max_IC = t_list[dp_list.index(np.max(dp_list[int(33.5e2):int(35e2)]))]
+
+axs[0, 0].plot(t_list, r_list, color="magenta", linestyle="dashed", linewidth=2.5, label=r"$R_{0}=20.0$ $\mu$m")
+axs[1, 0].plot(t_list, p_list, color="magenta", linestyle="dashed", linewidth=2.5)
+
+# QA
+r0 = dic_2_bubbles["QA"][png][dist][0][0]
+t_list = np.array(dic_2_bubbles["QA"][png][dist][0][1]) * 1.0e6
+r_list = np.array(dic_2_bubbles["QA"][png][dist][0][2]) / r0
+p_list = np.array(dic_2_bubbles["QA"][png][dist][0][3]) / P0
+dp_list = dic_2_bubbles["QA"][png][dist][0][5]
+
+t_deltap_min_QA = t_list[dp_list.index(np.min(dp_list[int(35e3):int(40e3)]))]
+
+axs[0, 1].plot(t_list, r_list, color="blue", linewidth=2.5)
+axs[1, 1].plot(t_list, p_list, color="blue", linewidth=2.5)
+
+r0 = dic_2_bubbles["QA"][png][dist][1][0]
+t_list = np.array(dic_2_bubbles["QA"][png][dist][1][1]) * 1.0e6
+r_list = np.array(dic_2_bubbles["QA"][png][dist][1][2]) / r0
+p_list = np.array(dic_2_bubbles["QA"][png][dist][1][3]) / P0
+dp_list = dic_2_bubbles["QA"][png][dist][1][5]
+
+t_delta_max_QA = t_list[dp_list.index(np.max(dp_list[int(35e3):int(40e3)]))]
+
+axs[0, 1].plot(t_list, r_list, color="magenta", linestyle="dashed", linewidth=2.5)
+axs[1, 1].plot(t_list, p_list, color="magenta", linestyle="dashed", linewidth=2.5)
+
+axs[0, 0].legend(loc="upper left", frameon=False)
+fig.savefig("cavitationonset_varyingpressure_pressure_understanding_bis.pdf", bbox_inches='tight',pad_inches=0.35)
+
+print("For IC computations, respectively time for max dp for bubble 2 and min dp for bubble 1 : {:.5E}, {:.5E}".format(t_delta_max_IC, t_deltap_min_IC))
+print("For QA computations, respectively time for max dp for bubble 2 and min dp for bubble 1 : {:.5E}, {:.5E}".format(t_delta_max_QA, t_deltap_min_QA))
 
 #### Unstable radius ####
 
