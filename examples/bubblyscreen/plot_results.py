@@ -199,14 +199,14 @@ for i in range(nrow) :
         axs[i,j].set_aspect("equal")
     
 ### First row : QA ###
-plt.figtext(0.5, 0.875, r"QA, $D/R_{0}$ = 400", fontsize=25.0, horizontalalignment="center")
+plt.figtext(0.5, 0.875, r"(a) QA", fontsize=25.0, horizontalalignment="center")
 plot_oscillation_distribution(fig, axs, 0, 0, 51, "QA", 0.5, 400, order=4)
 plot_oscillation_distribution(fig, axs, 0, 1, 51, "QA", 0.9, 400, order=3)
 plot_oscillation_distribution(fig, axs, 0, 2, 51, "QA", 1.0, 400, order=2)
 plot_oscillation_distribution(fig, axs, 0, 3, 51, "QA", 1.5, 400, order=4)
 
 ### Second row : IC ###
-plt.figtext(0.5, 0.475, r"IC, $D/R_{0}$ = 400", fontsize=25.0, horizontalalignment="center")
+plt.figtext(0.5, 0.475, r"(b) IC", fontsize=25.0, horizontalalignment="center")
 plot_oscillation_distribution(fig, axs, 1, 0, 51, "IC", 0.5, 400, order=4)
 plot_oscillation_distribution(fig, axs, 1, 1, 51, "IC", 0.9, 400, order=3)
 plot_oscillation_distribution(fig, axs, 1, 2, 51, "IC", 1.0, 400, order=3)
@@ -220,9 +220,10 @@ fig.savefig("bubblyscreen_ComparisonQAIC.pdf", bbox_inches="tight",pad_inches=0.
 fig, ax = plt.subplots(1, 1, figsize=(27.5*cm, 12.5*cm))
 ax.set_xlabel(r"$t$ [$\mu$s]")
 ax.set_xlim(xmin=0.0, xmax=60.0)
-ax.set_ylabel(r"$|r'|$ [-]")
+ax.set_ylabel(r"$|r'|$")
 ax.set_yscale("log")
 ax.set_ylim(ymin=10**(-4), ymax=5.0e-2)
+ax.grid()
 
 ### QA ###
 t_list, r_list = identify_oscillation_amplitude(np.array(dic_radii_index["QA"][1.0][400][0]), np.array(dic_radii_index["QA"][1.0][400][1]))
