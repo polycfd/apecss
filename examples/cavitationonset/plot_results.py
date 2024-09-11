@@ -549,49 +549,53 @@ dist = 12.0
 nrow = 1
 ncol = 2
 
-fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
-plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
+fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)), sharey=True, sharex=True)
+plt.subplots_adjust(wspace=0.15*cm, hspace=0.5*cm)
 
 axs[0].set_title(r"Incompressible interactions")
 axs[0].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
-axs[0].set_ylabel(r"$R_{1}$ [$\mu$m]", fontsize=27.5)
+axs[0].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
 axs[0].set_ylim(ymin=0.0, ymax=40.0)
 axs[0].grid()
+
+axs[1].set_title(r"Quasi-acoustic interactions")
+axs[1].grid()
 
 # IC
 t_list = np.array(dic_2_bubbles["IC"][png][dist][0][1])
 r_list = np.array(dic_2_bubbles["IC"][png][dist][0][2])
 p_list = np.array(dic_2_bubbles["IC"][png][dist][0][3])
-u_list = np.array(dic_2_bubbles["IC"][png][dist][1][6])
 
 R0 = r_list[0]
 pG0 = P0 + (2 * sigma / R0)
-pL = pG0 * ((R0 / r_list)**3) - (2 * sigma / r_list) - 4 * mu * (u_list / r_list)
-p_pL = p_list - pL
 
-index_t = []
-for i in range(len(t_list)-1) :
-    if p_pL[i] > 0 and p_pL[i+1] < 0 :
-        index_t.append(i)
-    elif p_pL[i] < 0 and p_pL[i+1] > 0 :
-        index_t.append(i)
-index_t0 = index_t[0]
-
-r_unstable_list = [r_list[index_t0]]
-for i in range(index_t0, len(t_list)-1) :
-    approx = r_unstable_list[-1] * (pG0 * ((R0 / r_unstable_list[-1])**3) - (2 * sigma / r_unstable_list[-1]) - p_list[i]) / (4 * mu)
-    r_unstable_list.append(r_unstable_list[-1] + (t_list[i+1] - t_list[i]) * approx)
-
-r_unstable_list_bis = []
+r_unstable_list = []
 for i in range(len(t_list)) :
     p = np.polynomial.Polynomial([-pG0 * (R0**3), 0, 2 * sigma, p_list[i]])
     roots = p.roots()
-    r_unstable_list_bis.append(float(np.real(roots[-1])))
+    r_unstable_list.append(float(np.real(roots[-1])))
 
-axs[0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=2.5)
-axs[0].plot(t_list[index_t0:]*1e6, np.array(r_unstable_list)*1e6, linestyle="dashed", color="red", linewidth=2.5)
-axs[0].plot(t_list*1e6, np.array(r_unstable_list_bis)*1e6, linestyle="dotted", color="magenta", linewidth=2.5)
+axs[0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=2.5, label=r"$R_{1}$")
+axs[0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2, label=r"$R_{Ue}$")
+axs[0].legend(loc="upper left", frameon=False)
+
+# QA
+t_list = np.array(dic_2_bubbles["QA"][png][dist][0][1])
+r_list = np.array(dic_2_bubbles["QA"][png][dist][0][2])
+p_list = np.array(dic_2_bubbles["QA"][png][dist][0][3])
+
+R0 = r_list[0]
+pG0 = P0 + (2 * sigma / R0)
+
+r_unstable_list = []
+for i in range(len(t_list)) :
+    p = np.polynomial.Polynomial([-pG0 * (R0**3), 0, 2 * sigma, p_list[i]])
+    roots = p.roots()
+    r_unstable_list.append(float(np.real(roots[-1])))
+
+axs[1].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=2.5)
+axs[1].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=5000,  linewidth=2)
 
 fig.savefig("cavitationonset_varyingpressure_unstableradius.pdf", bbox_inches='tight',pad_inches=0.35)
 
