@@ -599,6 +599,80 @@ axs[1].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color=
 
 fig.savefig("cavitationonset_varyingpressure_unstableradius.pdf", bbox_inches='tight',pad_inches=0.35)
 
+nrow = 3
+ncol = 2
+
+fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*15*cm, nrow*9.375*cm)), sharey=True, sharex=True)
+plt.subplots_adjust(wspace=0.14*cm, hspace=0.25*cm)
+
+for i in range(nrow) :
+    for j in range(ncol) :
+        axs[i, j].grid()
+        if j == 0 :
+            axs[i, j].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
+            axs[i, j].set_ylim(ymin=0.0, ymax=40.0)
+        if i == nrow - 1 :
+            axs[i, j].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
+            axs[i, j].set_xlim(xmin=0.0, xmax=60.0)
+            axs[i, j].set_xticks([10, 30, 50], [10, 30, 50])
+
+axs[0, 0].set_title(r"Incompressible interactions")
+axs[0, 1].set_title(r"Quasi-acoustic interactions")
+
+png_list = [-25325, -25325, -27654.9]
+dist_list = [12.0, 10.0, 10.0]
+
+for l in range(nrow) :
+    png = png_list[l]
+    dist = dist_list[l]
+
+    # IC
+    t_list = np.array(dic_2_bubbles["IC"][png][dist][0][1])
+    r_list = np.array(dic_2_bubbles["IC"][png][dist][0][2])
+    p_list = np.array(dic_2_bubbles["IC"][png][dist][0][3])
+
+    axs[l, 0].text(31.0, 30.0, r"$p_{ng}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=26)
+    axs[l, 0].text(31.0, 35.0, r"$\Delta x_{12}^{*}=$" + " {:.1f}".format(dist), horizontalalignment="center", fontsize=26)
+
+    R0 = r_list[0]
+    pG0 = P0 + (2 * sigma / R0)
+
+    r_unstable_list = []
+    for i in range(len(t_list)) :
+        p = np.polynomial.Polynomial([-pG0 * (R0**3), 0, 2 * sigma, p_list[i]])
+        roots = p.roots()
+        r_unstable_list.append(float(np.real(roots[-1])))
+    
+    if (l == 0) :
+        axs[l, 0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=3.0, label=r"$R_{1}$")
+        axs[l, 0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2.5, label=r"$R_{Ue}$")
+    else :
+        axs[l, 0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=3.0)
+        axs[l, 0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2.5)
+
+    # QA
+    t_list = np.array(dic_2_bubbles["QA"][png][dist][0][1])
+    r_list = np.array(dic_2_bubbles["QA"][png][dist][0][2])
+    p_list = np.array(dic_2_bubbles["QA"][png][dist][0][3])
+
+    axs[l, 1].text(31.0, 30.0, r"$p_{ng}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=26)
+    axs[l, 1].text(31.0, 35.0, r"$\Delta x_{12}^{*}=$" + " {:.1f}".format(dist), horizontalalignment="center", fontsize=26)
+
+    R0 = r_list[0]
+    pG0 = P0 + (2 * sigma / R0)
+
+    r_unstable_list = []
+    for i in range(len(t_list)) :
+        p = np.polynomial.Polynomial([-pG0 * (R0**3), 0, 2 * sigma, p_list[i]])
+        roots = p.roots()
+        r_unstable_list.append(float(np.real(roots[-1])))
+
+    axs[l, 1].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=3.0)
+    axs[l, 1].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=5000,  linewidth=2.5)
+
+axs[0, 0].legend(bbox_to_anchor=(1.05, 1.05), loc="lower center", ncol=2, frameon=False, fontsize=27.5)
+fig.savefig("cavitationonset_unstableradius.pdf", bbox_inches='tight',pad_inches=0.35)
+
 ######### Cavitation inception with monodispersed simple distributions ############################
 
 nrow = 2
