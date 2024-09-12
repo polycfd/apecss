@@ -157,7 +157,7 @@ plt.subplots_adjust(wspace=0.5*cm, hspace=0.5*cm)
 
 png_list = [-17221, -17725.5, -18353.2, -18770.3]
 
-ax.set_title("Cavitation inception of a single bubble \n depending on " + r"$p_{ng}$/$p_{0}$ ($R_{0}$ = 2 $\mu$m)")
+ax.set_title("Cavitation inception of a single bubble \n depending on " + r"$p_{\mathrm{ng}}$/$p_{0}$ ($R_{0}$ = 2 $\mu$m)")
 ax.set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 ax.set_xlim(xmin=10.0, xmax=60.0)
 ax.set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
@@ -318,45 +318,50 @@ fig.savefig("cavitationonset_varyingpressure.pdf", bbox_inches='tight',pad_inche
 
 ##### Pressure evolution ######
 
-nrow = 1
+nrow = 2
 ncol = 1
 
-fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)))
-plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
+fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)), sharex=True)
+plt.subplots_adjust(wspace=1.5*cm, hspace=0.25*cm)
 
-png_list = [-27654.9]
+png_list = [-25325, -27654.9]
+dist_list = [12.0, 10.0]
 
-axs.set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
-axs.set_ylabel(r"$p_{\infty, 1} / p_{0}$", fontsize=27.5)
-axs.set_xlim(xmin=10.0, xmax=60.0)
-axs.grid()
+for i in range(nrow) :
+    png = png_list[i]
+    dist = dist_list[i]
 
-secyax = axs.twinx()
-secyax.yaxis.label.set_color("blue")
-secyax.spines["right"].set_color("blue")
-secyax.tick_params("y", colors="blue")
-secyax.spines["right"].set_edgecolor("blue")
-secyax.set_ylabel(r"$(p_{\infty, 1, \mathrm{QA}} - p_{\infty, 1, \mathrm{IC}}) / p_{0}$", fontsize=27.5)
-secyax.grid(linestyle="dashed")
+    if (i == 1) :
+        axs[i].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
+    axs[i].set_ylabel(r"$p_{\infty, 1} / p_{0}$", fontsize=27.5)
+    axs[i].set_xlim(xmin=10.0, xmax=60.0)
+    axs[i].grid()
 
-sec_bis_yaxis = axs.twinx()
-sec_bis_yaxis.set_yticks([])
+    secyax = axs[i].twinx()
+    secyax.yaxis.label.set_color("blue")
+    secyax.spines["right"].set_color("blue")
+    secyax.tick_params("y", colors="blue")
+    secyax.spines["right"].set_edgecolor("blue")
+    secyax.set_ylabel(r"$(p_{\infty, 1, \mathrm{QA}} - p_{\infty, 1, \mathrm{IC}}) / p_{0}$", fontsize=27.5)
+    secyax.grid(linestyle="dashed")
 
-for png in png_list :
-    t_list_IC = np.array(dic_2_bubbles["IC"][png][10.0][0][1]) * 1.0e6
-    p_list_IC = np.array(dic_2_bubbles["IC"][png][10.0][0][3]) / P0
+    sec_bis_yaxis = axs[i].twinx()
+    sec_bis_yaxis.set_yticks([])
 
-    t_list_QA = np.array(dic_2_bubbles["QA"][png][10.0][0][1]) * 1.0e6
-    p_list_QA = np.array(dic_2_bubbles["QA"][png][10.0][0][3]) / P0
+    t_list_IC = np.array(dic_2_bubbles["IC"][png][dist][0][1]) * 1.0e6
+    p_list_IC = np.array(dic_2_bubbles["IC"][png][dist][0][3]) / P0
+
+    t_list_QA = np.array(dic_2_bubbles["QA"][png][dist][0][1]) * 1.0e6
+    p_list_QA = np.array(dic_2_bubbles["QA"][png][dist][0][3]) / P0
 
     p_list_QA_new = []
-    for i in range(9, len(p_list_QA), 10) :
-        p_list_QA_new.append(p_list_QA[i])
+    for j in range(9, len(p_list_QA), 10) :
+        p_list_QA_new.append(p_list_QA[j])
 
     diff_p = np.array(p_list_QA_new) - p_list_IC
 
-    axs.plot(t_list_IC, p_list_IC, color="red", linewidth=3.0, linestyle="solid", label="IC")
-    axs.plot(t_list_QA, p_list_QA, color="black", linewidth=3.0, linestyle="dashed", label="QA")
+    axs[i].plot(t_list_IC, p_list_IC, color="red", linewidth=3.0, linestyle="solid", label="IC")
+    axs[i].plot(t_list_QA, p_list_QA, color="black", linewidth=3.0, linestyle="dashed", label="QA")
     secyax.plot(t_list_IC, diff_p, color="blue", linewidth=3.0, linestyle="dotted", label=r"$\Delta p_{\infty, 1} / p_{0}$ (QA - IC)")
     sec_bis_yaxis.plot(t_list_IC, p_list_IC, color="red", linewidth=3.0, linestyle="solid", label="IC")
     sec_bis_yaxis.plot(t_list_QA, p_list_QA, color="black", linewidth=3.0, linestyle="dashed", label="QA")
@@ -364,15 +369,17 @@ for png in png_list :
     t_IC = t_list_IC[dic_2_bubbles["IC"][png][10.0][0][2].index(np.max(dic_2_bubbles["IC"][png][10.0][0][2]))]
     t_QA = t_list_QA[dic_2_bubbles["QA"][png][10.0][0][2].index(np.max(dic_2_bubbles["QA"][png][10.0][0][2]))]
 
-axs.set_xticks([20, t_IC, t_QA, 40])
-axs.set_xticklabels([20, r"$t_{\mathrm{IC}}$", r"$t_{\mathrm{QA}}$", 40])
-secyax.set_ylim(ymin=-0.005, ymax=0.005)
-secyax.set_yticks([-0.005, 0.0, 0.005])
+    secyax.set_ylim(ymin=-0.005, ymax=0.005)
+    secyax.set_yticks([-0.005, 0.0, 0.005])
 
-sec_bis_yaxis.legend(bbox_to_anchor=(0.5, 1.15), loc="center", ncol=2, frameon=False)
-secyax.legend(bbox_to_anchor=(0.5, 1.05), loc="center", ncol=1, frameon=False)
+    if (i == 0) :
+        sec_bis_yaxis.legend(bbox_to_anchor=(0.5, 1.15), loc="center", ncol=2, frameon=False)
+        secyax.legend(bbox_to_anchor=(0.5, 1.05), loc="center", ncol=1, frameon=False)
+    
+    axs[i].text(25.0, 0.85, r"$\Delta x_{12}^{*}=$" + " {:.1f}".format(dist), horizontalalignment="center", fontsize=27.5)
+    axs[i].text(25.0, 0.65, r"$p_{\mathrm{ng}}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=27.5)
 
-fig.savefig("cavitationonset_varyingpressure_pressure.pdf", bbox_inches='tight',pad_inches=0.35)
+fig.savefig("cavitationonset_pressuredifferences.pdf", bbox_inches='tight',pad_inches=0.35)
 
 #### Test #####
 
@@ -469,7 +476,7 @@ ncol = 2
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*18.75*cm, nrow*9.375*cm)), sharex=True)
 plt.subplots_adjust(wspace=0.45*cm, hspace=0.25*cm)
 
-# fig.suptitle(r"$p_{ng}/p_{0}=$" + "{:.3f}, ".format(png/P0) + r"$\Delta x_{12}=$" + "{:.1f}".format(dist) + r"($R_{1,0} + R_{2,0}$)")
+# fig.suptitle(r"$p_{\mathrm{ng}}/p_{0}=$" + "{:.3f}, ".format(png/P0) + r"$\Delta x_{12}=$" + "{:.1f}".format(dist) + r"($R_{1,0} + R_{2,0}$)")
 axs[0, 0].set_title("Incompressible interactions")
 axs[0, 1].set_title("Quasi-acoustic interactions")
 
@@ -577,7 +584,7 @@ for i in range(len(t_list)) :
     r_unstable_list.append(float(np.real(roots[-1])))
 
 axs[0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=2.5, label=r"$R_{1}$")
-axs[0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2, label=r"$R_{Ue}$")
+axs[0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2, label=r"$R_{\mathrm{Ue}}$")
 axs[0].legend(loc="upper left", frameon=False)
 
 # QA
@@ -599,7 +606,7 @@ axs[1].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color=
 
 fig.savefig("cavitationonset_varyingpressure_unstableradius.pdf", bbox_inches='tight',pad_inches=0.35)
 
-nrow = 3
+nrow = 2
 ncol = 2
 
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*15*cm, nrow*9.375*cm)), sharey=True, sharex=True)
@@ -619,8 +626,8 @@ for i in range(nrow) :
 axs[0, 0].set_title(r"Incompressible interactions")
 axs[0, 1].set_title(r"Quasi-acoustic interactions")
 
-png_list = [-25325, -25325, -27654.9]
-dist_list = [12.0, 10.0, 10.0]
+png_list = [-25325, -27654.9]
+dist_list = [12.0, 10.0]
 
 for l in range(nrow) :
     png = png_list[l]
@@ -631,7 +638,7 @@ for l in range(nrow) :
     r_list = np.array(dic_2_bubbles["IC"][png][dist][0][2])
     p_list = np.array(dic_2_bubbles["IC"][png][dist][0][3])
 
-    axs[l, 0].text(31.0, 30.0, r"$p_{ng}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=26)
+    axs[l, 0].text(31.0, 30.0, r"$p_{\mathrm{ng}}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=26)
     axs[l, 0].text(31.0, 35.0, r"$\Delta x_{12}^{*}=$" + " {:.1f}".format(dist), horizontalalignment="center", fontsize=26)
 
     R0 = r_list[0]
@@ -645,7 +652,7 @@ for l in range(nrow) :
     
     if (l == 0) :
         axs[l, 0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=3.0, label=r"$R_{1}$")
-        axs[l, 0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2.5, label=r"$R_{Ue}$")
+        axs[l, 0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2.5, label=r"$R_{\mathrm{Ue}}$")
     else :
         axs[l, 0].plot(t_list*1e6, r_list*1e6, color="blue", linewidth=3.0)
         axs[l, 0].plot(t_list*1e6, np.array(r_unstable_list)*1e6, linestyle="solid", color="red", marker="o", markevery=500, linewidth=2.5)
@@ -655,7 +662,7 @@ for l in range(nrow) :
     r_list = np.array(dic_2_bubbles["QA"][png][dist][0][2])
     p_list = np.array(dic_2_bubbles["QA"][png][dist][0][3])
 
-    axs[l, 1].text(31.0, 30.0, r"$p_{ng}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=26)
+    axs[l, 1].text(31.0, 30.0, r"$p_{\mathrm{ng}}^{*}=$" + " {:.3f}".format(png/P0), horizontalalignment="center", fontsize=26)
     axs[l, 1].text(31.0, 35.0, r"$\Delta x_{12}^{*}=$" + " {:.1f}".format(dist), horizontalalignment="center", fontsize=26)
 
     R0 = r_list[0]
