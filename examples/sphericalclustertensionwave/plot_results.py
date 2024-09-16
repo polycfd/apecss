@@ -97,7 +97,7 @@ cluster_radius = 232.0e-6
 interval_size = cluster_radius / 10
 
 dic_loc_distrib_global = {}
-dic_loc_distrib = {0.0 : [], 0.5 : [], 1.0 : []}
+dic_loc_distrib = {0.0 : [], 0.25 : [], 0.5 : [], 0.75 : [], 1.0 : []}
 
 for count in list(dic_bubbles_loc["mono"].keys()) :
     if count not in list(dic_loc_distrib_global.keys()) :
@@ -111,13 +111,19 @@ for count in list(dic_bubbles_loc["mono"].keys()) :
             radius_to_center = sqrt(dic_bubbles_loc["mono"][count][p1][i][0]**2 + dic_bubbles_loc["mono"][count][p1][i][1]**2 + dic_bubbles_loc["mono"][count][p1][i][2]**2)
             if radius_to_center < 0.0 * cluster_radius + interval_size :
                 dic_loc_distrib_global[count][p1][0.0].append(i)
+            elif 0.25 * cluster_radius - 0.5 * interval_size < radius_to_center < 0.25 * cluster_radius + 0.5 * interval_size :
+                dic_loc_distrib_global[count][p1][0.25].append(i)
             elif 0.5 * (cluster_radius - interval_size) < radius_to_center < 0.5 * (cluster_radius + interval_size) :
                 dic_loc_distrib_global[count][p1][0.5].append(i)
+            elif 0.75 * cluster_radius - 0.5 * interval_size < radius_to_center < 0.75 * cluster_radius + 0.5 * interval_size :
+                dic_loc_distrib_global[count][p1][0.75].append(i)
             elif 1.0 * cluster_radius - interval_size < radius_to_center :
                 dic_loc_distrib_global[count][p1][1.0].append(i)
 
 dic_loc_label = {1.0 : "{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(1.0),
+                 0.75 : "{:.1f}".format(0.75 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.75 + interval_size/cluster_radius),
                  0.5 : "{:.1f}".format(0.5 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.5 + interval_size/cluster_radius),
+                 0.25 : "{:.1f}".format(0.25 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.25 + interval_size/cluster_radius),
                  0.0 : "{:.1f}".format(0.0) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(interval_size/cluster_radius)}
 
 # For polydispersed cluster, results are plotted based on bubbles initial radii
@@ -252,10 +258,10 @@ axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
@@ -337,10 +343,10 @@ axs[0].set_title(r"No interactions", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
 axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
@@ -686,13 +692,13 @@ axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu 
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
 axs[0].set_xlim(xmin=0.0, xmax=250.0)
 axs[1].set_xlim(xmin=-10.0, xmax=800.0)
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
@@ -773,10 +779,10 @@ axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $
 axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
@@ -853,8 +859,8 @@ axs[0].set_title(r"No interactions", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
 axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
 zm_IC = axs[1].inset_axes([0.35, 0.35, 0.60, 0.60])
 zm_IC.grid()
@@ -874,7 +880,7 @@ zm_QA.set_yticks([-0.267, 0.0, 1.0, 2.0])
 zm_QA.set_yticklabels([r"$p_{\mathrm{C}}$", 0, 1, 2])
 zm_QA.tick_params(axis="both", labelsize=25)
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
@@ -1148,10 +1154,10 @@ axs[0].set_title(r"No interactions", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
 axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
@@ -1236,8 +1242,8 @@ axs[0].set_title(r"No interactions", fontsize=27.5)
 axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
 axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
 
-dic_color_loc = {0.0 : "blue", 0.5 : "red", 1.0 : "black"}
-dic_lines_loc = {0.0 : "dotted", 0.5 : "dashed", 1.0 : "solid"}
+dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
+dic_lines_loc = {0.0 : "dotted",0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
 zm_IC = axs[1].inset_axes([0.35, 0.35, 0.60, 0.60])
 zm_IC.grid()
@@ -1257,7 +1263,7 @@ zm_QA.set_yticks([-0.267, 0.0, 1.0, 2.0])
 zm_QA.set_yticklabels([r"$p_{\mathrm{C}}$", 0, 1, 2])
 zm_QA.tick_params(axis="both", labelsize=25)
 
-for k in dic_loc_distrib_global[count][p1].keys() :
+for k in [0.0, 0.5, 1.0] :
     index_list = dic_loc_distrib_global[count][p1][k]
 
     # No interactions
