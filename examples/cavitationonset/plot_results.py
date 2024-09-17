@@ -623,8 +623,8 @@ for i in range(nrow) :
             axs[i, j].set_xlim(xmin=0.0, xmax=60.0)
             axs[i, j].set_xticks([10, 30, 50], [10, 30, 50])
 
-axs[0, 0].set_title(r"Incompressible interactions")
-axs[0, 1].set_title(r"Quasi-acoustic interactions")
+axs[0, 0].set_title(r"Incompressible interactions", y=1.025)
+axs[0, 1].set_title(r"Quasi-acoustic interactions", y=1.025)
 
 png_list = [-25325, -27654.9]
 dist_list = [12.0, 10.0]
