@@ -327,12 +327,12 @@ for i in range(n_row) :
             axs[i, j].set_xlim(xmin=0.5, xmax=8.0)
         if j == 0 :
             axs[i, j].set_ylabel(r"$R_{\mathrm{max}}/R_{0}$")
-fig.subplots_adjust(hspace=0.35*cm, wspace=0.05*cm)
+fig.subplots_adjust(hspace=0.55*cm, wspace=0.05*cm)
 
-axs[0, 0].set_title(r"4MBs interacting at $d = 5$ $\mu$m")
-axs[0, 1].set_title(r"4MBs interacting at $d = 10$ $\mu$m")
-axs[1, 0].set_title(r"4MBs interacting at $d = 25$ $\mu$m")
-axs[1, 1].set_title(r"4MBs interacting at $d = 50$ $\mu$m")
+axs[0, 0].set_title(r"$d = 5$ $\mu$m")
+axs[0, 1].set_title(r"$d = 10$ $\mu$m")
+axs[1, 0].set_title(r"$d = 25$ $\mu$m")
+axs[1, 1].set_title(r"$d = 50$ $\mu$m")
 
 # 5 microns
 data_list = dic_results["QA"][0][4][1.2e5][5e-6]
