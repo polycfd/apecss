@@ -219,7 +219,7 @@ fig.savefig("bubblyscreen_ComparisonQAIC.pdf", bbox_inches="tight",pad_inches=0.
 
 fig, ax = plt.subplots(1, 1, figsize=(27.5*cm, 12.5*cm))
 ax.set_xlabel(r"$t$ [$\mu$s]")
-ax.set_xlim(xmin=0.0, xmax=60.0)
+ax.set_xlim(xmin=0.0, xmax=35.0)
 ax.set_ylabel(r"$|r'|$")
 ax.set_yscale("log")
 ax.set_ylim(ymin=10**(-4), ymax=5.0e-2)
