@@ -254,9 +254,9 @@ for i in range(ncol) :
     axs[i].set_xlim(xmin=0.0, xmax=15.0)
     axs[i].grid()
 
-axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -339,9 +339,9 @@ for i in range(ncol) :
 
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -422,9 +422,9 @@ for i in range(ncol) :
     # axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
-axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 # linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
@@ -555,9 +555,9 @@ for i in range(ncol) :
     axs[i].grid()
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 # linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
@@ -688,9 +688,9 @@ for i in range(ncol) :
     # axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
-axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -775,9 +775,9 @@ for i in range(ncol) :
     axs[i].set_xlim(xmin=0.0, xmax=15.0)
     axs[i].grid()
 
-axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0}=2.0 \ \mu $m, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -855,9 +855,9 @@ for i in range(ncol) :
 
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -954,9 +954,9 @@ for i in range(ncol) :
     # axs[i].set_xlim(xmin=10.0, xmax=60.0)
     axs[i].grid()
 
-axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
-axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15)
+axs[0].set_title(r"No interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[1].set_title(r"Incompressible interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions" + "\n" +r"($N = 250$, $R_{0, ref}=2.0 \ \mu $m, $\overline{m} = 0$, $\varsigma = 0.7$, $p_{1} = -3.0 \times 10^{4} $ Pa)", fontsize=15, y=1.025)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 dic_color_q = {}
@@ -1052,9 +1052,9 @@ for i in range(ncol) :
 
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 dic_color_q = {}
@@ -1150,9 +1150,9 @@ for i in range(ncol) :
 
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -1238,9 +1238,9 @@ for i in range(ncol) :
 
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.0 : "black"}
 dic_lines_loc = {0.0 : "dotted",0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
@@ -1339,9 +1339,9 @@ for i in range(ncol) :
     axs[i].grid()
 plt.subplots_adjust(wspace=0.35*cm)
 
-axs[0].set_title(r"No interactions", fontsize=27.5)
-axs[1].set_title(r"Incompressible interactions", fontsize=27.5)
-axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5)
+axs[0].set_title(r"No interactions", fontsize=27.5, y=1.025)
+axs[1].set_title(r"Incompressible interactions", fontsize=27.5, y=1.025)
+axs[2].set_title(r"Quasi-acoustic interactions", fontsize=27.5, y=1.025)
 
 color_list = ["black", "magenta", "blue", "green", "red"]
 # linestyle_list = [(0, (1, 1)), (5, (10, 3)), (0, (5, 5)), (0, (3, 5, 1, 5)), (0, (3, 1, 1, 1, 1, 1))]
