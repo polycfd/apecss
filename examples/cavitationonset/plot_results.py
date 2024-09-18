@@ -477,8 +477,8 @@ fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*18.75*cm, nrow*9.375*cm)), sh
 plt.subplots_adjust(wspace=0.45*cm, hspace=0.25*cm)
 
 # fig.suptitle(r"$p_{\mathrm{ng}}/p_{0}=$" + "{:.3f}, ".format(png/P0) + r"$\Delta x_{12}=$" + "{:.1f}".format(dist) + r"($R_{1,0} + R_{2,0}$)")
-axs[0, 0].set_title("Incompressible interactions")
-axs[0, 1].set_title("Quasi-acoustic interactions")
+axs[0, 0].set_title("Incompressible interactions", y=1.025)
+axs[0, 1].set_title("Quasi-acoustic interactions", y=1.025)
 
 for i in range(nrow) :
     for j in range(ncol) :
