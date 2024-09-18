@@ -187,7 +187,7 @@ plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
 dist_list = [10, 12, 12.1, 12.5, 15, 20]
 
-axs[0].set_title(r"Incompressible interactions")
+axs[0].set_title(r"Incompressible interactions", y=1.025)
 axs[0].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
 axs[0].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
@@ -221,7 +221,7 @@ axs[0].text(25.0, -2.5, r"10", color="blue")
 
 dist_list = [10, 11.9, 12, 15, 20]
 
-axs[1].set_title(r"Quasi-acoustic interactions")
+axs[1].set_title(r"Quasi-acoustic interactions", y=1.025)
 axs[1].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
 # axs[1].set_ylabel(r"$R$ [$\mu$m]")
@@ -264,7 +264,7 @@ plt.subplots_adjust(wspace=0.35*cm, hspace=0.5*cm)
 
 png_list = [-25325, -27351, -27654.9, -27958.8, -29377]
 
-axs[0].set_title(r"Incompressible interactions")
+axs[0].set_title(r"Incompressible interactions", y=1.025)
 axs[0].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
 axs[0].set_ylabel(r"$R_{1}$ [$\mu$m]", fontsize=27.5)
@@ -293,7 +293,7 @@ axs[0].text(23.0, 0.5, r"-0.25", color="blue")
 
 png_list = [-25325, -27351, -27958.8, -27654.9, -29377]
 
-axs[1].set_title(r"Quasi-acoustic interactions")
+axs[1].set_title(r"Quasi-acoustic interactions", y=1.025)
 axs[1].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[1].set_xlim(xmin=0.0, xmax=60.0)
 # axs[1].set_ylabel(r"$R$ [$\mu$m]")
@@ -559,14 +559,14 @@ ncol = 2
 fig, axs = plt.subplots(nrow, ncol, figsize=((ncol*20*cm, nrow*12.5*cm)), sharey=True, sharex=True)
 plt.subplots_adjust(wspace=0.15*cm, hspace=0.5*cm)
 
-axs[0].set_title(r"Incompressible interactions")
+axs[0].set_title(r"Incompressible interactions", y=1.025)
 axs[0].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[0].set_xlim(xmin=0.0, xmax=60.0)
 axs[0].set_ylabel(r"$R$ [$\mu$m]", fontsize=27.5)
 axs[0].set_ylim(ymin=0.0, ymax=40.0)
 axs[0].grid()
 
-axs[1].set_title(r"Quasi-acoustic interactions")
+axs[1].set_title(r"Quasi-acoustic interactions", y=1.025)
 axs[1].grid()
 
 # IC
@@ -699,8 +699,8 @@ for i in range(2) :
         axs[i, j].grid()
         axs[i, j].set_xlim(xmin=10.0, xmax=60.0)
 
-axs[0, 0].set_title(r"Incompressible interactions")
-axs[0, 1].set_title(r"Quasi-acoustic interactions")
+axs[0, 0].set_title(r"Incompressible interactions", y=1.025)
+axs[0, 1].set_title(r"Quasi-acoustic interactions", y=1.025)
 
 axs[1, 0].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
 axs[1, 1].set_xlabel(r"$t$ [$\mu$s]", fontsize=27.5)
