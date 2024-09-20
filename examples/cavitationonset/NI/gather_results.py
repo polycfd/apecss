@@ -9,15 +9,8 @@ file.close()
 count = int(lines[0].split(" ")[0])
 png = float(lines[0].split(" ")[5])
 cl_size = float(lines[0].split(" ")[7])
-cl_distrib = int(lines[0].split(" ")[9])
 
-if cl_distrib == 0 :
-    # Two bubbles of different size
-    file_name = "{}_{:.4E}_{:.2f}.txt".format(count, png, cl_size)
-
-else :
-    # Monodispersed system
-    file_name = "{}_{:.4E}.txt".format(count, png)
+file_name = "{}_{:.4E}_{:.2f}.txt".format(count, png, cl_size)
 
 working_path = os.getcwd()
 results_path = os.path.join(working_path, "results")

@@ -24,12 +24,6 @@
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 
-// Declaration of the structure holding the interaction variables of each bubble
-struct Interaction
-{
-  APECSS_FLOAT dp_neighbor;
-};
-
 int main(int argc, char **args)
 {
   char OptionsDir[APECSS_STRINGLENGTH];
@@ -38,14 +32,14 @@ int main(int argc, char **args)
   // Interbubble time-step, defining the frequency with which the neighbor influence is updated
   APECSS_FLOAT dt_interbubble = 1.0e-8;
 
+  // Number of bubbles
+  const int nBubbles = 2;
+
   // Initialize the simulation parameters given by the execution command
-  int nBubbles = 2;
   double tEnd = 0.0;
   double fa = 0.0;
   double pa = 0.0;
-  int cluster_distrib = 0;
   double cluster_size = 0;
-  int inttype = 0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   apecss_infoscreen();
@@ -75,24 +69,9 @@ int main(int argc, char **args)
       sscanf(args[j + 1], "%le", &pa);
       j += 2;
     }
-    else if (strcmp("-nbb", args[j]) == 0)
-    {
-      sscanf(args[j + 1], "%d", &nBubbles);
-      j += 2;
-    }
-    else if (strcmp("-cldistrib", args[j]) == 0)
-    {
-      sscanf(args[j + 1], "%d", &cluster_distrib);
-      j += 2;
-    }
     else if (strcmp("-clsize", args[j]) == 0)
     {
       sscanf(args[j + 1], "%le", &cluster_size);
-      j += 2;
-    }
-    else if (strcmp("-inttype", args[j]) == 0)
-    {
-      sscanf(args[j + 1], "%d", &inttype);
       j += 2;
     }
     else if (strcmp("-dt_inter", args[j]) == 0)
@@ -197,131 +176,17 @@ int main(int argc, char **args)
   }
 
   // Define the size of each bubble
-  if (cluster_distrib == 0)
-  {
-    // Two bubbles of different initial size interacting
-    Bubbles[0]->R0 = 2.0e-06;
-    Bubbles[1]->R0 = 20.0e-06;
-  }
-  else
-  {
-    // Monodispersed multibubble distributions
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      Bubbles[i]->R0 = 20.0e-06;
-    }
-  }
+  Bubbles[0]->R0 = 2.0e-06;
+  Bubbles[1]->R0 = 20.0e-06;
 
   // Define center location for each bubble
-  if (cluster_distrib == 0)
-  {
-    // Two bubbles of different initial size interacting
-    Bubbles[0]->Interaction->location[0] = 0.0;
-    Bubbles[0]->Interaction->location[1] = 0.0;
-    Bubbles[0]->Interaction->location[2] = 0.0;
+  Bubbles[0]->Interaction->location[0] = 0.0;
+  Bubbles[0]->Interaction->location[1] = 0.0;
+  Bubbles[0]->Interaction->location[2] = 0.0;
 
-    Bubbles[1]->Interaction->location[0] = (APECSS_FLOAT) cluster_size * (Bubbles[0]->R0 + Bubbles[1]->R0);
-    Bubbles[1]->Interaction->location[1] = 0.0;
-    Bubbles[1]->Interaction->location[2] = 0.0;
-  }
-  else
-  {
-    // Monodispersed multibubble distributions
-    APECSS_FLOAT D = 400.0e-06;
-    if (nBubbles == 1)
-    {
-      // Single bubble
-      Bubbles[0]->Interaction->location[0] = 0.0;
-      Bubbles[0]->Interaction->location[1] = 0.0;
-      Bubbles[0]->Interaction->location[2] = 0.0;
-    }
-    else if (nBubbles == 2)
-    {
-      // Two bubbles
-      Bubbles[0]->Interaction->location[0] = 0.0;
-      Bubbles[0]->Interaction->location[1] = 0.0;
-      Bubbles[0]->Interaction->location[2] = 0.0;
-
-      Bubbles[1]->Interaction->location[0] = D;
-      Bubbles[1]->Interaction->location[1] = 0.0;
-      Bubbles[1]->Interaction->location[2] = 0.0;
-    }
-    else if (nBubbles == 3)
-    {
-      // Regular triangle
-      Bubbles[0]->Interaction->location[0] = 0.0;
-      Bubbles[0]->Interaction->location[1] = 0.0;
-      Bubbles[0]->Interaction->location[2] = 0.0;
-
-      Bubbles[1]->Interaction->location[0] = D;
-      Bubbles[1]->Interaction->location[1] = 0.0;
-      Bubbles[1]->Interaction->location[2] = 0.0;
-
-      Bubbles[2]->Interaction->location[0] = 0.5 * D;
-      Bubbles[2]->Interaction->location[1] = D * APECSS_SIN(APECSS_ONETHIRD * APECSS_PI);
-      Bubbles[2]->Interaction->location[2] = 0.0;
-    }
-    else if (nBubbles == 4)
-    {
-      // Regular tetragon
-      Bubbles[0]->Interaction->location[0] = 0.0;
-      Bubbles[0]->Interaction->location[1] = 0.0;
-      Bubbles[0]->Interaction->location[2] = 0.0;
-
-      Bubbles[1]->Interaction->location[0] = D;
-      Bubbles[1]->Interaction->location[1] = 0.0;
-      Bubbles[1]->Interaction->location[2] = 0.0;
-
-      Bubbles[2]->Interaction->location[0] = 0.0;
-      Bubbles[2]->Interaction->location[1] = D;
-      Bubbles[2]->Interaction->location[2] = 0.0;
-
-      Bubbles[3]->Interaction->location[0] = D;
-      Bubbles[3]->Interaction->location[1] = D;
-      Bubbles[3]->Interaction->location[2] = 0.0;
-    }
-    else if (nBubbles == 8)
-    {
-      // Regular hexaedron
-      Bubbles[0]->Interaction->location[0] = 0.0;
-      Bubbles[0]->Interaction->location[1] = 0.0;
-      Bubbles[0]->Interaction->location[2] = 0.0;
-
-      Bubbles[1]->Interaction->location[0] = D;
-      Bubbles[1]->Interaction->location[1] = 0.0;
-      Bubbles[1]->Interaction->location[2] = 0.0;
-
-      Bubbles[2]->Interaction->location[0] = 0.0;
-      Bubbles[2]->Interaction->location[1] = D;
-      Bubbles[2]->Interaction->location[2] = 0.0;
-
-      Bubbles[3]->Interaction->location[0] = D;
-      Bubbles[3]->Interaction->location[1] = D;
-      Bubbles[3]->Interaction->location[2] = 0.0;
-
-      Bubbles[4]->Interaction->location[0] = 0.0;
-      Bubbles[4]->Interaction->location[1] = 0.0;
-      Bubbles[4]->Interaction->location[2] = D;
-
-      Bubbles[5]->Interaction->location[0] = D;
-      Bubbles[5]->Interaction->location[1] = 0.0;
-      Bubbles[5]->Interaction->location[2] = D;
-
-      Bubbles[6]->Interaction->location[0] = 0.0;
-      Bubbles[6]->Interaction->location[1] = D;
-      Bubbles[6]->Interaction->location[2] = D;
-
-      Bubbles[7]->Interaction->location[0] = D;
-      Bubbles[7]->Interaction->location[1] = D;
-      Bubbles[7]->Interaction->location[2] = D;
-    }
-    else
-    {
-      char str[APECSS_STRINGLENGTH_SPRINTF];
-      sprintf(str, "Wrong number of bubbles as input for this specific cluster distribution (1, 2, 3, 4 or 8)");
-      apecss_erroronscreen(1, str);
-    }
-  }
+  Bubbles[1]->Interaction->location[0] = (APECSS_FLOAT) cluster_size * (Bubbles[0]->R0 + Bubbles[1]->R0);
+  Bubbles[1]->Interaction->location[1] = 0.0;
+  Bubbles[1]->Interaction->location[2] = 0.0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   clock_t starttimebubble = clock();
@@ -344,8 +209,7 @@ int main(int argc, char **args)
   // File to retrieve all valuable information for cavitation onset test case
   FILE *file_ida2009;
   file_ida2009 = fopen("Ida2009_results.txt", "w");
-  fprintf(file_ida2009, "%d Bubbles p0(pa) %e png(Pa) %e D_multiplier(-) %e cl_distrib %d Interaction-type %d\n", nBubbles, Liquid->pref, pa, cluster_size,
-          cluster_distrib, inttype);
+  fprintf(file_ida2009, "%d Bubbles p0(pa) %e png(Pa) %e D_multiplier(-) %e Interaction-type %d\n", nBubbles, Liquid->pref, pa, cluster_size, 0);
   fprintf(file_ida2009, "Initial_radii(m)");
   for (register int i = 0; i < nBubbles; i++) fprintf(file_ida2009, " %e", Bubbles[i]->R0);
   fprintf(file_ida2009, "\n");
@@ -361,18 +225,6 @@ int main(int argc, char **args)
     for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    // Update the contribution of the neighbor bubbles
-    if (inttype == 1)
-    {
-      apecss_interactions_instantaneous(Bubbles);
-    }
-    else if (inttype == 2)
-    {
-      apecss_interactions_quasi_acoustic(Bubbles);
-    }
-    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Retrieve data
     fprintf(file_ida2009, "%e", tSim);
     for (register int i = 0; i < nBubbles; i++)
@@ -385,15 +237,6 @@ int main(int argc, char **args)
     }
     fprintf(file_ida2009, "\n");
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
-      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
-
-      Bubbles[i]->Interaction->last_t_1 = tSim;
-      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
-    }
   }
 
   fclose(file_ida2009);
@@ -454,15 +297,4 @@ APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, stru
     derivative = 0.5 * APECSS_PI * inv_T * APECSS_SIN(APECSS_PI * (t + T) * inv_T) * (Bubble->Excitation->dp - Bubble->p0);
   }
   return (derivative);
-
-  // APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
-  // if (delta_t > Bubble->dt)
-  // {
-  //   APECSS_FLOAT inv_delta_t = 1 / delta_t;
-  //   return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) * inv_delta_t));
-  // }
-  // else
-  // {
-  //   return (derivative);
-  // }
 }
