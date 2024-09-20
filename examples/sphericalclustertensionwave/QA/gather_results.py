@@ -17,18 +17,13 @@ for i in range(count_core) :
 firstline = lines_tension[0][0].split(" ")
 count = int(firstline[0])
 p1 = float(firstline[5])
-cl_distrib = int(firstline[7])
 
-if cl_distrib == 0 :
-    # monodispersed spherical cluster
-    file_name = "mono_{}_{:.4E}.txt".format(count, p1)
-
-else :
-    # polydispersed spherical cluster
-    file_name = "poly_{}_{:.4E}.txt".format(count, p1)
+file_name = "mono_{}_{:.4E}.txt".format(count, p1)
 
 working_path = os.getcwd()
 results_path = os.path.join(working_path, "results")
+if not os.path.exists(results_path) :
+    os.makedirs(results_path)
 file_results = open(os.path.join(results_path, file_name), "w")
 
 results_tension = open(os.path.join(results_path, file_name), "w")
@@ -69,13 +64,7 @@ file_loc = open("bubble_loc.txt", "r")
 lines_loc = file_loc.readlines()
 file_loc.close()
 
-if cl_distrib == 0 :
-    # monodispersed spherical cluster
-    file_name_loc = "mono_{}_{:.4E}_loc.txt".format(count, p1)
-
-else :
-    # polydispersed spherical cluster
-    file_name_loc = "poly_{}_{:.4E}_loc.txt".format(count, p1)
+file_name_loc = "mono_{}_{:.4E}_loc.txt".format(count, p1)
 
 file_loc_results = open(os.path.join(results_path, file_name_loc), "w")
 

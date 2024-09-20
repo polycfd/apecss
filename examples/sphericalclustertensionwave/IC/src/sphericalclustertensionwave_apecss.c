@@ -28,27 +28,9 @@ APECSS_FLOAT rand_range(double min, double max)
   return (APECSS_FLOAT) number;
 }
 
-APECSS_FLOAT normal_distribution(double mu, double sigma)
-{
-  // Generating a normal distribution using Box-Muller transform, with mu as mean and sigma**2 as variance
-  double u1 = (drand48());
-  while (u1 == 0.0) u1 = (drand48());
-  double u2 = (drand48());
-
-  double mag = sigma * APECSS_SQRT(-2.0 * APECSS_LOG(u1));
-  double z1 = mag * APECSS_COS(2 * APECSS_PI * u2) + mu;
-  return (APECSS_FLOAT) z1;
-}
-
 // Declaration of additional case-dependent functions
 APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
-
-// Declaration of the structure holding the interaction variables of each bubble
-struct Interaction
-{
-  APECSS_FLOAT dp_neighbor;
-};
 
 int main(int argc, char **args)
 {
@@ -67,7 +49,6 @@ int main(int argc, char **args)
   double tEnd = 0.0;
   double fa = 0.0;
   double pa = 0.0;
-  int cluster_distrib = 0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   apecss_infoscreen();
@@ -95,11 +76,6 @@ int main(int argc, char **args)
     else if (strcmp("-amp", args[j]) == 0)
     {
       sscanf(args[j + 1], "%le", &pa);
-      j += 2;
-    }
-    else if (strcmp("-cldistrib", args[j]) == 0)
-    {
-      sscanf(args[j + 1], "%d", &cluster_distrib);
       j += 2;
     }
     else if (strcmp("-h", args[j]) == 0)
@@ -198,31 +174,9 @@ int main(int argc, char **args)
   }
 
   // Define the size of each bubble
-  if (cluster_distrib == 0)
+  for (register int i = 0; i < nBubbles; i++)
   {
-    // Monodispersed cluster
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      Bubbles[i]->R0 = 2.0e-6;
-    }
-  }
-  else
-  {
-    // Polydispersed cluster (radii distribution is following a log normal law)
-    double mu = 0.0;
-    double sigma = 0.7;
-    APECSS_FLOAT radius_ref = 2.0e-6;
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      APECSS_FLOAT radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      // while ((radius > 20 * radius_ref) || (radius < 0.5 * radius_ref))
-      while (radius > 20 * radius_ref)
-      {
-        // Small step to ensure no too big nor too small bubbles are generated (the distribution is conserved still)
-        radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      }
-      Bubbles[i]->R0 = radius;
-    }
+    Bubbles[i]->R0 = 2.0e-6;
   }
 
   // Define center location for each bubble
@@ -299,7 +253,7 @@ int main(int argc, char **args)
 
   FILE *file_tension;
   file_tension = fopen("tension_results.txt", "w");
-  fprintf(file_tension, "%d Bubbles p0(pa) %e p1(Pa) %e cl_distrib %d\n", nBubbles, Liquid->pref, pa, cluster_distrib);
+  fprintf(file_tension, "%d Bubbles p0(pa) %e p1(Pa) %e\n", nBubbles, Liquid->pref, pa);
   fprintf(file_tension, "Initial_radii(m)");
   for (register int i = 0; i < nBubbles; i++) fprintf(file_tension, " %e", Bubbles[i]->R0);
   fprintf(file_tension, "\n");

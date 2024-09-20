@@ -29,18 +29,6 @@ APECSS_FLOAT rand_range(double min, double max)
   return (APECSS_FLOAT) number;
 }
 
-APECSS_FLOAT normal_distribution(double mu, double sigma)
-{
-  // Generating a normal distribution using Box-Muller transform, with mu as mean and sigma**2 as variance
-  double u1 = (drand48());
-  while (u1 == 0.0) u1 = (drand48());
-  double u2 = (drand48());
-
-  double mag = sigma * APECSS_SQRT(-2.0 * APECSS_LOG(u1));
-  double z1 = mag * APECSS_COS(2 * APECSS_PI * u2) + mu;
-  return (APECSS_FLOAT) z1;
-}
-
 struct APECSS_Parallel_Cluster
 {
   int rank, size;
@@ -81,7 +69,6 @@ int main(int argc, char **args)
   double tEnd = 0.0;
   double fa = 0.0;
   double pa = 0.0;
-  int cluster_distrib = 0;
   // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   apecss_infoscreen();
@@ -111,11 +98,6 @@ int main(int argc, char **args)
       sscanf(args[j + 1], "%le", &pa);
       j += 2;
     }
-    else if (strcmp("-cldistrib", args[j]) == 0)
-    {
-      sscanf(args[j + 1], "%d", &cluster_distrib);
-      j += 2;
-    }
     else if (strcmp("-h", args[j]) == 0)
     {
       apecss_helpscreen();
@@ -128,11 +110,6 @@ int main(int argc, char **args)
       ++j;
     }
   }
-  // /* Adapt dt_interbubble for polydispersed cluster */
-  // if (cluster_distrib != 0)
-  // {
-  //   dt_interbubble = 2.5e-10;
-  // }
 
   /* Allocate structure for parallel data */
   struct APECSS_Parallel_Cluster *RankInfo = (struct APECSS_Parallel_Cluster *) malloc(sizeof(struct APECSS_Parallel_Cluster));
@@ -237,41 +214,13 @@ int main(int argc, char **args)
   }
 
   // Update interaction structure
-  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;  // Not used?
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++) Bubbles[i]->Interaction->nBubbles = nBubbles;
 
   // Define the size of each bubble
-  if (cluster_distrib == 0)
+  for (register int i = 0; i < RankInfo->nBubbles_local; i++)
   {
-    // Monodispersed cluster
-    for (register int i = 0; i < RankInfo->nBubbles_local; i++)
-    {
-      Bubbles[i]->R0 = 2.0e-6;
-      Bubbles[i]->R = Bubbles[i]->R0;
-    }
-  }
-  else
-  {
-    // Polydispersed cluster (radii distribution is following a log normal law)
-    double mu = 0.0;
-    double sigma = 0.7;
-    APECSS_FLOAT radius_ref = 2.0e-6;
-    APECSS_FLOAT Bubble_Radius[nBubbles];
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      APECSS_FLOAT radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      while (radius > 20 * radius_ref)
-      {
-        // Small step to ensure no too big bubbles nor too small are generated (the distribution is conserved still)
-        radius = radius_ref * APECSS_EXP(normal_distribution(mu, sigma));
-      }
-      Bubble_Radius[i] = radius;
-    }
-
-    for (register int n = 0; n < RankInfo->nBubbles_local; n++)
-    {
-      Bubbles[n]->R0 = Bubble_Radius[RankInfo->bubblerank[RankInfo->rank] + n];
-      Bubbles[n]->R = Bubble_Radius[RankInfo->bubblerank[RankInfo->rank] + n];
-    }
+    Bubbles[i]->R0 = 2.0e-6;
+    Bubbles[i]->R = Bubbles[i]->R0;
   }
 
   // Define center location for each bubble
@@ -399,7 +348,7 @@ int main(int argc, char **args)
   sprintf(file_name, "tension_results_%d.txt", RankInfo->rank);
   file_tension = fopen(file_name, "w");
 
-  fprintf(file_tension, "%d Bubbles p0(pa) %e p1(Pa) %e cl_distrib %d\n", nBubbles, Liquid->pref, pa, cluster_distrib);
+  fprintf(file_tension, "%d Bubbles p0(pa) %e p1(Pa) %e\n", nBubbles, Liquid->pref, pa);
   fprintf(file_tension, "Initial_radii(m)");
   for (register int i = 0; i < RankInfo->nBubbles_global; i++)
   {
