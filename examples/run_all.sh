@@ -65,4 +65,3 @@ rm Gilmore_R1.000e-06_fa1.000e+06_pa1.000e+06.txt
 python3 plot_result_oldroydb.py
 rm RP_R1.000e-06_fa3.000e+06_pa4.000e+05.txt
 cd ../
-./sphericalclustertensionwave/run_sphericalclustertensionwave.sh
