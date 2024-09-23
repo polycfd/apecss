@@ -15,7 +15,8 @@ cd ..
 ./build/binaryinteraction_apecss -options run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
 python3 plot_result.py
 rm -r Bubble_0 Bubble_1
-./cavitationonset/run_cavitationonset.sh
+cd ../cavitationonset
+./run_cavitationonset.sh
 cd ../gastemperature/build
 ./compile.sh
 cd ..
