@@ -24,11 +24,13 @@ dic_bubbles_loc = {}
 for inttype in interaction_types :
     if inttype not in list(dic_bubbles.keys()) :
         dic_bubbles[inttype] = {}
+    if inttype not in list(dic_bubbles_loc.keys()) :
+        dic_bubbles_loc[inttype] = {}
     for cltype in cluster_types :
         if cltype not in list(dic_bubbles[inttype].keys()) :
             dic_bubbles[inttype][cltype] = {}
-        if cltype not in list(dic_bubbles_loc.keys()) :
-            dic_bubbles_loc[cltype] = {}
+        if cltype not in list(dic_bubbles_loc[inttype].keys()) :
+            dic_bubbles_loc[inttype][cltype] = {}
 
 working_path = os.getcwd()
 for inttype in interaction_types :
@@ -53,7 +55,7 @@ for inttype in interaction_types :
             p1 = float(firstline[5])
 
             dic_res = dic_bubbles[inttype]["mono"]
-            dic_loc = dic_bubbles_loc["mono"]
+            dic_loc = dic_bubbles_loc[inttype]["mono"]
             
             if count not in list(dic_res.keys()) :
                 dic_res[count] = {}
@@ -93,28 +95,31 @@ cluster_radius = 232.0e-6
 interval_size = cluster_radius / 10
 
 dic_loc_distrib_global = {}
-dic_loc_distrib = {0.0 : [], 0.25 : [], 0.5 : [], 0.75 : [], 1.0 : []}
 
-for count in list(dic_bubbles_loc["mono"].keys()) :
-    if count not in list(dic_loc_distrib_global.keys()) :
-        dic_loc_distrib_global[count] = {}
-    
-    for p1 in list(dic_bubbles_loc["mono"][count].keys()) :
-        if p1 not in list(dic_loc_distrib_global[count].keys()) :
-            dic_loc_distrib_global[count][p1] = dic_loc_distrib
+for inttype in list(dic_bubbles_loc.keys()) :
+    if inttype not in list(dic_loc_distrib_global.keys()) :
+        dic_loc_distrib_global[inttype] = {}
 
-        for i in range(count) :
-            radius_to_center = sqrt(dic_bubbles_loc["mono"][count][p1][i][0]**2 + dic_bubbles_loc["mono"][count][p1][i][1]**2 + dic_bubbles_loc["mono"][count][p1][i][2]**2)
-            if radius_to_center < 0.0 * cluster_radius + interval_size :
-                dic_loc_distrib_global[count][p1][0.0].append(i)
-            elif 0.25 * cluster_radius - 0.5 * interval_size < radius_to_center < 0.25 * cluster_radius + 0.5 * interval_size :
-                dic_loc_distrib_global[count][p1][0.25].append(i)
-            elif 0.5 * (cluster_radius - interval_size) < radius_to_center < 0.5 * (cluster_radius + interval_size) :
-                dic_loc_distrib_global[count][p1][0.5].append(i)
-            elif 0.75 * cluster_radius - 0.5 * interval_size < radius_to_center < 0.75 * cluster_radius + 0.5 * interval_size :
-                dic_loc_distrib_global[count][p1][0.75].append(i)
-            elif 1.0 * cluster_radius - interval_size < radius_to_center :
-                dic_loc_distrib_global[count][p1][1.0].append(i)
+    for count in list(dic_bubbles_loc[inttype]["mono"].keys()) :
+        if count not in list(dic_loc_distrib_global[inttype].keys()) :
+            dic_loc_distrib_global[inttype][count] = {}
+        
+        for p1 in list(dic_bubbles_loc[inttype]["mono"][count].keys()) :
+            if p1 not in list(dic_loc_distrib_global[inttype][count].keys()) :
+                dic_loc_distrib_global[inttype][count][p1] = {0.0 : [], 0.25 : [], 0.5 : [], 0.75 : [], 1.0 : []}
+
+            for i in range(count) :
+                radius_to_center = sqrt(dic_bubbles_loc[inttype]["mono"][count][p1][i][0]**2 + dic_bubbles_loc[inttype]["mono"][count][p1][i][1]**2 + dic_bubbles_loc[inttype]["mono"][count][p1][i][2]**2)
+                if radius_to_center < 0.0 * cluster_radius + interval_size :
+                    dic_loc_distrib_global[inttype][count][p1][0.0].append(i)
+                elif 0.25 * cluster_radius - 0.5 * interval_size < radius_to_center < 0.25 * cluster_radius + 0.5 * interval_size :
+                    dic_loc_distrib_global[inttype][count][p1][0.25].append(i)
+                elif 0.5 * (cluster_radius - interval_size) < radius_to_center < 0.5 * (cluster_radius + interval_size) :
+                    dic_loc_distrib_global[inttype][count][p1][0.5].append(i)
+                elif 0.75 * cluster_radius - 0.5 * interval_size < radius_to_center < 0.75 * cluster_radius + 0.5 * interval_size :
+                    dic_loc_distrib_global[inttype][count][p1][0.75].append(i)
+                elif 1.0 * cluster_radius - interval_size < radius_to_center :
+                    dic_loc_distrib_global[inttype][count][p1][1.0].append(i)
 
 dic_loc_label = {1.0 : "{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(1.0),
                  0.75 : "{:.1f}".format(0.75 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.75 + interval_size/cluster_radius),
@@ -133,7 +138,7 @@ p0 = 1.0e5
 p1 = -3.0e4
 
 for cluster in cluster_types :
-    dic_loc = dic_bubbles_loc[cluster]
+    dic_loc = dic_bubbles_loc["NI"][cluster]
 
     for count in list(dic_loc.keys()) :
         min_dist = cluster_radius
@@ -183,9 +188,8 @@ dic_color_loc = {0.0 : "blue", 0.25 : "magenta", 0.5 : "red", 0.75 : "green", 1.
 dic_lines_loc = {0.0 : "dotted", 0.25 : "dashed", 0.5 : "dashed", 0.75 : "dashed", 1.0 : "solid"}
 
 for k in [0.0, 0.5, 1.0] :
-    index_list = dic_loc_distrib_global[count][p1][k]
-
     # No interactions
+    index_list = dic_loc_distrib_global["NI"][count][p1][k]
     t_list = 1.0e06 * np.array(dic_bubbles["NI"]["mono"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["NI"]["mono"][count][p1][index_list[0] + 1][1])
@@ -204,6 +208,7 @@ for k in [0.0, 0.5, 1.0] :
     axs[0].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
     # Incompressible interactions
+    index_list = dic_loc_distrib_global["IC"][count][p1][k]
     t_list = 1.0e06 * np.array(dic_bubbles["IC"]["mono"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["IC"]["mono"][count][p1][index_list[0] + 1][1])
@@ -222,6 +227,7 @@ for k in [0.0, 0.5, 1.0] :
     axs[1].plot(t_list, avg_radius, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k], label=dic_loc_label[k])
 
     # Quasi-acoustic interactions
+    index_list = dic_loc_distrib_global["QA"][count][p1][k]
     t_list = 1.0e06 * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     r_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][1])
@@ -288,9 +294,8 @@ zm_QA.set_yticklabels([r"$p_{\mathrm{C}}$", 0, 1, 2])
 zm_QA.tick_params(axis="both", labelsize=25)
 
 for k in [0.0, 0.5, 1.0] :
-    index_list = dic_loc_distrib_global[count][p1][k]
-
     # No interactions
+    index_list = dic_loc_distrib_global["NI"][count][p1][k]
     t_list = 1.0e06 * np.array(dic_bubbles["NI"]["mono"][count][p1][0])
 
     p_list_0 = np.array(dic_bubbles["NI"]["mono"][count][p1][index_list[0] + 1][2])
@@ -307,6 +312,7 @@ for k in [0.0, 0.5, 1.0] :
     axs[0].plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
     # Incompressible interactions
+    index_list = dic_loc_distrib_global["IC"][count][p1][k]
     t_list = 1.0e06 * np.array(dic_bubbles["IC"]["mono"][count][p1][0])
 
     p_list_0 = np.array(dic_bubbles["IC"]["mono"][count][p1][index_list[0] + 1][2])
@@ -325,6 +331,7 @@ for k in [0.0, 0.5, 1.0] :
     zm_IC.plot(t_list, avg_pressure, linewidth=3.0, linestyle=dic_lines_loc[k], color=dic_color_loc[k])
 
     # Quasi-acoustic interactions
+    index_list = dic_loc_distrib_global["QA"][count][p1][k]
     t_list = 1.0e06 * np.array(dic_bubbles["QA"]["mono"][count][p1][0])
 
     p_list_0 = np.array(dic_bubbles["QA"]["mono"][count][p1][index_list[0] + 1][2])
