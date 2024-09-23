@@ -15,6 +15,7 @@ cd ..
 ./build/binaryinteraction_apecss -options run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
 python3 plot_result.py
 rm -r Bubble_0 Bubble_1
+./cavitationonset/run_cavitationonset.sh
 cd ../gastemperature/build
 ./compile.sh
 cd ..
@@ -64,3 +65,4 @@ rm Gilmore_R1.000e-06_fa1.000e+06_pa1.000e+06.txt
 python3 plot_result_oldroydb.py
 rm RP_R1.000e-06_fa3.000e+06_pa4.000e+05.txt
 cd ../
+./sphericalclustertensionwave/run_sphericalclustertensionwave.sh
