@@ -122,9 +122,9 @@ for inttype in list(dic_bubbles_loc.keys()) :
                     dic_loc_distrib_global[inttype][count][p1][1.0].append(i)
 
 dic_loc_label = {1.0 : "{:.1f}".format(1.0 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(1.0),
-                 0.75 : "{:.1f}".format(0.75 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.75 + interval_size/cluster_radius),
-                 0.5 : "{:.1f}".format(0.5 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.5 + interval_size/cluster_radius),
-                 0.25 : "{:.1f}".format(0.25 - interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(0.25 + interval_size/cluster_radius),
+                 0.75 : "{:.2f}".format(0.75 - 0.5 * interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.2f}".format(0.75 + 0.5 * interval_size/cluster_radius),
+                 0.5 : "{:.2f}".format(0.5 - 0.5 * interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.2f}".format(0.5 + 0.5 * interval_size/cluster_radius),
+                 0.25 : "{:.2f}".format(0.25 - 0.5 * interval_size/cluster_radius) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.2f}".format(0.25 + 0.5 * interval_size/cluster_radius),
                  0.0 : "{:.1f}".format(0.0) + r" $\leq$ $r/R_{C}$ $\leq$ " + "{:.1f}".format(interval_size/cluster_radius)}
 
 ######### Step 3 : Plot results #####################################################################################################################
