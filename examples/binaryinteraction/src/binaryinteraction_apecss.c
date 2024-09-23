@@ -96,18 +96,6 @@ int main(int argc, char **args)
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_setdefaultoptions(Bubbles[i]);
   for (register int i = 0; i < nBubbles; i++) apecss_bubble_readoptions(Bubbles[i], OptionsDir);
 
-  // // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  // // Allocate and set bubble-associated variables for the interaction
-  // for (register int i = 0; i < nBubbles; i++)
-  // {
-  //   struct Interaction *interaction_data = (struct Interaction *) malloc(sizeof(struct Interaction));
-  //   interaction_data->dp_neighbor = 0.0;  // Pressure excerted by the neighbor bubbles
-
-  //   // Hook interaction-structure to the void data pointer
-  //   Bubbles[i]->user_data = interaction_data;
-  // }
-  // // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
   /* Allocate the structures for the fluid properties and ODE solver parameters */
   struct APECSS_Gas *Gas = (struct APECSS_Gas *) malloc(sizeof(struct APECSS_Gas));
   struct APECSS_Liquid *Liquid = (struct APECSS_Liquid *) malloc(sizeof(struct APECSS_Liquid));
@@ -234,21 +222,10 @@ int main(int argc, char **args)
 
     for (register int i = 0; i < nBubbles; i++) apecss_bubble_solver_run(tSim, Bubbles[i]);
 
-    // for (register int i = 0; i < nBubbles; i++) Bubbles[i]->Interaction->dp_neighbor = 0.0;
-
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     // Update the contribution of the neighbor bubble
     apecss_interactions_instantaneous(Bubbles);
     // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
-    for (register int i = 0; i < nBubbles; i++)
-    {
-      Bubbles[i]->Interaction->last_t_2 = Bubbles[i]->Interaction->last_t_1;
-      Bubbles[i]->Interaction->last_p_2 = Bubbles[i]->Interaction->last_p_1;
-
-      Bubbles[i]->Interaction->last_t_1 = tSim;
-      Bubbles[i]->Interaction->last_p_1 = Bubbles[i]->Interaction->dp_neighbor;
-    }
   }
 
   /* Finalize the simulation*/
@@ -286,14 +263,6 @@ APECSS_FLOAT interaction_bubble_pressure_infinity(APECSS_FLOAT t, struct APECSS_
 APECSS_FLOAT interaction_bubble_pressurederivative_infinity(APECSS_FLOAT t, struct APECSS_Bubble *Bubble)
 {
   // Approximate numerical computation of p_infinity derivative
-  APECSS_FLOAT delta_t = Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2;
   APECSS_FLOAT derivative = -Bubble->Excitation->dp * 2.0 * APECSS_PI * Bubble->Excitation->f * APECSS_COS(2.0 * APECSS_PI * Bubble->Excitation->f * t);
-  if (delta_t > Bubble->dt)
-  {
-    return (derivative + ((Bubble->Interaction->last_p_1 - Bubble->Interaction->last_p_2) / (Bubble->Interaction->last_t_1 - Bubble->Interaction->last_t_2)));
-  }
-  else
-  {
-    return (derivative);
-  }
+  return (derivative);
 }
