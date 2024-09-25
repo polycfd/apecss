@@ -83,5 +83,13 @@ Makefile
 # Results
 *.txt
 !CMakeLists.txt
+!LICENSE.txt
 *.pdf
+!APECSS_Documentation.pdf
+!JOSS-Paper.pdf
+!apecssbubble.pdf
+!emissions_results.pdf
+!LagrangianWaveTracking_withShock.pdf
+!LagrangianWaveTracking.pdf
+!ultrasound_lipdcoated_simple.pdf
 *.png
