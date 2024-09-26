@@ -6,19 +6,18 @@
 
 BUBBLE
 RPModel KM
-Emissions IC 300.0e-6
-PressureAmbient 1.0e5
+Emissions QA 900.0e-06
+PressureAmbient 0.1013e6
 END
 
 GAS
-EoS HC
-ReferencePressure 1.0e5
+EoS IG
 ReferenceDensity 1.2
-PolytropicExponent 1.4
+PolytropicExponent 1
 END
 
 LIQUID
-ReferencePressure 1.0e5
+ReferencePressure 0.1013e6
 ReferenceDensity 1000.0
 ReferenceSoundSpeed 1500.0
 Viscosity 1.002e-3
@@ -30,7 +29,6 @@ END
 
 RESULTS
 Bubble
-OutputFreqRP 5
 END
 
 ODESOLVER

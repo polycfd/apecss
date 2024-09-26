@@ -147,6 +147,7 @@ int apecss_emissions_prunelist(struct APECSS_Bubble *Bubble)
         Current->backward->forward = Current->forward;
         Current->forward->backward = Current->backward;
         Current = Current->backward;
+        Bubble->Emissions->nNodes -= 1;
         free(Obsolete);
       }
       else

@@ -11,8 +11,7 @@ PressureAmbient 1.0e5
 END
 
 GAS
-EoS HC
-ReferencePressure 1.0e5
+EoS IG
 ReferenceDensity 1.2
 PolytropicExponent 1.4
 END
@@ -30,9 +29,9 @@ END
 
 RESULTS
 Bubble
-OutputFreqRP 5
 END
 
 ODESOLVER
 tolerance 1.0e-10
+MinTimeStep 1.0e-10
 END

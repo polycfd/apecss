@@ -39,6 +39,7 @@ int apecss_bubble_initializestruct(struct APECSS_Bubble *Bubble)
   Bubble->Liquid = NULL;
   Bubble->Interface = NULL;
   Bubble->Excitation = NULL;
+  Bubble->Interaction = NULL;
   Bubble->Emissions = NULL;
   Bubble->Results = NULL;
 
@@ -865,6 +866,12 @@ int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble)
   {
     free(Bubble->Emissions);
     Bubble->Emissions = NULL;
+  }
+
+  if (Bubble->Interaction != NULL)
+  {
+    free(Bubble->Interaction);
+    Bubble->Interaction = NULL;
   }
 
   if (Bubble->Results != NULL)

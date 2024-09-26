@@ -311,6 +311,17 @@ struct APECSS_Excitation
   APECSS_FLOAT dp;  // Maximum pressure amplitude [Pa]
 };
 
+struct APECSS_Interaction
+{
+  int nBubbles;  // Number of bubbles in the whole cluster considered
+  APECSS_FLOAT location[3];  // 3D coordinates of the considered bubble
+  APECSS_FLOAT dp_neighbor;  // Pressure induced by interactions with neighboring bubbles
+  APECSS_FLOAT last_t_1;  // Previous timestep when interaction where considered
+  APECSS_FLOAT last_t_2;  // Previous timestep when interaction where considered before last_t_1
+  APECSS_FLOAT last_p_1;  // Pressure induced by neighboring bubbles or total pressure in the far field at last_t_1
+  APECSS_FLOAT last_p_2;  // Pressure induced by neighboring bubbles or total pressure in the far field at last_t_2
+};
+
 struct APECSS_ResultsBubble
 {
   int freq;  // Frequency with which the results are stored (with respect to the time-step number)
@@ -444,6 +455,9 @@ struct APECSS_Bubble
   // Excitation of the bubble (if applicable)
   struct APECSS_Excitation *Excitation;
 
+  // Interactions with neighboring bubbles (if applicable)
+  struct APECSS_Interaction *Interaction;
+
   // Pointers to the functions describing the liquid pressure and its derivative at infinity
   APECSS_FLOAT (*get_pressure_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
   APECSS_FLOAT (*get_pressurederivative_infinity)(APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
@@ -576,6 +590,13 @@ APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanexpl(APECSS_FLOAT 
 APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantexpl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_pressurederivative_viscous_cleanimpl(APECSS_FLOAT R, struct APECSS_Interface *Interface);
 APECSS_FLOAT apecss_interface_pressurederivative_viscous_marmottantimpl(APECSS_FLOAT R, struct APECSS_Interface *Interface);
+
+// ---------------------
+// interactions.c
+
+int apecss_interactions_instantaneous(struct APECSS_Bubble *Bubbles[]);
+int apecss_interactions_quasi_acoustic(struct APECSS_Bubble *Bubbles[]);
+int apecss_interactions_cutoffdistance(struct APECSS_Bubble *Bubbles[]);
 
 // ---------------------
 // liquid.c
