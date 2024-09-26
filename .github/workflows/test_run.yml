@@ -44,6 +44,9 @@ jobs:
     - name: Run bubble binary bubble interaction 
       run: ${{github.workspace}}/examples/binaryinteraction/build/binaryinteraction_apecss -options ${{github.workspace}}/examples/binaryinteraction/run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
 
+    - name: Configure, build and run cavitation onset
+      run: ${{github.workspace}}/examples/cavitationonset/run_cavitationonset.sh
+
     - name: Configure bubble with gas-temperature model 
       run: cmake -S ${{github.workspace}}/examples/gastemperature/build -B ${{github.workspace}}/examples/gastemperature/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
     - name: Build bubble with gas-temperature model 
@@ -122,6 +125,9 @@ jobs:
       run: cmake --build ${{github.workspace}}/examples/binaryinteraction/build --config ${{env.BUILD_TYPE}}
     - name: Run bubble binary bubble interaction 
       run: ${{github.workspace}}/examples/binaryinteraction/build/binaryinteraction_apecss -options ${{github.workspace}}/examples/binaryinteraction/run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
+
+    - name: Configure, build and run cavitation onset
+      run: ${{github.workspace}}/examples/cavitationonset/run_cavitationonset.sh
 
     - name: Configure bubble with gas-temperature model 
       run: cmake -S ${{github.workspace}}/examples/gastemperature/build -B ${{github.workspace}}/examples/gastemperature/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
