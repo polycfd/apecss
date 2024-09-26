@@ -47,7 +47,7 @@ python3 gather_results.py
 cd ..
 
 echo ""
-echo "Quasi acoustic test cases passed"
+echo "Quasi-acoustic test cases passed"
 echo ""
 
 ######### Plot results ##############################################################################################################################

@@ -42,7 +42,7 @@ echo ""
 echo "Incompressible test cases passed"
 echo ""
 
-######### Quasi acoustic computations ###############################################################################################################
+######### Quasi-acoustic computations ###############################################################################################################
 
 cd QA/build
 ./compile.sh
@@ -67,7 +67,7 @@ done
 cd ..
 
 echo ""
-echo "Quasi acoustic test cases passed"
+echo "Quasi-acoustic test cases passed"
 echo ""
 
 ######### Plotting results ##########################################################################################################################
