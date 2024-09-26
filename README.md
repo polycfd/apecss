@@ -20,6 +20,7 @@ APECSS is a software toolbox to compute pressure-driven bubble dynamics and the 
 Key features of APECSS are:
 - Bubble dynamics using widely-used models (Rayleigh-Plesset, Keller-Miksis, Gilmore), solved using an in-built 5th-order Runge-Kutta scheme with adaptive time stepping.
 - Acoustic emissions of the bubble under different assumptions (incompressible, quasi-acoustic, fully compressible).
+- Acoustic interactions of multiple bubbles under different assumptions (incompressible, quasi-acoustic).
 - Interbubble interactions through their acoustic emissions
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
 - Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
@@ -30,7 +31,8 @@ For more information, please consult the [JOSS paper](https://doi.org/10.21105/j
 
 ## Developers
 - [Fabian Denner](mailto:fabian.denner@polymtl.ca) (principal developer, maintainer)
-- [Sören Schenke](mailto:soeren.schenke@ovgu.de)
+- Sören Schenke
+- Pierre Coulombel
 
 ## License and Copyright
 APECSS is under the copyright of its developers and made available as open-source software under the terms of the [Mozilla Public License Version 2.0](LICENSE.txt).
@@ -96,4 +98,4 @@ and, in the interest of reproducibility, the version of APECSS you've used for y
 All releases of APECSS and the corresponding DOIs can be found on the [Zenodo page](https://doi.org/10.5281/zenodo.7249297) of APECSS.
 
 ## Acknowledgements
-The development of APECSS has directly benefitted from research funding provided by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation), grant number 441063377.
+The development of APECSS has directly benefitted from research funding provided by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation), grant number 441063377, and by the Natural Sciences and Engineering Research Council of Canada (NSERC), funding reference number RGPIN-2024-04805.
