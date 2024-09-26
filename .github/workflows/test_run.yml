@@ -44,8 +44,24 @@ jobs:
     - name: Run bubble binary bubble interaction 
       run: ${{github.workspace}}/examples/binaryinteraction/build/binaryinteraction_apecss -options ${{github.workspace}}/examples/binaryinteraction/run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
 
-    - name: Configure, build and run cavitation onset
-      run: ${{github.workspace}}/examples/cavitationonset/run_cavitationonset.sh
+    - name: Configure cavitation onset (no interactions)
+      run: cmake -S ${{github.workspace}}/examples/cavitationonset/NI/build -B ${{github.workspace}}/examples/cavitationonset/NI/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build cavitation onset (no interactions)
+      run: cmake --build ${{github.workspace}}/examples/cavitationonset/NI/build --config ${{env.BUILD_TYPE}}
+    - name: Run cavitation onset (no interactions)
+      run: ${{github.workspace}}/examples/cavitationonset/NI/build/cavitationonset_apecss -options ${{github.workspace}}/examples/cavitationonset/NI/run.apecss -amp -25325 -tend 60.0e-6 -clsize 15
+    - name: Configure cavitation onset (incompressible interactions)
+      run: cmake -S ${{github.workspace}}/examples/cavitationonset/IC/build -B ${{github.workspace}}/examples/cavitationonset/IC/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build cavitation onset (incompressible interactions)
+      run: cmake --build ${{github.workspace}}/examples/cavitationonset/IC/build --config ${{env.BUILD_TYPE}}
+    - name: Run cavitation onset (incompressible interactions)
+      run: ${{github.workspace}}/examples/cavitationonset/IC/build/cavitationonset_apecss -options ${{github.workspace}}/examples/cavitationonset/IC/run.apecss -amp -25325 -tend 60.0e-6 -clsize 15 -dt_inter 1.0e-09
+    - name: Configure cavitation onset (quasi-acoustic interactions)
+      run: cmake -S ${{github.workspace}}/examples/cavitationonset/QA/build -B ${{github.workspace}}/examples/cavitationonset/QA/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build cavitation onset (quasi-acoustic interactions)
+      run: cmake --build ${{github.workspace}}/examples/cavitationonset/QA/build --config ${{env.BUILD_TYPE}}
+    - name: Run cavitation onset (quasi-acoustic interactions)
+      run: ${{github.workspace}}/examples/cavitationonset/QA/build/cavitationonset_apecss -options ${{github.workspace}}/examples/cavitationonset/QA/run.apecss -amp -25325 -tend 60.0e-6 -clsize 15 -dt_inter 1.0e-09
 
     - name: Configure bubble with gas-temperature model 
       run: cmake -S ${{github.workspace}}/examples/gastemperature/build -B ${{github.workspace}}/examples/gastemperature/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
@@ -126,8 +142,24 @@ jobs:
     - name: Run bubble binary bubble interaction 
       run: ${{github.workspace}}/examples/binaryinteraction/build/binaryinteraction_apecss -options ${{github.workspace}}/examples/binaryinteraction/run.apecss -freq 15.7e3 -amp -120e3 -tend 7.5e-4
 
-    - name: Configure, build and run cavitation onset
-      run: ${{github.workspace}}/examples/cavitationonset/run_cavitationonset.sh
+    - name: Configure cavitation onset (no interactions)
+      run: cmake -S ${{github.workspace}}/examples/cavitationonset/NI/build -B ${{github.workspace}}/examples/cavitationonset/NI/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build cavitation onset (no interactions)
+      run: cmake --build ${{github.workspace}}/examples/cavitationonset/NI/build --config ${{env.BUILD_TYPE}}
+    - name: Run cavitation onset (no interactions)
+      run: ${{github.workspace}}/examples/cavitationonset/NI/build/cavitationonset_apecss -options ${{github.workspace}}/examples/cavitationonset/NI/run.apecss -amp -25325 -tend 60.0e-6 -clsize 15
+    - name: Configure cavitation onset (incompressible interactions)
+      run: cmake -S ${{github.workspace}}/examples/cavitationonset/IC/build -B ${{github.workspace}}/examples/cavitationonset/IC/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build cavitation onset (incompressible interactions)
+      run: cmake --build ${{github.workspace}}/examples/cavitationonset/IC/build --config ${{env.BUILD_TYPE}}
+    - name: Run cavitation onset (incompressible interactions)
+      run: ${{github.workspace}}/examples/cavitationonset/IC/build/cavitationonset_apecss -options ${{github.workspace}}/examples/cavitationonset/IC/run.apecss -amp -25325 -tend 60.0e-6 -clsize 15 -dt_inter 1.0e-09
+    - name: Configure cavitation onset (quasi-acoustic interactions)
+      run: cmake -S ${{github.workspace}}/examples/cavitationonset/QA/build -B ${{github.workspace}}/examples/cavitationonset/QA/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+    - name: Build cavitation onset (quasi-acoustic interactions)
+      run: cmake --build ${{github.workspace}}/examples/cavitationonset/QA/build --config ${{env.BUILD_TYPE}}
+    - name: Run cavitation onset (quasi-acoustic interactions)
+      run: ${{github.workspace}}/examples/cavitationonset/QA/build/cavitationonset_apecss -options ${{github.workspace}}/examples/cavitationonset/QA/run.apecss -amp -25325 -tend 60.0e-6 -clsize 15 -dt_inter 1.0e-09
 
     - name: Configure bubble with gas-temperature model 
       run: cmake -S ${{github.workspace}}/examples/gastemperature/build -B ${{github.workspace}}/examples/gastemperature/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
