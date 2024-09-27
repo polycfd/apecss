@@ -93,7 +93,7 @@ If you use APECSS for your scientific work, please consider citing the [paper](h
 
 and, in the interest of reproducibility, the version of APECSS you've used for your work, e.g.
 
-    F. Denner and S. Schenke, APECSS (v1.2), Zenodo (2022). https://doi.org/10.5281/zenodo.7465050
+    F. Denner, S. Schenke and P. Coulombel, APECSS (v1.7), Zenodo (2024). https://doi.org/10.5281/zenodo.13850831
 
 All releases of APECSS and the corresponding DOIs can be found on the [Zenodo page](https://doi.org/10.5281/zenodo.7249297) of APECSS.
 
