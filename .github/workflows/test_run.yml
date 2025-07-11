@@ -108,6 +108,8 @@ jobs:
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6
     - name: Run ultrasound (Oldroyd-B)
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/oldroydb.apecss -tend 3e-6 -freq 3e6 -amp 400e3
+    - name: Run ultrasound (power-law)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/powerlaw.apecss -freq 636619 -amp 25331 -tend 25e-6
 
   linux:
     runs-on: ubuntu-latest
@@ -206,3 +208,5 @@ jobs:
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/zener.apecss -tend 5e-6 -freq 1e6 -amp 1e6
     - name: Run ultrasound (Oldroyd-B)
       run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/oldroydb.apecss -tend 3e-6 -freq 3e6 -amp 400e3
+    - name: Run ultrasound (power-law)
+      run: ${{github.workspace}}/examples/ultrasound/build/ultrasound_apecss -options ${{github.workspace}}/examples/ultrasound/powerlaw.apecss -freq 636619 -amp 25331 -tend 25e-6

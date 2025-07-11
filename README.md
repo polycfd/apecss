@@ -23,7 +23,7 @@ Key features of APECSS are:
 - Acoustic interactions of multiple bubbles under different assumptions (incompressible, quasi-acoustic).
 - Interbubble interactions through their acoustic emissions
 - Prediction of the formation and attenuation of shock fronts emitted by the bubble.
-- Viscoelastic media (Kelvin-Voigt, Zener, Oldroyd-B).
+- Non-Newtonian (power-law) and viscoelastic (Kelvin-Voigt, Zener, Oldroyd-B) media.
 - Lipid monolayer coating of the bubble as used for ultrasound contrast agents.
 - APECSS has, aside from the C standard library, no external dependencies.
 
@@ -91,7 +91,7 @@ If you use APECSS for your scientific work, please consider citing the [paper](h
 
     F. Denner and S. Schenke, APECSS: A software library for cavitation bubble dynamics and acoustic emissions. Journal of Open Source Software 8 (2023), 5435. https://doi.org/10.21105/joss.05435 
 
-and, in the interest of reproducibility, the version of APECSS you've used for your work, e.g.
+and, in the interest of reproducibility, the version of APECSS you've used for your work, for instance
 
     F. Denner, S. Schenke and P. Coulombel, APECSS (v1.7), Zenodo (2024). https://doi.org/10.5281/zenodo.13850831
 
