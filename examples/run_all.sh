@@ -65,4 +65,7 @@ rm Gilmore_R1.000e-06_fa1.000e+06_pa1.000e+06.txt
 ./build/ultrasound_apecss -options oldroydb.apecss -tend 3e-6 -freq 3e6 -amp 400e3
 python3 plot_result_oldroydb.py
 rm RP_R1.000e-06_fa3.000e+06_pa4.000e+05.txt
+./build/ultrasound_apecss -options powerlaw.apecss -freq 636619 -amp 25331 -tend 25e-6
+python3 plot_result_powerlaw.py
+rm RP_R5.000e-06_fa6.366e+05_pa2.533e+04.txt
 cd ../

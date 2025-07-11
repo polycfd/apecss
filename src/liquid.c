@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2024 The APECSS Developers
+// Copyright (C) 2022-2025 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -34,6 +34,9 @@ int apecss_liquid_setdefaultoptions(struct APECSS_Liquid *Liquid)
   Liquid->G = 0.0;
   Liquid->eta = 0.0;
   Liquid->lambda = 0.0;
+  Liquid->n = 1.0;
+  Liquid->k = Liquid->mu;
+  Liquid->k_ext = Liquid->k;
 
   Liquid->get_density = apecss_liquid_density_fixed;
   Liquid->get_soundspeed = apecss_liquid_soundspeed_fixed;
@@ -99,6 +102,10 @@ int apecss_liquid_readoptions(struct APECSS_Liquid *Liquid, char *OptionsDir)
             else if (strncasecmp(option3, "oldroydb", 8) == 0)
             {
               Liquid->Type = APECSS_LIQUID_OLDROYDB;
+            }
+            else if (strncasecmp(option3, "powerlaw", 8) == 0)
+            {
+              Liquid->Type = APECSS_LIQUID_POWERLAW;
             }
           }
         }
@@ -171,6 +178,16 @@ int apecss_liquid_readoptions(struct APECSS_Liquid *Liquid, char *OptionsDir)
         {
           l = apecss_readoneoption(OptionsFile, option3);
           Liquid->lambda = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "powerlawexponent", 16) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->n = APECSS_STRINGTOFLOAT(option3);
+        }
+        else if (strncasecmp(option2, "powerlawconsistencycoeff", 24) == 0)
+        {
+          l = apecss_readoneoption(OptionsFile, option3);
+          Liquid->k = APECSS_STRINGTOFLOAT(option3);
         }
         else
         {
@@ -271,6 +288,17 @@ int apecss_liquid_processoptions(struct APECSS_Liquid *Liquid)
   {
     Liquid->get_pressure_bubblewall = apecss_liquid_pressure_bubblewall_oldroydb;
     Liquid->get_pressurederivative_bubblewall_expl = apecss_liquid_pressurederivative_bubblewall_exploldroydb;
+  }
+  else if (Liquid->Type == APECSS_LIQUID_POWERLAW)
+  {
+    Liquid->get_pressure_bubblewall = apecss_liquid_pressure_bubblewall;
+    Liquid->get_pressurederivative_bubblewall_expl = apecss_liquid_pressurederivative_bubblewall_expl;
+
+    Liquid->get_pressure_viscous = apecss_liquid_pressure_viscous_powerlaw;
+    Liquid->get_pressurederivative_viscous_expl = apecss_liquid_pressurederivative_viscous_powerlaw_expl;
+    Liquid->get_pressurederivative_viscous_impl = apecss_liquid_pressurederivative_viscous_powerlaw_impl;
+
+    Liquid->k_ext = 2.0 * Liquid->k * APECSS_POW(2.0 * APECSS_SQRT(3.0), Liquid->n - 1.0);
   }
 
   return (0);
@@ -413,6 +441,16 @@ APECSS_FLOAT apecss_liquid_pressure_viscous(APECSS_FLOAT R, APECSS_FLOAT U, stru
   return (2.0 * Bubble->dimensionality * Bubble->Liquid->mu * U / R);
 }
 
+APECSS_FLOAT apecss_liquid_pressure_viscous_powerlaw(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
+{
+  APECSS_FLOAT Uabs = APECSS_ABS(U);
+  if (Uabs > APECSS_SMALL)
+    return (Bubble->dimensionality * Bubble->Liquid->k_ext * APECSS_POW(Uabs, Bubble->Liquid->n - 1.0) * U /
+            (Bubble->Liquid->n * APECSS_POW(R, Bubble->Liquid->n)));
+  else
+    return (0.0);
+}
+
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_expl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
 {
   return (2.0 * Bubble->dimensionality * Bubble->Liquid->mu * APECSS_POW2(U / R));
@@ -421,6 +459,26 @@ APECSS_FLOAT apecss_liquid_pressurederivative_viscous_expl(APECSS_FLOAT R, APECS
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
 {
   return (2.0 * Bubble->dimensionality * Bubble->Liquid->mu / R);
+}
+
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_powerlaw_expl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble)
+{
+  APECSS_FLOAT Uabs = APECSS_ABS(U);
+  if (Uabs > APECSS_SMALL)
+    return (Bubble->dimensionality * Bubble->Liquid->k_ext * APECSS_POW(Uabs, Bubble->Liquid->n - 3.0) * APECSS_POW4(U) /
+            APECSS_POW(R, Bubble->Liquid->n + 1.0));
+  else
+    return (0.0);
+}
+
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_powerlaw_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble)
+{
+  APECSS_FLOAT U = Bubble->ODEsSol[0];
+  APECSS_FLOAT Uabs = APECSS_ABS(U);
+  if (Uabs > APECSS_SMALL)
+    return (Bubble->dimensionality * Bubble->Liquid->k_ext * APECSS_POW(Uabs, Bubble->Liquid->n - 3.0) * APECSS_POW2(U) / APECSS_POW(R, Bubble->Liquid->n));
+  else
+    return (0.0);
 }
 
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_nonimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble) { return (0.0); }

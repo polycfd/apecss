@@ -2,7 +2,7 @@
 // for the computation of pressure-driven bubble dynamics and acoustic
 // emissions in spherical symmetry.
 //
-// Copyright (C) 2022-2024 The APECSS Developers
+// Copyright (C) 2022-2025 The APECSS Developers
 //
 // The APECSS Developers are listed in the README.md file available in
 // the GitHub repository at https://github.com/polycfd/apecss.
@@ -102,6 +102,7 @@ typedef double APECSS_FLOAT;
 #define APECSS_LIQUID_KELVINVOIGT (2)  // Kelvin-Voigt solid
 #define APECSS_LIQUID_ZENER (3)  // Zener solid, requires two additional ODEs
 #define APECSS_LIQUID_OLDROYDB (4)  // Oldroyd-B liquid, requires two additional ODEs
+#define APECSS_LIQUID_POWERLAW (5)  // Power-law liquid
 
 // Lipid coating model (bit-wise)
 #define APECSS_LIPIDCOATING_NONE (1)  // Clean interface
@@ -191,6 +192,9 @@ struct APECSS_Liquid
   APECSS_FLOAT G;  // Shear modulus [Pa]
   APECSS_FLOAT eta;  // Polymer viscosity [Pa s]
   APECSS_FLOAT lambda;  // Relaxation time [s]
+  APECSS_FLOAT n;  // Power-law exponent
+  APECSS_FLOAT k;  // Power-law consistency index [Pa s^n]
+  APECSS_FLOAT k_ext;  // Power-law extended consistency index [Pa s^n]
 
   // Pointers to the functions describing the properties of the liquid
   APECSS_FLOAT (*get_density)(APECSS_FLOAT p, struct APECSS_Liquid *Liquid);
@@ -622,8 +626,11 @@ APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_explkelvinvoigt(APECSS_
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_zener(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_bubblewall_exploldroydb(APECSS_FLOAT *Sol, APECSS_FLOAT t, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressure_viscous(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_liquid_pressure_viscous_powerlaw(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_expl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_powerlaw_expl(APECSS_FLOAT R, APECSS_FLOAT U, struct APECSS_Bubble *Bubble);
+APECSS_FLOAT apecss_liquid_pressurederivative_viscous_powerlaw_impl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 APECSS_FLOAT apecss_liquid_pressurederivative_viscous_nonimpl(APECSS_FLOAT R, struct APECSS_Bubble *Bubble);
 
 // ---------------------
