@@ -10,6 +10,8 @@
         "stdio.h": "c",
         "*.tcc": "c",
         "random": "c",
-        "ratio": "c"
-    }
+        "ratio": "c",
+        "apecss.h": "c"
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/lib"
 }

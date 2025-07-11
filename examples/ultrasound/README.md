@@ -9,6 +9,9 @@ This example simulated a lipid-coated microbubble using the Gilmore model and re
 #### Sonoluminescence (with emissions)
 Using [sonolumin_emissions.apess](sonolum_emissions.apecss) with ````./build/ultrasound_apecss -options sonolum_emissions.apecss -tend 40e-6 -freq 23.5e3 -amp 145e3````, this example reproduces the argon bubble studied by [Holzfuss, _Proc. R. Soc. A: Math. Phys. Eng. Sci._ 466 (2010), 1829](https://doi.org/10.1098/rspa.2009.0594) in the context of sonoluminesence. The acoustic emissions at _pLmax_ may be compared to Figure 5 of Holzfuss' work.
 
+#### Power-law liquid
+Using [powerlaw.apess](powerlaw.apecss) with ````./build/ultrasound_apecss -options powerlaw.apecss -freq 636619 -amp 25331 -tend 25e-6````, this example reproduces Figure 2c of [Kaykanat & Uguz, _The European Physical Journal Special Topics_ 233 (2024), 1625](https://doi.org/10.1140/epjs/s11734-024-01174-7).
+
 #### Kelvin-Voigt
 Using [kelvinvoigt.apess](kelvinvoigt.apecss) with ````./build/ultrasound_apecss -options kelvinvoigt.apecss -tend 6e-6 -freq 1e6 -amp 3e6````, this example reproduces Figure 5b of [Yang & Church, _Journal of the Acoustical Society of America_ 118 (2005), 3595](https://doi.org/10.1121/1.2118307).
 

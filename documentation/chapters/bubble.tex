@@ -145,20 +145,21 @@ The semi-empirical constant $f_\mathrm{mol}$ is based on the repulsive forces ac
 \section{The liquid}
 \label{sec:liquid}
 
-In the same way that every bubble contains a gas, in APECSS every bubble is surrounded by a liquid, which requires to select an appropriate equation of state and fluid type, as well as define meaningful properties.
+In the same way that every bubble contains a gas, in APECSS every bubble is surrounded by a liquid, which requires to select an appropriate equation of state and liquid type, as well as define meaningful properties.
 
 \vspace{0.8em}
 
 \noindent
-\begin{tabular}{p{0.1\textwidth} p{0.35\textwidth} p{0.5\textwidth}}
+\begin{tabular}{p{0.08\textwidth} p{0.385\textwidth} p{0.485\textwidth}}
     \textbf{Section} &\textbf{Command} & \textbf{Description} 
 \vspace{1mm} \\ \hline
 {\tt LIQUID} & {\tt EoS Tait} & The Tait EoS is applied to the liquid. Only relevant for the Gilmore model and acoustic emissions based on the Kirkwood-Bethe hypothesis.\\ 
 & {\tt EoS NASG} & The Noble-Abel-stiffened-gas EoS is applied to the liquid. Only relevant for the Gilmore model and acoustic emissions based on the Kirkwood-Bethe hypothesis.\\ 
-& {\tt LiquidType Newtonian} & Newtonian fluid. This is the default.\\ 
+& {\tt LiquidType Newtonian} & Newtonian liquid. This is the default.\\ 
 & {\tt LiquidType KelvinVoigt} & Kelvin-Voigt solid.\\ 
 & {\tt LiquidType Zener} & Zener solid.\\ 
-& {\tt LiquidType OldroydB} & Oldroyd-B (or upper-convected Maxwell) fluid.\\ 
+& {\tt LiquidType OldroydB} & Oldroyd-B (or upper-convected Maxwell) liquid.\\
+& {\tt LiquidType PowerLaw} & Power-law liquid.\\ 
 & {\tt PolytropicExponent <float>} & Polytropic exponent $\Gamma_{\ell}$.\\
 & {\tt ReferencePressure <float>} & Reference pressure $p_{\ell,\text{ref}}$.\\
 & {\tt ReferenceDensity <float>} & Reference density $\rho_{\ell,\text{ref}}$.\\
@@ -169,6 +170,8 @@ In the same way that every bubble contains a gas, in APECSS every bubble is surr
 & {\tt PolymerViscosity <float>} & Polymer viscosity $\eta_\ell$ associated with viscoelasticity.\\
 & {\tt ShearModulus <float>} & Shear modulus $G_\ell$ associated with viscoelasticity.\\
 & {\tt RelaxationTime <float>} & Relaxation time $\lambda_\ell$ associated with viscoelasticity.\\
+& {\tt PowerLawExponent <float>} & Exponent $n$ of a power-law liquid.\\
+& {\tt PowerLawConsistencyCoeff <float>} & Consistency coefficient $k$ of a power-law liquid.\\
  \hline
 \end{tabular} \vspace{1em}
 
@@ -178,9 +181,20 @@ The pressure of a Newtonian liquid at the wall of a spherical bubble is given as
 \end{equation}
 where $p_\text{G}$ is the gas pressure, see Section \ref{sec:gas}, $\sigma$ is the surface tension coefficient of the interface, see Section \ref{sec:interface}, and $\mu_\ell$ is the liquid (Newtonian) viscosity. The derivative of Eq.~\eqref{eq:pL} follows as
 \begin{equation}
-  \dot{p}_\mathrm{L} = \dot{p}_\mathrm{G} + \frac{2 \, \sigma \, \dot{R}}{R^2} + 4 \, \mu_\ell \left(\frac{\dot{R}^2}{R^2} - \frac{\ddot{R}}{R}\right).
+  \dot{p}_\mathrm{L} = \dot{p}_\mathrm{G} + \frac{2 \sigma \dot{R}}{R^2} + 4 \, \mu_\ell \left(\frac{\dot{R}^2}{R^2} - \frac{\ddot{R}}{R}\right).
   \label{eq:dotpL}
 \end{equation}
+
+The pressure of a power-law liquid at the wall of a spherical bubble is given as \citep{Kaykanat2024}
+\begin{equation}
+  p_\text{L} = p_\text{G} - \frac{2 \sigma}{R} - \frac{4 \, k^\star}{n} \, |\dot{R}|^{n-1} \frac{\dot{R}}{R^n}, \label{eq:pL_powerlaw}
+\end{equation}
+where $p_\text{G}$ is the gas pressure, see Section \ref{sec:gas}, $\sigma$ is the surface tension coefficient of the interface, see Section \ref{sec:interface}, $k^\star = k(2\sqrt{3})^{n-1}$ is an extended consistency coefficient \citep{Kaykanat2024}, and $n$ is the power-law exponent. The derivative of Eq.~\eqref{eq:pL_powerlaw} follows as
+\begin{equation}
+  \dot{p}_\mathrm{L} = \dot{p}_\mathrm{G} + \frac{2 \sigma \dot{R}}{R^2} + 4 \, k^\star \, |\dot{R}|^{n-3} \dot{R}^2 \, \left(\frac{\dot{R}^2}{R^2} - \frac{\ddot{R}}{R}\right).
+  \label{eq:dotpL_powerlaw}
+\end{equation}
+The power-law liquid, described by Eqs.~\eqref{eq:pL_powerlaw} and \eqref{eq:dotpL_powerlaw}, reduces to a Newtonian liquid, described by Eqs.~\eqref{eq:pL} and \eqref{eq:dotpL}, for $n=1$ and $k = \mu_\ell$.
 
 \subsection{Equation of state}
 
@@ -285,7 +299,7 @@ After inserting Eq.~\eqref{eq:varsigma_lambdaNull} into Eq.~\eqref{eq:pL_Zener} 
 
 \subsubsection{Oldroyd-B model}
 
-The Oldroyd-B model is a widely used constitutive model for viscoelastic fluids. 
+The Oldroyd-B model is a widely used constitutive model for viscoelastic liquids. 
 Following the work of \citet{Jimenez-Fernandez2005}, the liquid pressure at the bubble wall including the Oldroyd-B model is given as
 \begin{equation}
      p_\text{L} = p_\text{G} - \frac{2 \sigma}{R} - 4 \mu_\ell \frac{\dot{R}}{R} + \mathcal{S} \label{eq:pL_OldroydB}.
@@ -301,7 +315,7 @@ These ODEs are reformulated in a similar manner as for the Zener model shown abo
     \mathcal{S}_{1,n+1} &= \mathcal{S}_{1,n} + \Updelta t \frac{-\left(4 \lambda_\ell \dfrac{\dot{R}}{R}+1\right) \mathcal{S}_{1,n}- 2 \eta_\ell \dfrac{\dot{R}}{R}}{\lambda_\ell+\Updelta t} \label{eq:ode_oldroydB1disc} \\
     \mathcal{S}_{2,n+1} &= \mathcal{S}_{2,n} + \Updelta t \frac{-\left(\lambda_\ell \dfrac{\dot{R}}{R}+1\right) \mathcal{S}_{2,n}- 2 \eta_\ell \dfrac{\dot{R}}{R}}{\lambda_\ell+\Updelta t}.\label{eq:ode_oldroydB2disc}
 \end{align}
-For $\lambda_\ell = 0$ Eqs.~\eqref{eq:ode_oldroydB1disc} and \eqref{eq:ode_oldroydB2disc} still give a meaningful result and reduce to a Newtonian fluid with $\mathcal{S} = - 4 \eta_\ell \dot{R}/R$.
+For $\lambda_\ell = 0$ Eqs.~\eqref{eq:ode_oldroydB1disc} and \eqref{eq:ode_oldroydB2disc} still give a meaningful result and reduce to a Newtonian liquid with $\mathcal{S} = - 4 \eta_\ell \dot{R}/R$.
 
 \section{The interface}
 \label{sec:interface}
