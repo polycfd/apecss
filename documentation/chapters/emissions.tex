@@ -10,7 +10,7 @@ Modeling the acoustic emissions is a core feature of APECSS. To this end, APECSS
 \vspace{1mm} \\ \hline
 {\tt BUBBLE} & {\tt Emissions IC <float>} & Computes the acoustic emissions using the standard incompressible model, Section \ref{sec:emissionsic}.\\ 
 & {\tt Emissions FSIC <float>} & Computes the acoustic emissions using the finite-speed incompressible model, Section \ref{sec:emissionsfsic}.\\ 
-& {\tt Emissions QA <float>} & Computes the acoustic emissions using the quasi-acoustic model, Section \ref{sec:emissionsqa}.\\ 
+& {\tt Emissions QA <float>} & Computes the acoustic emissions using the quasi-acoustic model \citep{Coulombel2024}, Section \ref{sec:emissionsqa}.\\ 
 & {\tt Emissions EV <float>} & Computes the acoustic emissions based on the Kirkwood-Bethe hypothesis, Section \ref{sec:emissionskb}, with the explicit expression for velocity, see Eq.~\eqref{eq:u_rt}.\\ 
 & {\tt Emissions TIV <float>} & Computes the acoustic emissions using the model of \citet{Hickling1963} based on the Kirkwood-Bethe hypothesis, Section \ref{sec:emissionskb}, with the temporally-integrated velocity, see Eq.~\eqref{eq:dudt_rt}.\\ 
 & {\tt EmissionIntegration Euler} & Integrates the radial position and, if applicable, the velocity using an Euler scheme.\\
@@ -68,7 +68,7 @@ where $f(\tau)$ and $g(\tau)$ are invariants defined based on the result of the 
 \end{align}
 and $\tau$ is the time at which the acoustic information is emitted at the bubble wall. For $t=\tau$ with $r(t)=R(\tau)$, Eq.~(\ref{eq:u_rt_qa}) reduces to $u(R,\tau)=\dot{R}(\tau)$ and Eq.~(\ref{eq:p_rt_qa}) reduces to $p(R,\tau)=p_\mathrm{L}(\tau)$, thus satisfying the boundary conditions at the bubble wall. 
 
-The quasi-acoustic model is consistent in its modelling assumptions with the Keller-Miksis model, Eq.~\eqref{eq:keller}. The applicability of the quasi-acoustic model is limited to small Mach numbers, $(\dot{R}/c_0)^2 \ll 1$, as it incorporates a finite propagation speed of the acoustic emissions and the nonlinear pressure contributions resulting from the flow, but since all parts of the wave propagate with speed $c_0$, the quasi-acoustic model can neither describe the nonlinear distortion of acoustic waves nor the formation of shock fronts. 
+The quasi-acoustic model is consistent in its modelling assumptions with the Keller-Miksis model, Eq.~\eqref{eq:keller} \citep{Coulombel2024}. The applicability of the quasi-acoustic model is limited to small Mach numbers, $(\dot{R}/c_0)^2 \ll 1$, as it incorporates a finite propagation speed of the acoustic emissions and the nonlinear pressure contributions resulting from the flow, but since all parts of the wave propagate with speed $c_0$, the quasi-acoustic model can neither describe the nonlinear distortion of acoustic waves nor the formation of shock fronts. 
 
 \section{Finite-speed incompressible model}
 \label{sec:emissionsfsic}
