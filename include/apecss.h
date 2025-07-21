@@ -20,8 +20,8 @@
 #ifndef APECSS_H_
 #define APECSS_H_
 
-#define APECSS_VERSION_NUM (1.7)
-static const char APECSS_RELEASE_DATE[] = "27-Sep-2024";
+#define APECSS_VERSION_NUM (1.8)
+static const char APECSS_RELEASE_DATE[] = "21-Jul-2025";
 
 // -------------------------------------------------------------------
 // CONSTANTS & MACROS
