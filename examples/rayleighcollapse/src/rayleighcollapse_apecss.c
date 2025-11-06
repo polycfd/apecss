@@ -138,6 +138,7 @@ int main(int argc, char **args)
   /* Write out all desired results */
   apecss_results_rayleighplesset_write(Bubble, APECSS_RESULTS_WRITE);
   apecss_results_emissionsspace_write(Bubble, APECSS_RESULTS_WRITE);
+  apecss_results_emissionsnodeminmax_write(Bubble);
 
   /* Make sure all allocated memory is freed */
   apecss_bubble_freestruct(Bubble);
