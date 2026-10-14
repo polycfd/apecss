@@ -510,6 +510,7 @@ int apecss_bubble_initialize(struct APECSS_Bubble *Bubble);
 int apecss_bubble_solver_initialize(struct APECSS_Bubble *Bubble);
 int apecss_bubble_solver_finalize(struct APECSS_Bubble *Bubble);
 int apecss_bubble_solver_run(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
+int apecss_bubble_solver_run_one_step(APECSS_FLOAT tend, struct APECSS_Bubble *Bubble);
 int apecss_bubble_freestruct(struct APECSS_Bubble *Bubble);
 int apecss_bubble_solver_progress_initialnone();
 int apecss_bubble_solver_progress_initialscreen();
